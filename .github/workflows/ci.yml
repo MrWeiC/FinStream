@@ -1,0 +1,59 @@
+name: "Build 🔨"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches: [ main ]
+
+jobs:
+  ats-config:
+    name: "ATS Config ✅"
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate ATS configuration
+        run: swift Scripts/Checks/ValidateATSConfiguration.swift
+
+  build:
+    name: "Build 🔨"
+    if: false  # Disabled - requires tvOS 26 SDK
+    runs-on: macos-15
+
+    env:
+      XCODE_VERSION: "16.4"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SwiftGen
+        run: brew install swiftgen
+
+      - name: Cache Carthage
+        uses: actions/cache@v4
+        id: carthage-cache
+        with:
+          path: Carthage
+          key: ${{ runner.os }}-carthage-${{ hashFiles('**/Cartfile.resolved') }}
+          restore-keys: ${{ runner.os }}-carthage-
+
+      - name: Update Carthage
+        run: carthage update --use-xcframeworks --cache-builds
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project Swiftfin.xcodeproj \
+            -scheme "Swiftfin tvOS" \
+            -destination "generic/platform=tvOS Simulator" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO

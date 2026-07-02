@@ -1,0 +1,29 @@
+name: "Lint 🧹"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches: [ main ]
+
+jobs:
+  build:
+    name: "Lint 🧹"
+    if: github.event.pull_request.draft == false
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        run: swiftlint lint --reporter github-actions-logging
+
+      - name: Run Swiftformat
+        run: swiftformat . --lint --config ".swiftformat"

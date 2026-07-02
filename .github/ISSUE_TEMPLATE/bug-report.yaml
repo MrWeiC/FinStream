@@ -1,0 +1,173 @@
+name: Bug report
+description: Create a bug report
+type: Bug
+labels: [ bug ]
+# Note: GitHub doesn't support dynamic labels from dropdowns in issue templates.
+# Maintainers should apply severity/area labels after triage.
+body:
+  - type: markdown
+    id: introduction
+    attributes:
+      value: |
+        ### Thank you for taking the time to report an issue!
+
+  - type: checkboxes
+    id: before-posting
+    attributes:
+      label: "This issue respects the following points:"
+      description: Please help us by ensuring that you meet all the following conditions.
+      options:
+        - label: This is a **bug**, not a question or a configuration issue; Please visit our [forum or chat rooms](https://jellyfin.org/contact/) first to troubleshoot with volunteers, before creating a report.
+          required: true
+        - label: This issue is **not** already reported on [GitHub](https://github.com/jellyfin/FinStream/issues?q=is%3Aopen+is%3Aissue).
+          required: true
+        - label: I'm using an up to date version of FinStream; We generally do not support previous older versions. If possible, please update to the latest version before opening an issue.
+          required: true
+        - label: I agree to follow Jellyfin's [Code of Conduct](https://jellyfin.org/docs/general/community-standards.html#code-of-conduct).
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the bug
+      description: Please provide a detailed description of the bug you encountered, in a readable and comprehensible way.
+      placeholder: |
+        After updating to Build 75, the playback controls disappear when playing certain video files. The issue seems to occur specifically with files that have multiple audio tracks. I have tested this on my Apple TV 4K (3rd gen) running tvOS 18.2.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Reproduction steps
+      description: Provide clear, step-by-step instructions that anyone can follow to reproduce this issue.
+      placeholder: |
+        1. Open FinStream and navigate to your library
+        2. Select a video file with multiple audio tracks
+        3. Start playback
+        4. Swipe down on Siri Remote to access playback controls
+        5. Observe that controls do not appear
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Low - Minor issue, cosmetic
+        - Medium - Feature impaired, workaround exists
+        - High - Major feature broken, no workaround
+        - Critical - App crash, data loss, security issue
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: What part of the app is affected?
+      options:
+        - Playback - Video/audio playback
+        - Library - Media browsing, search
+        - UI - User interface, layout
+        - Authentication - Server connection, login
+        - Sync - Downloads, offline content
+        - Settings - Preferences, configuration
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: finstream-version
+    attributes:
+      label: FinStream version
+      description: The version/build of FinStream you are using
+      options:
+        - 1.0.0 (Build 81) - App Store
+        - 1.0.0 (Build 75)
+        - 1.0.0 (Build 74)
+        - 1.0.0 (Build 73)
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation-source
+    attributes:
+      label: Where did you install the app from?
+      description: Choose the appropriate app store or installation method.
+      options:
+        - App Store
+        - TestFlight (Beta)
+        - GitHub (self-built)
+
+  - type: dropdown
+    id: apple-tv-model
+    attributes:
+      label: Apple TV model
+      description: Which Apple TV are you using?
+      options:
+        - Apple TV 4K (3rd generation, 2022) - A2737/A2843
+        - Apple TV 4K (2nd generation, 2021) - A2169
+        - Apple TV 4K (1st generation, 2017) - A1842
+        - Apple TV HD (4th generation, 2015) - A1625
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tvos-version
+    attributes:
+      label: tvOS version
+      description: Which tvOS version is your Apple TV running?
+      options:
+        - tvOS 18.3
+        - tvOS 18.2
+        - tvOS 18.1
+        - tvOS 18.0
+        - tvOS 17.x
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: controller-type
+    attributes:
+      label: Controller/Remote
+      description: What are you using to control your Apple TV?
+      options:
+        - Siri Remote (3rd gen, 2022) - USB-C
+        - Siri Remote (2nd gen, 2021) - Lightning
+        - Siri Remote (1st gen) - Touch surface
+        - Apple TV Remote (silver, pre-Siri)
+        - iPhone/iPad Remote app
+        - PlayStation controller (DualSense/DualShock)
+        - Xbox controller
+        - Other game controller
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: Jellyfin server version
+      description: The version of your Jellyfin server. If on unstable, please specify the commit hash.
+      placeholder: 10.11.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or videos
+      description: Attach relevant screenshots or videos that demonstrate the issue.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output if available. This can help diagnose the issue faster.
+      render: shell

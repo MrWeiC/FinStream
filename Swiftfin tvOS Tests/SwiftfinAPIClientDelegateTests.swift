@@ -15,9 +15,9 @@ import XCTest
 @MainActor
 final class SwiftfinAPIClientDelegateTests: XCTestCase {
 
-    func testAuthorizationHeaderQuotesValuesWithSpaces() {
-        let configuration = JellyfinClient.Configuration(
-            url: URL(string: "http://jellyfin.local:8096")!,
+    func testAuthorizationHeaderQuotesValuesWithSpaces() throws {
+        let configuration = try JellyfinClient.Configuration(
+            url: XCTUnwrap(URL(string: "http://jellyfin.local:8096")),
             accessToken: "token with spaces",
             client: "Swiftfin Apple TV",
             deviceName: "Living Room",
@@ -33,9 +33,9 @@ final class SwiftfinAPIClientDelegateTests: XCTestCase {
         )
     }
 
-    func testAuthorizationHeaderOmitsMissingToken() {
-        let configuration = JellyfinClient.Configuration(
-            url: URL(string: "http://jellyfin.local:8096")!,
+    func testAuthorizationHeaderOmitsMissingToken() throws {
+        let configuration = try JellyfinClient.Configuration(
+            url: XCTUnwrap(URL(string: "http://jellyfin.local:8096")),
             client: "Swiftfin Apple TV",
             deviceName: "Living Room",
             deviceID: "tvOS_ABC123",
@@ -64,7 +64,7 @@ final class SwiftfinAPIClientDelegateTests: XCTestCase {
         XCTAssertEqual(L10n.addUser, "登录用户")
     }
 
-    func testSaveExistingRefreshesMissingAccessTokenEvenWithoutReplace() async {
+    func testSaveExistingRefreshesMissingAccessTokenEvenWithoutReplace() async throws {
         let user = UserState(
             id: "existing-user-missing-token",
             serverID: "server",
@@ -74,7 +74,7 @@ final class SwiftfinAPIClientDelegateTests: XCTestCase {
         let newAccessToken = "new-token"
         Container.shared.keychainService().delete(accessTokenKey)
 
-        let serverURL = URL(string: "http://jellyfin.local:8096")!
+        let serverURL = try XCTUnwrap(URL(string: "http://jellyfin.local:8096"))
         let viewModel = UserSignInViewModel(
             server: ServerState(
                 urls: [serverURL],
@@ -112,5 +112,4 @@ final class SwiftfinAPIClientDelegateTests: XCTestCase {
         Container.shared.keychainService().delete(accessTokenKey)
         _ = cancellables
     }
-
 }

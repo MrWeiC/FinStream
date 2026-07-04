@@ -49,7 +49,6 @@ struct SettingsView: View {
 
     // MARK: - Account and Server Section
 
-    @ViewBuilder
     private var accountAndServerSection: some View {
         Section(L10n.accountAndServer) {
             UserProfileRow(user: viewModel.userSession!.user.data) {

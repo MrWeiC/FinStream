@@ -69,7 +69,9 @@ final class FirstTimeAccountFlowAutomationTests: XCTestCase {
         guard let username, username.isNotEmpty,
               let password, password.isNotEmpty
         else {
-            throw XCTSkip("Set FINSTREAM_AUTOMATION_USERNAME and FINSTREAM_AUTOMATION_PASSWORD, or run Scripts/Automation/add_dev_user_from_env.py.")
+            throw XCTSkip(
+                "Set FINSTREAM_AUTOMATION_USERNAME and FINSTREAM_AUTOMATION_PASSWORD, or run Scripts/Automation/add_dev_user_from_env.py."
+            )
         }
 
         let serverURLString = environment["FINSTREAM_AUTOMATION_SERVER_URL"] ??

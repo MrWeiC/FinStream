@@ -92,14 +92,12 @@ struct ConnectToServerView: View {
         }
     }
 
-    @ViewBuilder
     private var connectSection: some View {
         Section(L10n.connectToServer) {
             manualAddressFields
         }
     }
 
-    @ViewBuilder
     private var manualAddressSection: some View {
         Section {
             if isShowingManualAddress {

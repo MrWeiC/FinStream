@@ -152,27 +152,27 @@ struct VideoPlayerSettingsView: View {
 
             // SECTION: Audio Normalization (ReplayGain)
             Section {
-                Toggle("Volume Normalization", isOn: $replayGainEnabled)
+                Toggle(L10n.volumeNormalization, isOn: $replayGainEnabled)
 
                 if replayGainEnabled {
                     ListRowMenu(
-                        "Mode",
+                        L10n.mode,
                         selection: $replayGainMode
                     )
 
                     ChevronButton(
-                        "Pre-Amp",
+                        L10n.preAmp,
                         subtitle: formatPreAmp(replayGainPreAmp)
                     ) {
                         isPresentingPreAmpStepper = true
                     }
 
-                    Toggle("Prevent Clipping", isOn: $replayGainPreventClipping)
+                    Toggle(L10n.preventClipping, isOn: $replayGainPreventClipping)
                 }
             } header: {
-                Text("Audio Normalization")
+                Text(L10n.audioNormalization)
             } footer: {
-                Text("Adjusts volume between tracks for consistent listening. Requires server audio normalization scan.")
+                Text(L10n.audioNormalizationDescription)
             }
 
             // SECTION: Subtitles
@@ -194,7 +194,7 @@ struct VideoPlayerSettingsView: View {
                         .frame(width: 20, height: 20)
                 } content: {
                     Picker(L10n.subtitleColor, selection: $subtitleColor) {
-                        Text("White").tag(Color.white)
+                        Text(L10n.white).tag(Color.white)
                         Text(L10n.yellow).tag(Color.yellow)
                         Text(L10n.red).tag(Color.red)
                         Text(L10n.green).tag(Color.green)
@@ -223,9 +223,9 @@ struct VideoPlayerSettingsView: View {
                     isPresentingSubtitleOffsetStepper = true
                 }
             } header: {
-                Text("Sync")
+                Text(L10n.sync)
             } footer: {
-                Text("Adjust audio and subtitle sync in milliseconds")
+                Text(L10n.syncDescription)
             }
         }
         .navigationTitle(L10n.videoPlayer.localizedCapitalized)
@@ -252,8 +252,8 @@ struct VideoPlayerSettingsView: View {
         }
         .blurredFullScreenCover(isPresented: $isPresentingAudioOffsetStepper) {
             StepperView(
-                title: "Audio Offset",
-                description: "Adjust audio sync in milliseconds",
+                title: L10n.audioOffset,
+                description: L10n.audioOffsetDescription,
                 value: $audioOffset,
                 range: -5000 ... 5000,
                 step: 100
@@ -263,8 +263,8 @@ struct VideoPlayerSettingsView: View {
         }
         .blurredFullScreenCover(isPresented: $isPresentingSubtitleOffsetStepper) {
             StepperView(
-                title: "Subtitle Offset",
-                description: "Adjust subtitle sync in milliseconds",
+                title: L10n.subtitleOffset,
+                description: L10n.subtitleOffsetDescription,
                 value: $subtitleOffset,
                 range: -5000 ... 5000,
                 step: 100
@@ -274,8 +274,8 @@ struct VideoPlayerSettingsView: View {
         }
         .blurredFullScreenCover(isPresented: $isPresentingPreAmpStepper) {
             StepperView(
-                title: "Pre-Amp",
-                description: "Additional gain adjustment. Positive values increase volume, negative decrease.",
+                title: L10n.preAmp,
+                description: L10n.preAmpDescription,
                 value: $replayGainPreAmp,
                 range: -12 ... 12,
                 step: 1

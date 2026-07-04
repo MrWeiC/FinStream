@@ -27,6 +27,8 @@
 		62666E3227E5021E00EC0ECD /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62666E3127E5021E00EC0ECD /* UIKit.framework */; };
 			6C6178530A261AC4FD50E4DC /* MediaErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7283F82B960F951ABA41CDC /* MediaErrorTests.swift */; };
 			B6FD5626C1D953D86DA73199 /* NetworkErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */; };
+			C0D3A3002E18500000F1A001 /* SwiftfinAPIClientDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3A2FF2E18500000F1A001 /* SwiftfinAPIClientDelegateTests.swift */; };
+			C0D3A3022E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3A3012E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift */; };
 			EE9A94A7172E4DA099EED926 /* MediaPlayerItemAudioSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */; };
 			BD88CB422D77E6A0006BB5E3 /* TVOSPicker in Frameworks */ = {isa = PBXBuildFile; productRef = BD88CB412D77E6A0006BB5E3 /* TVOSPicker */; };
 			D04348C2BD461D556AC693DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1438DC36A93916AACE477B /* Foundation.framework */; };
@@ -139,6 +141,8 @@
 		6C1438DC36A93916AACE477B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		796E798440A8807BC2883549 /* Swiftfin tvOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Swiftfin tvOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7283F82B960F951ABA41CDC /* MediaErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaErrorTests.swift; sourceTree = "<group>"; };
+		C0D3A2FF2E18500000F1A001 /* SwiftfinAPIClientDelegateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftfinAPIClientDelegateTests.swift; sourceTree = "<group>"; };
+		C0D3A3012E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirstTimeAccountFlowAutomationTests.swift; sourceTree = "<group>"; };
 		E1B2AB9628808CDF0072B3B9 /* GoogleCast.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleCast.xcframework; path = Carthage/Build/GoogleCast.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -355,6 +359,8 @@
 					1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */,
 					B7283F82B960F951ABA41CDC /* MediaErrorTests.swift */,
 					E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */,
+					C0D3A2FF2E18500000F1A001 /* SwiftfinAPIClientDelegateTests.swift */,
+					C0D3A3012E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift */,
 				);
 				path = "Swiftfin tvOS Tests";
 				sourceTree = "<group>";
@@ -456,7 +462,7 @@
 			};
 			buildConfigurationList = 5377CBEC263B596A003A4E83 /* Build configuration list for PBXProject "Swiftfin" */;
 			compatibilityVersion = "Xcode 9.3";
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -642,6 +648,8 @@
 					B6FD5626C1D953D86DA73199 /* NetworkErrorTests.swift in Sources */,
 					6C6178530A261AC4FD50E4DC /* MediaErrorTests.swift in Sources */,
 					EE9A94A7172E4DA099EED926 /* MediaPlayerItemAudioSelectionTests.swift in Sources */,
+					C0D3A3002E18500000F1A001 /* SwiftfinAPIClientDelegateTests.swift in Sources */,
+					C0D3A3022E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift in Sources */,
 				);
 				runOnlyForDeploymentPostprocessing = 0;
 			};

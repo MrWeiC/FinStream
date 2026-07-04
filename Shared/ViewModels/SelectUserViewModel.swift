@@ -9,6 +9,7 @@
 import Combine
 import CoreStore
 import Foundation
+import Get
 import JellyfinAPI
 import KeychainSwift
 import OrderedCollections
@@ -22,11 +23,12 @@ final class SelectUserViewModel: ViewModel {
         case deleteUsers(Set<UserState>)
         case error
         case getServers
-        case signIn(UserState, pin: String)
+        case signIn(UserState, server: ServerState, pin: String)
     }
 
     enum Event {
         case error
+        case expiredSession(UserState, ServerState)
         case signedIn(UserState)
     }
 
@@ -73,13 +75,43 @@ final class SelectUserViewModel: ViewModel {
     }
 
     @Function(\Action.Cases.signIn)
-    private func _signIn(_ user: UserState, _ pin: String) throws {
+    private func _signIn(_ user: UserState, _ server: ServerState, _ pin: String) async throws {
+        guard user.hasAccessToken else {
+            events.send(.expiredSession(user, server))
+            return
+        }
+
         if user.accessPolicy == .requirePin, let storedPin = keychain.get("\(user.id)-pin") {
             guard pin == storedPin else {
                 throw ErrorMessage(L10n.incorrectPinForUser(user.username))
             }
         }
 
+        do {
+            _ = try await user.getUserData(server: server)
+        } catch {
+            if error.isUnauthorizedResponse {
+                user.accessToken = ""
+                events.send(.expiredSession(user, server))
+                return
+            }
+
+            throw error
+        }
+
         events.send(.signedIn(user))
+    }
+}
+
+private extension Error {
+
+    var isUnauthorizedResponse: Bool {
+        guard let apiError = self as? APIError,
+              case APIError.unacceptableStatusCode(401) = apiError
+        else {
+            return false
+        }
+
+        return true
     }
 }

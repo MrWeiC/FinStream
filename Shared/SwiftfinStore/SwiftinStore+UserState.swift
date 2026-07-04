@@ -44,6 +44,14 @@ extension UserState {
 
     typealias Key = StoredValues.Key
 
+    var hasAccessToken: Bool {
+        guard let accessToken = Container.shared.keychainService().get("\(id)-accessToken") else {
+            return false
+        }
+
+        return accessToken.isNotEmpty
+    }
+
     var accessToken: String {
         get {
             guard let accessToken = Container.shared.keychainService().get("\(id)-accessToken") else {
@@ -157,11 +165,13 @@ extension UserState {
     /// Must pass the server to create a JellyfinClient
     /// with an access token
     func getUserData(server: ServerState) async throws -> UserDto {
-        let client = JellyfinClient(
-            configuration: .swiftfinConfiguration(url: server.currentURL),
+        let client = JellyfinClient.swiftfinClient(
+            configuration: .swiftfinConfiguration(
+                url: server.currentURL,
+                accessToken: accessToken
+            ),
             sessionConfiguration: .swiftfin,
-            sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.swiftfin()),
-            accessToken: accessToken
+            sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.swiftfin())
         )
 
         let request = Paths.getCurrentUser

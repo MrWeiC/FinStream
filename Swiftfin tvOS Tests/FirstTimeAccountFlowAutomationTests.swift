@@ -1,0 +1,373 @@
+//
+// Swiftfin is subject to the terms of the Mozilla Public
+// License, v2.0. If a copy of the MPL was not distributed with this
+// file, you can obtain one at https://mozilla.org/MPL/2.0/.
+//
+// Copyright (c) 2026 Jellyfin & Jellyfin Contributors
+//
+
+import Combine
+import CoreStore
+import Defaults
+import Factory
+import JellyfinAPI
+@testable import Swiftfin_tvOS
+import XCTest
+
+@MainActor
+final class FirstTimeAccountFlowAutomationTests: XCTestCase {
+
+    private struct Credentials {
+        let serverURL: URL
+        let username: String
+        let password: String
+    }
+
+    private var cancellables: Set<AnyCancellable> = []
+
+    override func tearDown() {
+        cancellables.removeAll()
+        super.tearDown()
+    }
+
+    func testDevServerCanBeAddedFromEmptyLocalState() async throws {
+        let credentials = try loadCredentials()
+
+        await prepareDataStack()
+        try await resetLocalState()
+
+        XCTAssertTrue(try SwiftfinStore.dataStack.fetchAll(From<ServerModel>()).isEmpty)
+        XCTAssertTrue(try SwiftfinStore.dataStack.fetchAll(From<UserModel>()).isEmpty)
+
+        let server = try await connectToServer(credentials.serverURL)
+        try await verifyRediscoveredAddressSwitch(for: server)
+
+        let user = try await signInAndSaveUser(
+            username: credentials.username,
+            password: credentials.password,
+            server: server
+        )
+        let selectedUser = try await signInSavedUser(user, server: server)
+
+        let session = UserSession(server: server, user: selectedUser)
+        let remoteUser = try await selectedUser.getUserData(server: server)
+        try await validateHomeRequests(session: session)
+
+        XCTAssertEqual(session.server.id, server.id)
+        XCTAssertEqual(session.user.id, user.id)
+        XCTAssertEqual(remoteUser.id, user.id)
+        XCTAssertTrue(session.user.hasAccessToken)
+    }
+
+    private func loadCredentials() throws -> Credentials {
+        let environment = ProcessInfo.processInfo.environment
+
+        let defaults = UserDefaults.standard
+        let username = environment["FINSTREAM_AUTOMATION_USERNAME"] ?? defaults.string(forKey: "FINSTREAM_AUTOMATION_USERNAME")
+        let password = environment["FINSTREAM_AUTOMATION_PASSWORD"] ?? defaults.string(forKey: "FINSTREAM_AUTOMATION_PASSWORD")
+
+        guard let username, username.isNotEmpty,
+              let password, password.isNotEmpty
+        else {
+            throw XCTSkip("Set FINSTREAM_AUTOMATION_USERNAME and FINSTREAM_AUTOMATION_PASSWORD, or run Scripts/Automation/add_dev_user_from_env.py.")
+        }
+
+        let serverURLString = environment["FINSTREAM_AUTOMATION_SERVER_URL"] ??
+            defaults.string(forKey: "FINSTREAM_AUTOMATION_SERVER_URL") ??
+            "http://192.168.86.88:8096"
+        guard let serverURL = URL(string: serverURLString) else {
+            throw XCTSkip("FINSTREAM_AUTOMATION_SERVER_URL is not a valid URL.")
+        }
+
+        return Credentials(
+            serverURL: serverURL,
+            username: username,
+            password: password
+        )
+    }
+
+    private func prepareDataStack() async {
+        try? await SwiftfinStore.setupDataStack()
+    }
+
+    private func resetLocalState() async throws {
+        Notifications[.didSignOut].post()
+        await Task.yield()
+
+        Defaults[.lastSignedInUserID] = .signedOut
+        Defaults[.selectUserServerSelection] = .all
+        Container.shared.currentUserSession.reset()
+
+        let users = try SwiftfinStore.dataStack
+            .fetchAll(From<UserModel>())
+            .compactMap(\.state)
+        for user in users {
+            try user.delete()
+        }
+
+        let servers = try SwiftfinStore.dataStack
+            .fetchAll(From<ServerModel>())
+            .map(\.state)
+        for server in servers {
+            try server.delete()
+        }
+    }
+
+    private func connectToServer(_ serverURL: URL) async throws -> ServerState {
+        let viewModel = ConnectToServerViewModel()
+        let finished = expectation(description: "server connection finished")
+
+        var connectedServer: ServerState?
+        var unexpectedFailure: String?
+
+        viewModel.events
+            .sink { event in
+                switch event {
+                case let .connected(server):
+                    connectedServer = server
+                    finished.fulfill()
+                case .duplicateServer:
+                    unexpectedFailure = "Expected an empty local store, but the server already exists."
+                    finished.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.$error
+            .compactMap { $0 }
+            .sink { error in
+                unexpectedFailure = error.localizedDescription
+                finished.fulfill()
+            }
+            .store(in: &cancellables)
+
+        await viewModel.connect(url: serverURL.absoluteString)
+        await fulfillment(of: [finished], timeout: 30)
+
+        if let unexpectedFailure {
+            XCTFail(unexpectedFailure)
+        }
+
+        return try XCTUnwrap(connectedServer)
+    }
+
+    private func verifyRediscoveredAddressSwitch(for server: ServerState) async throws {
+        let rediscoveredURL = try XCTUnwrap(URL(string: "http://192.0.2.10:8096"))
+        let rediscoveredServer = ServerState(
+            urls: [rediscoveredURL],
+            currentURL: rediscoveredURL,
+            name: server.name,
+            id: server.id,
+            usersIDs: []
+        )
+
+        let switchedServer = try await applyDiscoveredAddress(rediscoveredServer)
+        XCTAssertEqual(switchedServer.id, server.id)
+        XCTAssertEqual(switchedServer.currentURL, rediscoveredURL)
+        XCTAssertTrue(switchedServer.urls.contains(server.currentURL))
+        XCTAssertTrue(switchedServer.urls.contains(rediscoveredURL))
+
+        let restoredServer = ServerState(
+            urls: [server.currentURL],
+            currentURL: server.currentURL,
+            name: server.name,
+            id: server.id,
+            usersIDs: []
+        )
+
+        let restored = try await applyDiscoveredAddress(restoredServer)
+        XCTAssertEqual(restored.currentURL, server.currentURL)
+        XCTAssertTrue(restored.urls.contains(rediscoveredURL))
+    }
+
+    private func applyDiscoveredAddress(_ server: ServerState) async throws -> ServerState {
+        let viewModel = ConnectToServerViewModel()
+        let connected = expectation(description: "discovered address connected")
+        let notified = expectation(description: "current server URL changed")
+
+        var connectedServer: ServerState?
+        var notifiedServer: ServerState?
+        var unexpectedFailure: String?
+
+        viewModel.events
+            .sink { event in
+                switch event {
+                case let .connected(server):
+                    guard connectedServer == nil else { return }
+                    connectedServer = server
+                    connected.fulfill()
+                case .duplicateServer:
+                    guard unexpectedFailure == nil, connectedServer == nil else { return }
+                    unexpectedFailure = "Expected discovered address to be saved, not re-reported as duplicate."
+                    connected.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.$error
+            .compactMap { $0 }
+            .sink { error in
+                guard unexpectedFailure == nil, connectedServer == nil else { return }
+                unexpectedFailure = error.localizedDescription
+                connected.fulfill()
+            }
+            .store(in: &cancellables)
+
+        Notifications[.didChangeCurrentServerURL]
+            .publisher
+            .sink { changedServer in
+                guard changedServer.id == server.id else { return }
+                guard notifiedServer == nil else { return }
+                notifiedServer = changedServer
+                notified.fulfill()
+            }
+            .store(in: &cancellables)
+
+        await viewModel.addNewURL(serverState: server)
+        await fulfillment(of: [connected, notified], timeout: 10)
+
+        if let unexpectedFailure {
+            XCTFail(unexpectedFailure)
+        }
+
+        let connectedResult = try XCTUnwrap(connectedServer)
+        let notificationResult = try XCTUnwrap(notifiedServer)
+        XCTAssertEqual(notificationResult.currentURL, connectedResult.currentURL)
+
+        let storedServer = try XCTUnwrap(
+            try SwiftfinStore.dataStack.fetchOne(From<ServerModel>().where(\.$id == server.id))?.state
+        )
+        XCTAssertEqual(storedServer.currentURL, connectedResult.currentURL)
+        XCTAssertEqual(storedServer.urls, connectedResult.urls)
+
+        return connectedResult
+    }
+
+    private func signInAndSaveUser(
+        username: String,
+        password: String,
+        server: ServerState
+    ) async throws -> UserState {
+        let viewModel = UserSignInViewModel(server: server)
+        let signedIn = expectation(description: "user signed in")
+
+        var connectedUser: UserSignInViewModel.UserStateDataPair?
+        var unexpectedFailure: String?
+
+        viewModel.events
+            .sink { event in
+                switch event {
+                case let .connected(user):
+                    connectedUser = user
+                    signedIn.fulfill()
+                case .existingUser:
+                    unexpectedFailure = "Expected an empty local store, but the user already exists."
+                    signedIn.fulfill()
+                case .saved:
+                    break
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.$error
+            .compactMap { $0 }
+            .sink { error in
+                unexpectedFailure = error.localizedDescription
+                signedIn.fulfill()
+            }
+            .store(in: &cancellables)
+
+        await viewModel.signIn(username: username, password: password)
+        await fulfillment(of: [signedIn], timeout: 30)
+
+        if let unexpectedFailure {
+            XCTFail(unexpectedFailure)
+        }
+
+        let user = try XCTUnwrap(connectedUser)
+        let saved = expectation(description: "user saved")
+        var savedUser: UserState?
+
+        viewModel.events
+            .sink { event in
+                if case let .saved(user) = event {
+                    savedUser = user
+                    saved.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        await viewModel.save(
+            user: user,
+            authenticationAction: (
+                LocalUserAuthenticationAction { _, _ in EmptyEvaluatedUserAccessPolicy() },
+                .none,
+                nil
+            ),
+            evaluatedPolicyMap: .init { $0 }
+        )
+        await fulfillment(of: [saved], timeout: 10)
+
+        return try XCTUnwrap(savedUser)
+    }
+
+    private func signInSavedUser(_ user: UserState, server: ServerState) async throws -> UserState {
+        let viewModel = SelectUserViewModel()
+        let signedIn = expectation(description: "saved user signed in")
+
+        var selectedUser: UserState?
+        var unexpectedFailure: String?
+
+        viewModel.events
+            .sink { event in
+                switch event {
+                case let .signedIn(user):
+                    selectedUser = user
+                    signedIn.fulfill()
+                case .expiredSession:
+                    unexpectedFailure = "Expected the saved Jellyfin token to remain valid."
+                    signedIn.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.$error
+            .compactMap { $0 }
+            .sink { error in
+                unexpectedFailure = error.localizedDescription
+                signedIn.fulfill()
+            }
+            .store(in: &cancellables)
+
+        await viewModel.signIn(user, server: server, pin: "")
+        await fulfillment(of: [signedIn], timeout: 30)
+
+        if let unexpectedFailure {
+            XCTFail(unexpectedFailure)
+        }
+
+        return try XCTUnwrap(selectedUser)
+    }
+
+    private func validateHomeRequests(session: UserSession) async throws {
+        var resumeParameters = Paths.GetResumeItemsParameters()
+        resumeParameters.userID = session.user.id
+        resumeParameters.enableUserData = true
+        resumeParameters.fields = .MinimumFields
+        resumeParameters.mediaTypes = [.video]
+        resumeParameters.limit = 20
+
+        var itemParameters = Paths.GetItemsByUserIDParameters()
+        itemParameters.enableUserData = true
+        itemParameters.fields = .MinimumFields
+        itemParameters.includeItemTypes = BaseItemKind.supportedCases
+        itemParameters.sortOrder = [.ascending]
+        itemParameters.sortBy = [ItemSortBy.name.rawValue]
+        itemParameters.isRecursive = true
+        itemParameters.limit = 20
+
+        _ = try await session.client.send(Paths.getUserViews(parameters: .init(userID: session.user.id)))
+        _ = try await session.client.send(Paths.getResumeItems(parameters: resumeParameters))
+        _ = try await session.client.send(Paths.getItemsByUserID(userID: session.user.id, parameters: itemParameters))
+    }
+}

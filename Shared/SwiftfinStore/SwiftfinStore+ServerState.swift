@@ -39,7 +39,7 @@ extension SwiftfinStore.State {
         /// - Note: Since this is created from a server, it does not
         ///         have a user access token.
         var client: JellyfinClient {
-            JellyfinClient(
+            JellyfinClient.swiftfinClient(
                 configuration: .swiftfinConfiguration(url: currentURL),
                 sessionConfiguration: .swiftfin,
                 sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.swiftfin())

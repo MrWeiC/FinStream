@@ -43,7 +43,33 @@ Swiftfin follows the same Pull Request Guidelines as outlined in the [Jellyfin P
 
 If a Pull Request relates to an Issue, mention the issue correctly in the PR description.
 
-[SwiftFormat](https://github.com/nicklockwood/SwiftFormat) is our linter. `swiftformat .` can be run in the project directory or install SwiftFormat's Xcode extension.
+[SwiftLint](https://github.com/realm/SwiftLint) and [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) are used for local checks. `swiftformat .` can be run in the project directory or install SwiftFormat's Xcode extension.
+
+### Before Opening a Pull Request
+
+GitHub Actions run automatically for pull requests and pushes to `main`, so please run the same checks locally before opening a PR. This keeps CI minutes focused on confirmation instead of catching issues that can be found on your machine first.
+
+Install the command line tools if needed:
+
+```bash
+brew install swiftlint swiftformat swiftgen
+```
+
+Run the pre-PR checks from the repository root:
+
+```bash
+swift Scripts/Checks/ValidateATSConfiguration.swift
+swiftlint lint
+swiftformat . --lint --config ".swiftformat"
+xcodebuild build \
+  -project Swiftfin.xcodeproj \
+  -scheme "Swiftfin tvOS" \
+  -destination "generic/platform=tvOS Simulator" \
+  CODE_SIGN_IDENTITY="" \
+  CODE_SIGNING_REQUIRED=NO
+```
+
+If a local SDK or dependency issue prevents the build from running, note that in the PR description and include the checks that did run.
 
 The following must pass in order for a PR to be merged:
 - automated `iOS` and `tvOS` builds must succeed

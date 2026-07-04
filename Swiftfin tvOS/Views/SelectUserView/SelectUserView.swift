@@ -40,6 +40,8 @@ struct SelectUserView: View {
     private var scrollViewOffset: CGFloat = 0
     @State
     private var selectedUsers: Set<UserState> = []
+    @State
+    private var selectedPinUserItem: UserItem? = nil
 
     // MARK: - Dialog States
 
@@ -108,8 +110,14 @@ struct SelectUserView: View {
 
     // MARK: - Select User(s)
 
-    private func select(user: UserState, needsPin: Bool = true) {
+    private func select(user: UserState, server: ServerState, needsPin: Bool = true) {
         selectedUsers.insert(user)
+
+        guard user.hasAccessToken else {
+            selectedUsers.removeAll()
+            router.route(to: .userSignIn(server: server))
+            return
+        }
 
         switch user.accessPolicy {
         case .requireDeviceAuthentication:
@@ -117,13 +125,14 @@ struct SelectUserView: View {
             break
         case .requirePin:
             if needsPin {
+                selectedPinUserItem = (user: user, server: server)
                 isPresentingLocalPin = true
                 return
             }
         case .none: ()
         }
 
-        viewModel.signIn(user, pin: pin)
+        viewModel.signIn(user, server: server, pin: pin)
     }
 
     // MARK: - Grid Content View
@@ -146,7 +155,7 @@ struct SelectUserView: View {
                 if isEditingUsers {
                     selectedUsers.toggle(value: user)
                 } else {
-                    select(user: user)
+                    select(user: user, server: server)
                 }
             } onDelete: {
                 selectedUsers.insert(user)
@@ -295,6 +304,7 @@ struct SelectUserView: View {
                 pin = ""
             } else {
                 selectedUsers.removeAll()
+                selectedPinUserItem = nil
             }
         }
         .onChange(of: viewModel.servers.keys) {
@@ -315,6 +325,9 @@ struct SelectUserView: View {
         }
         .onReceive(viewModel.events) { event in
             switch event {
+            case let .expiredSession(_, server):
+                selectedUsers.removeAll()
+                router.route(to: .userSignIn(server: server))
             case let .signedIn(user):
                 Defaults[.lastSignedInUserID] = .signedIn(userID: user.id)
                 Container.shared.currentUserSession.reset()
@@ -324,6 +337,7 @@ struct SelectUserView: View {
         .onNotification(.didConnectToServer) { server in
             viewModel.getServers()
             serverSelection = .server(id: server.id)
+            router.route(to: .userSignIn(server: server))
         }
         .onNotification(.didChangeCurrentServerURL) { _ in
             viewModel.getServers()
@@ -351,19 +365,23 @@ struct SelectUserView: View {
                 .keyboardType(.numberPad)
 
             Button(L10n.signIn) {
-                guard let user = selectedUsers.first else {
+                guard let selectedPinUserItem else {
                     assertionFailure("User not selected")
                     return
                 }
-                select(user: user, needsPin: false)
+                select(
+                    user: selectedPinUserItem.user,
+                    server: selectedPinUserItem.server,
+                    needsPin: false
+                )
             }
 
             Button(L10n.cancel, role: .cancel) {}
         } message: {
-            if let user = selectedUsers.first, user.pinHint.isNotEmpty {
+            if let user = selectedPinUserItem?.user, user.pinHint.isNotEmpty {
                 Text(user.pinHint)
             } else {
-                let username = selectedUsers.first?.username ?? .emptyDash
+                let username = selectedPinUserItem?.user.username ?? .emptyDash
 
                 Text(L10n.enterPinForUser(username))
             }

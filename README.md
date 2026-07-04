@@ -44,6 +44,8 @@ FinStream is free and open source under the MPL 2.0 license. You can build it yo
 
 See the [Documentation](Documentation/) directory for build details.
 
+Before opening a pull request, run the local validation commands in [Contributing](Documentation/contributing.md#before-opening-a-pull-request) so GitHub Actions are used for confirmation rather than first-pass lint or build failures.
+
 ---
 
 ## Acknowledgments

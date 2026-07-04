@@ -18,6 +18,8 @@
 	<string>1</string>
 	<key>CFBundleDisplayName</key>
 	<string>FinStream</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh-Hans</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>youtube</string>
@@ -30,7 +32,7 @@
 		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>FinStream needs local network access to discover and connect to your Jellyfin media server.</string>
+	<string>FinStream 需要本地网络权限来发现并连接你的 Jellyfin 媒体服务器。</string>
 	<key>UIDesignRequiresCompatibility</key>
 	<true/>
 	<key>UILaunchScreen</key>

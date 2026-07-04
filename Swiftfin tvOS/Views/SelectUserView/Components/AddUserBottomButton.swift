@@ -25,8 +25,8 @@ extension SelectUserView {
             Label(L10n.addUser, systemImage: "plus")
                 .foregroundStyle(Color.primary)
                 .font(.body.weight(.semibold))
-                .labelStyle(.iconOnly)
-                .frame(width: 50, height: 50)
+                .frame(minWidth: 160, minHeight: 50)
+                .padding(.horizontal, 8)
         }
 
         // MARK: - Initializer
@@ -48,7 +48,7 @@ extension SelectUserView {
                 tracking: selectedServer,
                 action: action
             ) {
-                Text(L10n.selectServer)
+                Text(L10n.selectServerToSignIn)
 
                 ForEach(servers) { server in
                     Button {
@@ -61,6 +61,7 @@ extension SelectUserView {
             } label: {
                 label
             }
+            .accessibilityLabel(L10n.addUser)
         }
     }
 }

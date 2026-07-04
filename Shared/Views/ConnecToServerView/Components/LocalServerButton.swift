@@ -15,15 +15,40 @@ extension ConnectToServerView {
     struct LocalServerButton: View {
 
         let server: ServerState
+        let storedServer: ServerState?
         let action: () -> Void
+
+        private var addressStatus: String {
+            guard let storedServer else {
+                return L10n.serverAddressAvailable
+            }
+
+            if storedServer.currentURL == server.currentURL {
+                return L10n.serverAddressCurrent
+            } else if storedServer.urls.contains(server.currentURL) {
+                return L10n.serverAddressSaved
+            } else {
+                return L10n.serverAddressNew
+            }
+        }
 
         var body: some View {
             Button(action: action) {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(server.name)
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                        HStack(spacing: 8) {
+                            Text(server.name)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+
+                            Text(addressStatus)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.secondarySystemFill)
+                                .clipShape(Capsule())
+                        }
 
                         Text(server.currentURL.absoluteString)
                             .font(.subheadline)

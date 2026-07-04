@@ -208,9 +208,9 @@ enum PreviewImageScrubbingOption: CaseIterable, Displayable, Hashable, Storable 
 
     var displayTitle: String {
         switch self {
-        case .trickplay: "Trickplay"
+        case .trickplay: L10n.trickplayPreview
         case .disabled: L10n.disabled
-        case .chapters: "Chapters"
+        case .chapters: L10n.chapterImages
         }
     }
 

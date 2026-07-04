@@ -34,12 +34,9 @@ struct SettingsView: View {
 
     var body: some View {
         Form(image: .finstreamLogo) {
-            serverSection
-            #if os(tvOS)
-            librarySection
-            #endif
+            accountAndServerSection
             videoPlayerSection
-            customizationSection
+            mediaAndAppearanceSection
             diagnosticsSection
         }
         #if os(iOS)
@@ -50,11 +47,10 @@ struct SettingsView: View {
         #endif
     }
 
-    // MARK: - Server Section
+    // MARK: - Account and Server Section
 
-    @ViewBuilder
-    private var serverSection: some View {
-        Section {
+    private var accountAndServerSection: some View {
+        Section(L10n.accountAndServer) {
             UserProfileRow(user: viewModel.userSession!.user.data) {
                 router.route(to: .userProfile(viewModel: viewModel))
             }
@@ -67,14 +63,7 @@ struct SettingsView: View {
             ) {
                 EmptyView()
             } subtitle: {
-                Label {
-                    Text(viewModel.userSession!.server.name)
-                } icon: {
-                    if !viewModel.userSession!.server.isVersionCompatible {
-                        Image(systemName: "exclamationmark.circle.fill")
-                    }
-                }
-                .labelStyle(.sectionFooterWithImage(imageStyle: .orange))
+                serverSubtitle
             }
 
             #if os(iOS)
@@ -84,35 +73,40 @@ struct SettingsView: View {
                 }
             }
             #endif
-        }
 
-        Section {
-            Button(L10n.switchUser) {
+            Button {
                 UIDevice.impact(.medium)
                 viewModel.signOut()
                 router.dismiss()
+            } label: {
+                Label(L10n.switchUser, systemImage: "person.2")
             }
-            .buttonStyle(.primary)
-            .foregroundStyle(accentColor.overlayColor, accentColor)
+            .buttonStyle(.borderless)
+            .foregroundStyle(.primary)
         }
     }
 
-    // MARK: - Library Section
-
-    #if os(tvOS)
-    private var librarySection: some View {
-        Section(L10n.library) {
-            ChevronButton(L10n.media) {
-                router.route(to: .media)
+    private var serverSubtitle: some View {
+        VStack(alignment: .trailing, spacing: 3) {
+            Label {
+                Text(viewModel.userSession!.server.name)
+            } icon: {
+                if !viewModel.userSession!.server.isVersionCompatible {
+                    Image(systemName: "exclamationmark.circle.fill")
+                }
             }
+            .labelStyle(.sectionFooterWithImage(imageStyle: .orange))
+
+            Text(viewModel.userSession!.server.currentURL.host ?? viewModel.userSession!.server.currentURL.absoluteString)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
-    #endif
 
-    // MARK: - Video Player Section
+    // MARK: - Playback Section
 
     private var videoPlayerSection: some View {
-        Section(L10n.videoPlayer) {
+        Section(L10n.playback) {
             #if os(iOS)
             Picker(L10n.videoPlayerType, selection: $videoPlayerType)
 
@@ -142,11 +136,17 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Customization Section
+    // MARK: - Media and Appearance Section
 
     @ViewBuilder
-    private var customizationSection: some View {
-        Section(L10n.accessibility) {
+    private var mediaAndAppearanceSection: some View {
+        Section(L10n.mediaAndAppearance) {
+            #if os(tvOS)
+            ChevronButton(L10n.media) {
+                router.route(to: .media)
+            }
+            #endif
+
             #if os(iOS)
             Picker(L10n.appearance, selection: $appearance)
             #endif
@@ -168,12 +168,13 @@ struct SettingsView: View {
     // MARK: - Diagnostics Section
 
     private var diagnosticsSection: some View {
-        Section {
-            #if DEBUG || !os(tvOS)
-            ChevronButton(L10n.logs) {
-                router.route(to: .log)
+        Section(L10n.advancedAndDiagnostics) {
+            ChevronButton(
+                L10n.diagnostics,
+                subtitle: L10n.diagnosticsDescription
+            ) {
+                router.route(to: .diagnostics)
             }
-            #endif
 
             #if DEBUG && os(iOS)
             ChevronButton("Debug") {

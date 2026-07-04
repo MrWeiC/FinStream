@@ -50,7 +50,7 @@ extension SelectUserView {
                 tracking: selectedServer,
                 action: action
             ) {
-                Text(L10n.selectServer)
+                Text(L10n.selectServerToSignIn)
 
                 ForEach(servers) { server in
                     Button {
@@ -65,6 +65,7 @@ extension SelectUserView {
             }
             .buttonStyle(.borderless)
             .buttonBorderShape(.circle)
+            .accessibilityLabel(L10n.addUser)
         }
     }
 }

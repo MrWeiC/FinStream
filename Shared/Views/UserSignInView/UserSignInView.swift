@@ -162,7 +162,7 @@ struct UserSignInView: View {
                 Label(L10n.userPinRequiredDescription, systemImage: "exclamationmark.circle.fill")
                     .labelStyle(.sectionFooterWithImage(imageStyle: .orange))
             case .none:
-                EmptyView()
+                Text(L10n.signInExistingJellyfinUserDescription)
             }
         }
 
@@ -299,7 +299,7 @@ struct UserSignInView: View {
 
     var body: some View {
         contentView
-            .navigationTitle(L10n.signIn.localizedCapitalized)
+            .navigationTitle(L10n.signInExistingJellyfinUser)
             .interactiveDismissDisabled(viewModel.state == .signingIn)
             .onReceive(viewModel.events, perform: handleEvent)
             .onFirstAppear {
@@ -315,7 +315,7 @@ struct UserSignInView: View {
                 let userState = existingUser.state.state
                 let existingUserAccessPolicy = userState.accessPolicy
 
-                Button(L10n.signIn) {
+                Button(L10n.continue) {
                     viewModel.saveExisting(
                         user: existingUser,
                         replaceForAccessToken: false,

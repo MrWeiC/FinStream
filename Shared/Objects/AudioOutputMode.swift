@@ -38,11 +38,11 @@ enum AudioOutputMode: String, CaseIterable, Displayable, Storable {
     var description: String {
         switch self {
         case .auto:
-            return "Properly downmixes surround to stereo (recommended)"
+            return L10n.audioOutputAutoDescription
         case .stereo:
-            return "Force stereo output if Auto doesn't work"
+            return L10n.audioOutputStereoDescription
         case .passthrough:
-            return "Send raw audio to receiver (requires compatible hardware)"
+            return L10n.audioOutputPassthroughDescription
         }
     }
 }

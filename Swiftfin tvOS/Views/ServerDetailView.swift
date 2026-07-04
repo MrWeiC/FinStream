@@ -27,6 +27,10 @@ struct EditServerView: View {
         self._viewModel = StateObject(wrappedValue: ServerConnectionViewModel(server: server))
     }
 
+    private var sortedServerURLs: [URL] {
+        viewModel.server.urls.sorted(using: \.absoluteString)
+    }
+
     var body: some View {
         Form(systemImage: "server.rack") {
             Section(L10n.server) {
@@ -46,8 +50,20 @@ struct EditServerView: View {
             }
 
             Section {
+                LabeledContent(
+                    L10n.serverURL,
+                    value: viewModel.server.currentURL.absoluteString
+                )
+                .focusable(false)
+            } header: {
+                Text(L10n.currentServerAddress)
+            } footer: {
+                Text(L10n.currentServerAddressDescription)
+            }
+
+            Section {
                 ListRowMenu(L10n.serverURL, subtitle: viewModel.server.currentURL.absoluteString) {
-                    ForEach(viewModel.server.urls.sorted(using: \.absoluteString), id: \.self) { url in
+                    ForEach(sortedServerURLs, id: \.self) { url in
                         Button {
                             guard viewModel.server.currentURL != url else { return }
                             viewModel.setCurrentURL(to: url)
@@ -68,13 +84,15 @@ struct EditServerView: View {
                     }
                 }
             } header: {
-                Text(L10n.url)
+                Text(L10n.savedServerAddresses)
             } footer: {
                 if !viewModel.server.isVersionCompatible {
                     Label(
                         L10n.serverVersionWarning(JellyfinClient.sdkVersion.majorMinor.description),
                         systemImage: "exclamationmark.circle.fill"
                     )
+                } else {
+                    Text(L10n.savedServerAddressesDescription)
                 }
             }
 

@@ -267,7 +267,7 @@ final class UserSignInViewModel: ViewModel {
             }
         }
 
-        if replaceForAccessToken {
+        if replaceForAccessToken || !user.state.state.hasAccessToken {
             user.state.state.accessToken = user.state.accessToken
         }
 

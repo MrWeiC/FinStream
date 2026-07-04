@@ -50,6 +50,9 @@ final class ConnectToServerViewModel: ViewModel {
     @Published
     var localServers: OrderedSet<ServerState> = []
 
+    @Published
+    private(set) var storedServersByID: [String: ServerState] = [:]
+
     private let discovery = ServerDiscovery()
     private var discoveryTask: Task<Void, Never>?
 
@@ -60,6 +63,10 @@ final class ConnectToServerViewModel: ViewModel {
 
     override init() {
         super.init()
+
+        Task { @MainActor [weak self] in
+            self?.refreshStoredServers()
+        }
 
         discoveryTask = Task { @MainActor [weak self] in
             guard let self else { return }
@@ -92,7 +99,7 @@ final class ConnectToServerViewModel: ViewModel {
             logger.warning("Connecting to server over insecure HTTP connection: \(url.host ?? "unknown")")
         }
 
-        let client = JellyfinClient(
+        let client = JellyfinClient.swiftfinClient(
             configuration: .swiftfinConfiguration(url: url),
             sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.swiftfin())
         )
@@ -119,11 +126,16 @@ final class ConnectToServerViewModel: ViewModel {
             usersIDs: []
         )
 
-        if isDuplicate(server: newServerState) {
+        if let existingServer = existingServer(for: newServerState) {
             // server has same id, but (possible) new URL
-            events.send(.duplicateServer(newServerState))
+            if existingServer.currentURL == newServerState.currentURL {
+                events.send(.connected(existingServer))
+            } else {
+                events.send(.duplicateServer(newServerState))
+            }
         } else {
             try await save(server: newServerState)
+            refreshStoredServers()
             events.send(.connected(newServerState))
         }
     }
@@ -145,11 +157,34 @@ final class ConnectToServerViewModel: ViewModel {
         return url
     }
 
-    private func isDuplicate(server: ServerState) -> Bool {
-        let existingServer = try? SwiftfinStore
+    func storedServer(for server: ServerState) -> ServerState? {
+        storedServersByID[server.id]
+    }
+
+    private func existingServer(for server: ServerState) -> ServerState? {
+        if let storedServer = storedServersByID[server.id] {
+            return storedServer
+        }
+
+        guard let existingServer = try? SwiftfinStore
             .dataStack
             .fetchOne(From<ServerModel>().where(\.$id == server.id))
-        return existingServer != nil
+        else {
+            return nil
+        }
+
+        return existingServer.state
+    }
+
+    private func refreshStoredServers() {
+        let servers = (try? SwiftfinStore
+            .dataStack
+            .fetchAll(From<ServerModel>())
+            .map(\.state)) ?? []
+
+        storedServersByID = servers.reduce(into: [:]) { partialResult, server in
+            partialResult[server.id] = server
+        }
     }
 
     private func save(server: ServerState) async throws {
@@ -173,8 +208,7 @@ final class ConnectToServerViewModel: ViewModel {
     @Function(\Action.Cases.addNewURL)
     private func _addNewURL(_ server: ServerState) throws {
         let newState = try dataStack.perform { transaction in
-            let existingServer = try self.dataStack.fetchOne(From<ServerModel>().where(\.$id == server.id))
-            guard let editServer = transaction.edit(existingServer) else {
+            guard let editServer = try transaction.fetchOne(From<ServerModel>().where(\.$id == server.id)) else {
                 logger.critical("Could not find server to add new url")
                 throw ErrorMessage("An internal error has occurred")
             }
@@ -185,7 +219,9 @@ final class ConnectToServerViewModel: ViewModel {
             return editServer.state
         }
 
+        refreshStoredServers()
         Notifications[.didChangeCurrentServerURL].post(newState)
+        events.send(.connected(newState))
     }
 
     @Function(\Action.Cases.searchForServers)

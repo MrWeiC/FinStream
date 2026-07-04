@@ -27,18 +27,31 @@ struct ConnectToServerView: View {
     @State
     private var duplicateServer: ServerState? = nil
     @State
+    private var isShowingManualAddress: Bool = false
+    @State
     private var isPresentingDuplicateServer: Bool = false
     @State
     private var url: String = ""
 
     private let timer = Timer.publish(every: 12, on: .main, in: .common).autoconnect()
 
+    private var canConnectManually: Bool {
+        url.trimmingCharacters(in: .whitespacesAndNewlines).isNotEmpty
+    }
+
+    private func continueToSignIn(server: ServerState) {
+        UIDevice.feedback(.success)
+        router.dismiss()
+
+        DispatchQueue.main.async {
+            Notifications[.didConnectToServer].post(server)
+        }
+    }
+
     private func onEvent(_ event: ConnectToServerViewModel._Event) {
         switch event {
         case let .connected(server):
-            UIDevice.feedback(.success)
-            Notifications[.didConnectToServer].post(server)
-            router.dismiss()
+            continueToSignIn(server: server)
         case let .duplicateServer(server):
             UIDevice.feedback(.warning)
             duplicateServer = server
@@ -47,17 +60,15 @@ struct ConnectToServerView: View {
     }
 
     @ViewBuilder
-    private var connectSection: some View {
-        Section(L10n.connectToServer) {
-            TextField(L10n.serverURL, text: $url)
-                .disableAutocorrection(true)
-                .textInputAutocapitalization(.never)
-                .keyboardType(.URL)
-                .focused($isURLFocused)
-            #if os(tvOS)
-                .frame(minHeight: 60)
-            #endif
-        }
+    private var manualAddressFields: some View {
+        TextField(L10n.serverURL, text: $url)
+            .disableAutocorrection(true)
+            .textInputAutocapitalization(.never)
+            .keyboardType(.URL)
+            .focused($isURLFocused)
+        #if os(tvOS)
+            .frame(minHeight: 60)
+        #endif
 
         if viewModel.state == .connecting {
             Button(L10n.cancel, role: .cancel) {
@@ -72,19 +83,46 @@ struct ConnectToServerView: View {
             }
             .buttonStyle(.primary)
             .frame(height: 64)
-            .disabled(url.isEmpty)
+            .disabled(!canConnectManually)
             .foregroundStyle(
                 accentColor.overlayColor,
                 accentColor
             )
-            .opacity(url.isEmpty ? 0.5 : 1)
+            .opacity(canConnectManually ? 1 : 0.5)
+        }
+    }
+
+    private var connectSection: some View {
+        Section(L10n.connectToServer) {
+            manualAddressFields
+        }
+    }
+
+    private var manualAddressSection: some View {
+        Section {
+            if isShowingManualAddress {
+                manualAddressFields
+            } else {
+                Button {
+                    isShowingManualAddress = true
+                } label: {
+                    Label(L10n.enterServerAddressManually, systemImage: "keyboard")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 64)
+                }
+                .buttonStyle(.card)
+            }
+        } header: {
+            Text(L10n.manualServerAddress)
+        } footer: {
+            Text(L10n.manualServerAddressDescription)
         }
     }
 
     // MARK: - Local Servers Section
 
     private var localServersSection: some View {
-        Section(L10n.localServers) {
+        Section {
             if viewModel.localServers.isEmpty {
                 Text(L10n.noLocalServersFound)
                     .font(.callout)
@@ -92,12 +130,19 @@ struct ConnectToServerView: View {
                     .frame(maxWidth: .infinity)
             } else {
                 ForEach(viewModel.localServers) { server in
-                    LocalServerButton(server: server) {
+                    LocalServerButton(
+                        server: server,
+                        storedServer: viewModel.storedServer(for: server)
+                    ) {
                         url = server.currentURL.absoluteString
                         viewModel.connect(url: server.currentURL.absoluteString)
                     }
                 }
             }
+        } header: {
+            Text(L10n.localServers)
+        } footer: {
+            Text(L10n.localServersDescription)
         }
     }
 
@@ -117,9 +162,9 @@ struct ConnectToServerView: View {
         SplitLoginWindowView(
             isLoading: viewModel.state == .connecting
         ) {
-            connectSection
-        } trailingContentView: {
             localServersSection
+        } trailingContentView: {
+            manualAddressSection
         }
         #endif
     }
@@ -131,8 +176,16 @@ struct ConnectToServerView: View {
             .navigationTitle(L10n.connect)
             .interactiveDismissDisabled(viewModel.state == .connecting)
             .onFirstAppear {
+                #if os(iOS)
                 isURLFocused = true
+                #endif
                 viewModel.searchForServers()
+            }
+            .onChange(of: isShowingManualAddress) { _, newValue in
+                guard newValue else { return }
+                DispatchQueue.main.async {
+                    isURLFocused = true
+                }
             }
             .onReceive(timer) { _ in
                 guard viewModel.state != .connecting else { return }
@@ -142,6 +195,9 @@ struct ConnectToServerView: View {
             .onReceive(viewModel.$error) { error in
                 guard error != nil else { return }
                 UIDevice.feedback(.error)
+                #if os(tvOS)
+                isShowingManualAddress = true
+                #endif
                 isURLFocused = true
             }
             .topBarTrailing {
@@ -158,10 +214,9 @@ struct ConnectToServerView: View {
 
                 Button(L10n.addURL) {
                     viewModel.addNewURL(serverState: server)
-                    router.dismiss()
                 }
             } message: { server in
-                Text(L10n.serverAlreadyExistsPrompt(server.name))
+                Text(L10n.serverNewAddressPrompt(server.name, server.currentURL.absoluteString))
             }
             .errorMessage($viewModel.error)
     }

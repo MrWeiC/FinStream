@@ -26,7 +26,7 @@ final class UserSession {
         self.server = server
         self.user = user
 
-        let client = JellyfinClient(
+        let client = JellyfinClient.swiftfinClient(
             configuration: .swiftfinConfiguration(
                 url: server.currentURL,
                 accessToken: user.accessToken
@@ -71,6 +71,13 @@ extension Container {
             guard let userState = user.state else {
                 let logger = Logger.swiftfin()
                 logger.error("User \(userId) has no valid state. Signing out.")
+                Defaults[.lastSignedInUserID] = .signedOut
+                return nil
+            }
+
+            guard userState.hasAccessToken else {
+                let logger = Logger.swiftfin()
+                logger.error("User \(userId) has no access token in keychain. Signing out.")
                 Defaults[.lastSignedInUserID] = .signedOut
                 return nil
             }

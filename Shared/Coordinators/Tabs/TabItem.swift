@@ -76,6 +76,20 @@ extension TabItem {
         MediaView()
     }
 
+    static let movies = TabItem.library(
+        title: L10n.movies,
+        systemName: "film",
+        filters: .init(itemTypes: [.movie])
+    )
+
+    static let libraries = TabItem(
+        id: "libraries",
+        title: L10n.libraries,
+        systemImage: "rectangle.stack.fill"
+    ) {
+        MediaView()
+    }
+
     static let search = TabItem(
         id: "search",
         title: L10n.search,
@@ -118,4 +132,17 @@ extension TabItem {
     ) {
         TVTabView()
     }
+
+    #if os(tvOS)
+    static var tvOSTabs: [TabItem] {
+        [
+            .home,
+            .tv,
+            .movies,
+            .libraries,
+            .search,
+            .settings,
+        ]
+    }
+    #endif
 }

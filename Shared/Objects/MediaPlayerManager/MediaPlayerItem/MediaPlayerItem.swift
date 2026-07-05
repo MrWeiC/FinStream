@@ -44,10 +44,11 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
         didSet {
             // Defer VLC track change to next run loop to avoid blocking during UI updates
             let subtitleIndex = selectedSubtitleStreamIndex
+            let selectedStream = subtitleStreams.first { $0.index == subtitleIndex } ?? .none
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 if let proxy = self.manager?.proxy as? any VideoMediaPlayerProxy {
-                    proxy.setSubtitleStream(.init(index: subtitleIndex))
+                    proxy.setSubtitleStream(selectedStream)
                 }
             }
         }

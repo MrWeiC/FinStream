@@ -28,6 +28,8 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
             .skipBackward,
             .skipForward,
             .changePlaybackPosition,
+            .enableLanguageOption,
+            .disableLanguageOption,
             // TODO: only register next/previous if there is a queue
 //            .nextTrack,
 //            .previousTrack,
@@ -38,9 +40,12 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
     private var playbackRequestStateBeforeInterruption: MediaPlayerManager.PlaybackRequestStatus = .playing
 
     weak var manager: MediaPlayerManager? {
-        willSet {
-            guard let newValue else { return }
-            setup(with: newValue)
+        didSet {
+            guard let manager else {
+                cancellables = []
+                return
+            }
+            setup(with: manager)
         }
     }
 
@@ -91,7 +96,8 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
             playing: newStatus == .playing,
             metadata: .init(
                 position: manager?.seconds ?? .zero,
-                duration: manager?.item.runtime ?? .zero
+                duration: manager?.item.runtime ?? .zero,
+                item: manager?.playbackItem
             )
         )
     }
@@ -101,7 +107,8 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
             playing: true,
             metadata: .init(
                 position: newSeconds,
-                duration: manager?.item.runtime ?? .zero
+                duration: manager?.item.runtime ?? .zero,
+                item: manager?.playbackItem
             )
         )
     }
@@ -140,7 +147,8 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
             playing: true,
             metadata: .init(
                 position: manager?.seconds ?? .zero,
-                duration: manager?.item.runtime ?? .zero
+                duration: manager?.item.runtime ?? .zero,
+                item: newItem
             )
         )
     }
@@ -216,6 +224,12 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
         case .changePlaybackPosition:
             guard let event = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
             manager?.proxy?.setSeconds(Duration.seconds(event.positionTime))
+        case .enableLanguageOption:
+            guard let event = event as? MPChangeLanguageOptionCommandEvent else { return .commandFailed }
+            return handleEnableLanguageOption(event.languageOption)
+        case .disableLanguageOption:
+            guard let event = event as? MPChangeLanguageOptionCommandEvent else { return .commandFailed }
+            return handleDisableLanguageOption(event.languageOption)
         case .nextTrack:
             guard let nextItem = manager?.queue?.nextItem else { return .commandFailed }
             manager?.playNewItem(provider: nextItem)
@@ -226,6 +240,55 @@ class NowPlayableObserver: ViewModel, MediaPlayerObserver {
         }
 
         return .success
+    }
+
+    private func handleEnableLanguageOption(
+        _ languageOption: MPNowPlayingInfoLanguageOption
+    ) -> MPRemoteCommandHandlerStatus {
+        guard let playbackItem = manager?.playbackItem else { return .commandFailed }
+
+        if languageOption.isAutomaticAudibleLanguageOption() {
+            playbackItem.selectedAudioStreamIndex = playbackItem.audioStreams.first?.index
+            refreshNowPlayablePlaybackInfo()
+            return .success
+        }
+
+        if languageOption.isAutomaticLegibleLanguageOption() {
+            playbackItem.selectedSubtitleStreamIndex = playbackItem.subtitleStreams.first?.index
+            refreshNowPlayablePlaybackInfo()
+            return .success
+        }
+
+        guard playbackItem.select(languageOption: languageOption) else {
+            return .commandFailed
+        }
+
+        refreshNowPlayablePlaybackInfo()
+        return .success
+    }
+
+    private func handleDisableLanguageOption(
+        _ languageOption: MPNowPlayingInfoLanguageOption
+    ) -> MPRemoteCommandHandlerStatus {
+        guard let playbackItem = manager?.playbackItem,
+              playbackItem.disable(languageOption: languageOption)
+        else {
+            return .commandFailed
+        }
+
+        refreshNowPlayablePlaybackInfo()
+        return .success
+    }
+
+    private func refreshNowPlayablePlaybackInfo() {
+        handleNowPlayablePlaybackChange(
+            playing: manager?.playbackRequestStatus == .playing,
+            metadata: .init(
+                position: manager?.seconds ?? .zero,
+                duration: manager?.item.runtime ?? .zero,
+                item: manager?.playbackItem
+            )
+        )
     }
 
     private func handleNowPlayablePlaybackChange(

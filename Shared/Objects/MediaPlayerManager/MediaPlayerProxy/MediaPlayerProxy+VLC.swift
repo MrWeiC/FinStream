@@ -71,6 +71,25 @@ class VLCMediaPlayerProxy: VideoMediaPlayerProxy,
     }
 
     func setSubtitleStream(_ stream: MediaStream) {
+        if stream.index == -1 {
+            vlcUIProxy.setSubtitleTrack(.absolute(-1))
+            return
+        }
+
+        if stream.deliveryMethod == .external,
+           let playbackChild = stream.asVLCPlaybackChild
+        {
+            vlcUIProxy.setSubtitleTrack(.absolute(-1))
+            vlcUIProxy.addPlaybackChild(
+                .init(
+                    url: playbackChild.url,
+                    type: playbackChild.type,
+                    enforce: true
+                )
+            )
+            return
+        }
+
         vlcUIProxy.setSubtitleTrack(.absolute(stream.index ?? -1))
     }
 
@@ -170,7 +189,15 @@ extension VLCMediaPlayerProxy {
 
             configuration.playbackChildren = item.subtitleStreams
                 .filter { $0.deliveryMethod == .external }
-                .compactMap(\.asVLCPlaybackChild)
+                .compactMap { stream in
+                    guard let child = stream.asVLCPlaybackChild else { return nil }
+
+                    return .init(
+                        url: child.url,
+                        type: child.type,
+                        enforce: stream.index == item.selectedSubtitleStreamIndex
+                    )
+                }
 
             // Increase buffer size to reduce audio hiccups during track changes
             var options: [String: Any] = [

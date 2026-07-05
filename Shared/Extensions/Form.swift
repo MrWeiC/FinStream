@@ -153,10 +153,9 @@ private struct LocalizedSettingsToggle: View {
             .padding(.horizontal)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(isFocused ? Color.white : Color.clear)
             )
-            .scaleEffect(isFocused ? 1.04 : 1.0)
             .animation(.easeInOut(duration: 0.125), value: isFocused)
         }
         .buttonStyle(.plain)

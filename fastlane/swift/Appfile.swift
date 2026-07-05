@@ -1,7 +1,7 @@
 // Appfile.swift
 // Copyright (c) 2024 FastlaneTools
 
-var appIdentifier: String { return "com.mrweic.finstream" } // The bundle identifier of your app
+var appIdentifier: String { return "" } // The bundle identifier of your app
 var appleID: String { return "" } // Your Apple Developer Portal username
 
 var teamID: String { return "" } // Developer Portal Team ID

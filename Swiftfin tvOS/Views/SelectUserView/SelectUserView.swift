@@ -142,7 +142,6 @@ struct SelectUserView: View {
     private func addUserSelected(server: ServerState) {
         focusedBottomBarItem = nil
         lastFocusedRegion = .users
-        focusFirstUserIfNeeded(force: true)
         router.route(to: .userSignIn(server: server))
     }
 

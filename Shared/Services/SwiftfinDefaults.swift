@@ -6,6 +6,7 @@
 // Copyright (c) 2026 Jellyfin & Jellyfin Contributors
 //
 
+import CoreText
 import Defaults
 import Factory
 import Foundation
@@ -37,6 +38,62 @@ enum DefaultsError: LocalizedError {
 }
 
 private let logger = Logger.swiftfin()
+
+enum SubtitleFontResolver {
+
+    static var defaultFontName: String {
+        cjkFallbackFontName ?? UIFont.systemFont(ofSize: 14).fontName
+    }
+
+    static func resolvedFontName(preferredFontName: String) -> String {
+        if let preferredFont = UIFont(name: preferredFontName, size: 14),
+           !isSystemFontName(preferredFontName),
+           preferredFont.canRender(cjkSample)
+        {
+            return preferredFontName
+        }
+
+        return cjkFallbackFontName ?? preferredFontName
+    }
+
+    static func resolvedFont(preferredFontName: String, size: CGFloat) -> UIFont? {
+        let fontName = resolvedFontName(preferredFontName: preferredFontName)
+        return UIFont(name: fontName, size: size) ?? UIFont(name: preferredFontName, size: size)
+    }
+
+    private static let cjkSample = "中文字幕繁體"
+
+    private static let cjkFallbackFontNames = [
+        "PingFangTC-Regular",
+        "PingFangSC-Regular",
+        "PingFangHK-Regular",
+        "STHeitiTC-Light",
+        "STHeitiSC-Light",
+        "HiraginoSans-W3",
+        "ArialUnicodeMS",
+    ]
+
+    private static var cjkFallbackFontName: String? {
+        cjkFallbackFontNames.first { fontName in
+            UIFont(name: fontName, size: 14)?.canRender(cjkSample) == true
+        }
+    }
+
+    private static func isSystemFontName(_ fontName: String) -> Bool {
+        fontName.hasPrefix(".") || fontName == UIFont.systemFont(ofSize: 14).fontName
+    }
+}
+
+private extension UIFont {
+
+    func canRender(_ string: String) -> Bool {
+        let coreTextFont = CTFontCreateWithName(fontName as CFString, pointSize, nil)
+        let characters = Array(string.utf16)
+        var glyphs = Array(repeating: CGGlyph(), count: characters.count)
+
+        return CTFontGetGlyphsForCharacters(coreTextFont, characters, &glyphs, characters.count)
+    }
+}
 
 // MARK: Suites
 
@@ -267,7 +324,7 @@ extension Defaults.Keys {
         enum Subtitle {
 
             static let subtitleColor: Key<Color> = UserKey("subtitleColor", default: .white)
-            static let subtitleFontName: Key<String> = UserKey("subtitleFontName", default: UIFont.systemFont(ofSize: 14).fontName)
+            static let subtitleFontName: Key<String> = UserKey("subtitleFontName", default: SubtitleFontResolver.defaultFontName)
             static let subtitleSize: Key<Int> = UserKey("subtitleSize", default: 9)
         }
 

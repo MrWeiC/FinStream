@@ -110,7 +110,7 @@ class VLCMediaPlayerProxy: VideoMediaPlayerProxy,
     }
 
     func setSubtitleFontName(_ fontName: String) {
-        vlcUIProxy.setSubtitleFont(fontName)
+        vlcUIProxy.setSubtitleFont(SubtitleFontResolver.resolvedFontName(preferredFontName: fontName))
     }
 
     func setSubtitleFontSize(_ fontSize: Int) {
@@ -183,7 +183,10 @@ extension VLCMediaPlayerProxy {
             configuration.subtitleSize = .absolute(25 - Defaults[.VideoPlayer.Subtitle.subtitleSize])
             configuration.subtitleColor = .absolute(Defaults[.VideoPlayer.Subtitle.subtitleColor].uiColor)
 
-            if let font = UIFont(name: Defaults[.VideoPlayer.Subtitle.subtitleFontName], size: 1) {
+            if let font = SubtitleFontResolver.resolvedFont(
+                preferredFontName: Defaults[.VideoPlayer.Subtitle.subtitleFontName],
+                size: 1
+            ) {
                 configuration.subtitleFont = .absolute(font)
             }
 

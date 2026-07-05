@@ -94,6 +94,15 @@ final class NowPlayableLanguageOptionsTests: XCTestCase {
         XCTAssertEqual(receivedStream?.displayTitle, "Chinese, Traditional")
     }
 
+    func testSubtitleFontResolverFallsBackToChineseCapableFontForSystemFont() throws {
+        let systemFontName = UIFont.systemFont(ofSize: 14).fontName
+        let resolvedFontName = SubtitleFontResolver.resolvedFontName(preferredFontName: systemFontName)
+        let resolvedFont = try XCTUnwrap(UIFont(name: resolvedFontName, size: 14))
+
+        XCTAssertNotEqual(resolvedFontName, systemFontName)
+        XCTAssertTrue(resolvedFont.canRender("中文字幕繁體"))
+    }
+
     private func makePlaybackItem(
         subtitleStreams: [MediaStream],
         selectedSubtitleStreamIndex: Int
@@ -141,6 +150,17 @@ final class NowPlayableLanguageOptionsTests: XCTestCase {
         stream.codec = "subrip"
         stream.deliveryMethod = .external
         return stream
+    }
+}
+
+private extension UIFont {
+
+    func canRender(_ string: String) -> Bool {
+        let coreTextFont = CTFontCreateWithName(fontName as CFString, pointSize, nil)
+        let characters = Array(string.utf16)
+        var glyphs = Array(repeating: CGGlyph(), count: characters.count)
+
+        return CTFontGetGlyphsForCharacters(coreTextFont, characters, &glyphs, characters.count)
     }
 }
 

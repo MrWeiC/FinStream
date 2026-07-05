@@ -59,6 +59,48 @@ final class FirstTimeAccountFlowAutomationTests: XCTestCase {
         XCTAssertTrue(session.user.hasAccessToken)
     }
 
+    func testDiscoveredAddressAutomaticallyUpdatesSavedServer() async throws {
+        await prepareDataStack()
+        try await resetLocalState()
+        defer {
+            try? deleteStoredUsersAndServers()
+        }
+
+        let originalURL = try XCTUnwrap(URL(string: "http://192.0.2.20:8096"))
+        let rediscoveredURL = try XCTUnwrap(URL(string: "http://192.0.2.21:8096"))
+        let server = ServerState(
+            urls: [originalURL],
+            currentURL: originalURL,
+            name: "HermesMediaServer",
+            id: "test-server-id",
+            usersIDs: []
+        )
+
+        try SwiftfinStore.dataStack.perform { transaction in
+            let storedServer = transaction.create(Into<ServerModel>())
+
+            storedServer.urls = server.urls
+            storedServer.currentURL = server.currentURL
+            storedServer.name = server.name
+            storedServer.id = server.id
+            storedServer.users = []
+        }
+
+        let rediscoveredServer = ServerState(
+            urls: [rediscoveredURL],
+            currentURL: rediscoveredURL,
+            name: server.name,
+            id: server.id,
+            usersIDs: []
+        )
+
+        let updatedServer = try await applyDiscoveredAddress(rediscoveredServer)
+
+        XCTAssertEqual(updatedServer.currentURL, rediscoveredURL)
+        XCTAssertTrue(updatedServer.urls.contains(originalURL))
+        XCTAssertTrue(updatedServer.urls.contains(rediscoveredURL))
+    }
+
     private func loadCredentials() throws -> Credentials {
         let environment = ProcessInfo.processInfo.environment
 
@@ -100,6 +142,10 @@ final class FirstTimeAccountFlowAutomationTests: XCTestCase {
         Defaults[.selectUserServerSelection] = .all
         Container.shared.currentUserSession.reset()
 
+        try deleteStoredUsersAndServers()
+    }
+
+    private func deleteStoredUsersAndServers() throws {
         let users = try SwiftfinStore.dataStack
             .fetchAll(From<UserModel>())
             .compactMap(\.state)

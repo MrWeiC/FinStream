@@ -273,17 +273,21 @@ class ItemViewModel: ViewModel, Stateful {
 
             toggleIsPlayedTask = Task {
 
-                let beforeIsPlayed = item.userData?.isPlayed ?? false
+                let beforeUserData: UserItemDataDto? = item.userData
+                let beforePlayButtonUserData: UserItemDataDto? = playButtonItem?.userData
+                let isPlayed: Bool = !(item.userData?.isPlayed ?? false)
 
                 await MainActor.run {
-                    item.userData?.isPlayed?.toggle()
+                    item.setPlayedState(isPlayed)
+                    playButtonItem?.setPlayedState(isPlayed)
                 }
 
                 do {
-                    try await setIsPlayed(!beforeIsPlayed)
+                    try await setIsPlayed(isPlayed)
                 } catch {
                     await MainActor.run {
-                        item.userData?.isPlayed = beforeIsPlayed
+                        item.userData = beforeUserData
+                        playButtonItem?.userData = beforePlayButtonUserData
                         // emit event that toggle unsuccessful
                     }
                 }

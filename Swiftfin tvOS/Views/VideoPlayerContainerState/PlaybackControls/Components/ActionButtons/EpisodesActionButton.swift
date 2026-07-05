@@ -35,7 +35,7 @@ extension VideoPlayer.PlaybackControls.NavigationBar.ActionButtons {
                         Label(L10n.episodes, systemImage: "tv")
                     }
                 } else {
-                    TransportBarButton("Episodes") {
+                    TransportBarButton(L10n.episodes) {
                         if let supplement = episodesSupplement {
                             containerState.select(supplement: supplement)
                         }

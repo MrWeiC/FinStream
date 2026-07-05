@@ -165,14 +165,18 @@ extension NavigationRoute {
     static let log = NavigationRoute(
         id: "log"
     ) {
+        #if os(tvOS)
+        LocalizedLogView()
+        #else
         ConsoleView()
+        #endif
     }
 
     #if os(tvOS)
     static let media = NavigationRoute(
         id: "media"
     ) {
-        MediaView()
+        MediaView(hidesNavigationBarOnTV: false)
     }
     #endif
 

@@ -19,6 +19,8 @@ struct ListRowMenu<Content: View, Subtitle: View>: View {
 
     private let title: Text
     private let subtitle: Subtitle?
+    private let accessibilityTitle: String?
+    private let accessibilityValue: String?
     private let content: () -> Content
 
     // MARK: - Body
@@ -55,6 +57,12 @@ struct ListRowMenu<Content: View, Subtitle: View>: View {
         .menuStyle(.borderlessButton)
         .listRowInsets(.zero)
         .focused($isFocused)
+        .ifLet(accessibilityTitle) { view, title in
+            view.accessibilityLabel(Text(title))
+        }
+        .ifLet(accessibilityValue) { view, value in
+            view.accessibilityValue(Text(value))
+        }
     }
 }
 
@@ -66,36 +74,48 @@ extension ListRowMenu where Subtitle == Text? {
     init(_ title: Text, @ViewBuilder content: @escaping () -> Content) {
         self.title = title
         self.subtitle = nil
+        self.accessibilityTitle = nil
+        self.accessibilityValue = nil
         self.content = content
     }
 
     init(_ title: Text, subtitle: Text?, @ViewBuilder content: @escaping () -> Content) {
         self.title = title
         self.subtitle = subtitle
+        self.accessibilityTitle = nil
+        self.accessibilityValue = nil
         self.content = content
     }
 
     init(_ title: Text, subtitle: String?, @ViewBuilder content: @escaping () -> Content) {
         self.title = title
         self.subtitle = subtitle.map { Text($0) }
+        self.accessibilityTitle = nil
+        self.accessibilityValue = subtitle
         self.content = content
     }
 
     init(_ title: String, @ViewBuilder content: @escaping () -> Content) {
         self.title = Text(title)
         self.subtitle = nil
+        self.accessibilityTitle = title
+        self.accessibilityValue = nil
         self.content = content
     }
 
     init(_ title: String, subtitle: String?, @ViewBuilder content: @escaping () -> Content) {
         self.title = Text(title)
         self.subtitle = subtitle.map { Text($0) }
+        self.accessibilityTitle = title
+        self.accessibilityValue = subtitle
         self.content = content
     }
 
     init(_ title: String, subtitle: Text?, @ViewBuilder content: @escaping () -> Content) {
         self.title = Text(title)
         self.subtitle = subtitle
+        self.accessibilityTitle = title
+        self.accessibilityValue = nil
         self.content = content
     }
 }
@@ -106,12 +126,16 @@ extension ListRowMenu {
     init(_ title: String, @ViewBuilder subtitle: @escaping () -> Subtitle, @ViewBuilder content: @escaping () -> Content) {
         self.title = Text(title)
         self.subtitle = subtitle()
+        self.accessibilityTitle = title
+        self.accessibilityValue = nil
         self.content = content
     }
 
     init(_ title: Text, @ViewBuilder subtitle: @escaping () -> Subtitle, @ViewBuilder content: @escaping () -> Content) {
         self.title = title
         self.subtitle = subtitle()
+        self.accessibilityTitle = nil
+        self.accessibilityValue = nil
         self.content = content
     }
 }
@@ -127,6 +151,8 @@ extension ListRowMenu where Subtitle == Text, Content == AnyView {
     {
         self.title = Text(title)
         self.subtitle = Text(selection.wrappedValue.displayTitle)
+        self.accessibilityTitle = title
+        self.accessibilityValue = selection.wrappedValue.displayTitle
         self.content = {
             Picker(title, selection: selection) {
                 ForEach(Array(ItemType.allCases), id: \.self) { option in

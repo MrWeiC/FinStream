@@ -26,7 +26,7 @@ extension HomeView {
         var body: some View {
             if viewModel.elements.isNotEmpty {
                 PosterHStack(
-                    title: L10n.latestWithString(viewModel.parent?.displayTitle ?? .emptyDash),
+                    title: viewModel.parent?.localizedLatestLibraryTitle ?? L10n.latestWithString(String.emptyDash),
                     type: latestInLibraryPosterType,
                     items: viewModel.elements
                 ) { item in

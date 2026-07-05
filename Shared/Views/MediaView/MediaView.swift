@@ -20,6 +20,12 @@ struct MediaView: View {
     @StateObject
     private var viewModel = MediaViewModel()
 
+    private let hidesNavigationBarOnTV: Bool
+
+    init(hidesNavigationBarOnTV: Bool = true) {
+        self.hidesNavigationBarOnTV = hidesNavigationBarOnTV
+    }
+
     private var layout: CollectionVGridLayout {
         if UIDevice.isTV {
             .columns(4, insets: .init(50), itemSpacing: 50, lineSpacing: 50)
@@ -85,7 +91,11 @@ struct MediaView: View {
             viewModel.refresh()
         }
         .if(UIDevice.isTV) { view in
-            view.toolbar(.hidden, for: .navigationBar)
+            if hidesNavigationBarOnTV {
+                view.toolbar(.hidden, for: .navigationBar)
+            } else {
+                view
+            }
         }
     }
 }

@@ -133,7 +133,7 @@ struct TVTabView: View {
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("Coming Soon")
+            Text(L10n.comingSoon)
                 .font(.title3)
                 .foregroundColor(.secondary)
         }

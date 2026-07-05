@@ -24,16 +24,50 @@ struct SearchView: View {
     @StateObject
     private var viewModel = SearchViewModel()
 
+    private var suggestionGridColumns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(), spacing: 24),
+            count: 3
+        )
+    }
+
     private var suggestionsView: some View {
-        VStack(spacing: 20) {
-            ForEach(viewModel.suggestions) { item in
-                Button(item.displayTitle) {
-                    searchQuery = item.displayTitle
+        VStack(spacing: 32) {
+            VStack(spacing: 10) {
+                Label(L10n.searchMediaLibrary, systemImage: "magnifyingglass")
+                    .font(.title2.weight(.semibold))
+
+                Text(L10n.searchMediaLibraryDescription)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 700)
+            }
+
+            if viewModel.suggestions.isNotEmpty {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(L10n.suggestedSearches)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    LazyVGrid(columns: suggestionGridColumns, spacing: 20) {
+                        ForEach(viewModel.suggestions) { item in
+                            Button {
+                                searchQuery = item.displayTitle
+                            } label: {
+                                Label(item.displayTitle, systemImage: "magnifyingglass")
+                                    .lineLimit(1)
+                                    .frame(maxWidth: .infinity, minHeight: 64)
+                            }
+                            .buttonStyle(.card)
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .frame(maxWidth: 1100)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 120)
     }
 
     private var resultsView: some View {
@@ -200,7 +234,8 @@ struct SearchView: View {
             .eraseToAnyView()
         } emptyContent: {
             EmptyStateView(
-                message: L10n.noResults,
+                message: L10n.searchNoResultsTitle(searchQuery),
+                description: L10n.searchNoResultsDescription,
                 systemImage: "magnifyingglass"
             )
             .eraseToAnyView()

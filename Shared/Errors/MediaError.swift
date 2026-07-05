@@ -55,33 +55,39 @@ enum MediaError: LocalizedError, Hashable {
     var errorDescription: String? {
         switch self {
         case .noPlayableSource:
-            return "No playable source available for this item."
+            return L10n.mediaNoPlayableSource
         case let .unsupportedFormat(format):
             if let format {
-                return "The media format '\(format)' is not supported."
+                return L10n.mediaUnsupportedFormatWithFormat(format)
             }
-            return "The media format is not supported."
+            return L10n.mediaUnsupportedFormat
         case let .transcodingFailed(reason):
-            return reason ?? "Server transcoding failed."
+            if let reason {
+                return L10n.mediaTranscodingFailedWithReason(reason)
+            }
+            return L10n.mediaTranscodingFailed
         case .streamEnded:
-            return "The media stream ended unexpectedly."
+            return L10n.mediaStreamEnded
         case let .loadFailed(reason):
-            return reason ?? "Failed to load media."
+            if let reason {
+                return L10n.mediaLoadFailedWithReason(reason)
+            }
+            return L10n.mediaLoadFailed
         case let .itemNotFound(itemId):
             if let itemId {
-                return "Item '\(itemId)' was not found."
+                return L10n.mediaItemNotFoundWithID(itemId)
             }
-            return "The requested item was not found."
+            return L10n.mediaItemNotFound
         case .noMediaInfo:
-            return "No media information available for this item."
+            return L10n.mediaNoMediaInfo
         case .notPlayable:
-            return "This item type cannot be played."
+            return L10n.mediaNotPlayable
         case .sessionCreationFailed:
-            return "Failed to create playback session."
+            return L10n.mediaSessionCreationFailed
         case .sessionExpired:
-            return "Your playback session has expired."
+            return L10n.mediaSessionExpired
         case .reportingFailed:
-            return "Failed to report playback progress."
+            return L10n.mediaReportingFailed
         }
     }
 
@@ -89,15 +95,15 @@ enum MediaError: LocalizedError, Hashable {
     var errorTitle: String {
         switch self {
         case .noPlayableSource, .unsupportedFormat, .notPlayable:
-            return "Cannot Play"
+            return L10n.mediaCannotPlay
         case .transcodingFailed:
-            return "Transcoding Error"
+            return L10n.mediaTranscodingError
         case .streamEnded, .loadFailed:
-            return "Playback Error"
+            return L10n.mediaPlaybackError
         case .itemNotFound, .noMediaInfo:
-            return "Item Error"
+            return L10n.mediaItemError
         case .sessionCreationFailed, .sessionExpired, .reportingFailed:
-            return "Session Error"
+            return L10n.mediaSessionError
         }
     }
 

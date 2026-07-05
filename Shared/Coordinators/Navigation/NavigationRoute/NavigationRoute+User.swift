@@ -63,14 +63,20 @@ extension NavigationRoute {
     }
     #endif
 
-    static func userSignIn(server: ServerState) -> NavigationRoute {
+    static func userSignIn(
+        server: ServerState,
+        reauthenticatingUser: UserState? = nil
+    ) -> NavigationRoute {
         NavigationRoute(
             id: "userSignIn",
             style: .fullscreen
         ) {
             WithUserAuthentication {
                 WithQuickConnect {
-                    UserSignInView(server: server)
+                    UserSignInView(
+                        server: server,
+                        reauthenticatingUser: reauthenticatingUser
+                    )
                 }
             }
         }

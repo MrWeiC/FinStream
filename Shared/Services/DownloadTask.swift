@@ -18,20 +18,20 @@ import Logging
 
 class DownloadTask: NSObject, ObservableObject {
 
-    enum DownloadError: Error {
+    enum DownloadError: LocalizedError {
 
         case notEnoughStorage
         case missingItemID
         case encodingFailed
 
-        var localizedDescription: String {
+        var errorDescription: String? {
             switch self {
             case .notEnoughStorage:
-                return "Not enough storage"
+                return L10n.downloadNotEnoughStorage
             case .missingItemID:
-                return "Item missing required ID"
+                return L10n.downloadMissingItemID
             case .encodingFailed:
-                return "Failed to encode item metadata"
+                return L10n.downloadMetadataEncodingFailed
             }
         }
     }

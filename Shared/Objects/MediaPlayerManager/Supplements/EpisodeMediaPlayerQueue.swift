@@ -587,7 +587,7 @@ extension EpisodeMediaPlayerQueue {
                             RoundedRectangle(cornerRadius: 7)
                                 .foregroundStyle(.white)
 
-                            Label("Next", systemImage: "forward.end.fill")
+                            Label(L10n.playNextItem, systemImage: "forward.end.fill")
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.black)
                         }
@@ -604,7 +604,7 @@ extension EpisodeMediaPlayerQueue {
                             RoundedRectangle(cornerRadius: 7)
                                 .foregroundStyle(.white)
 
-                            Label("Previous", systemImage: "backward.end.fill")
+                            Label(L10n.playPreviousItem, systemImage: "backward.end.fill")
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.black)
                         }

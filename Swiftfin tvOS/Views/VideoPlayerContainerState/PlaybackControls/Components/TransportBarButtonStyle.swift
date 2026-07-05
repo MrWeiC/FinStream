@@ -101,6 +101,7 @@ struct TransportBarButton<Label: View>: View {
                 .modifier(TransportBarFocusStyle(isFocused: isFocused))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(debugLabel))
         .modifier(TransportBarFocusEffects(isFocused: isFocused, debugLabel: debugLabel))
     }
 }
@@ -145,6 +146,7 @@ struct TransportBarMenu<Label: View, Content: View>: View {
                 .modifier(TransportBarFocusStyle(isFocused: isFocused))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
         .modifier(TransportBarFocusEffects(isFocused: isFocused, debugLabel: title))
         .onChange(of: isFocused) { oldValue, newValue in
             let now = DispatchTime.now().uptimeNanoseconds
@@ -217,6 +219,7 @@ struct SidePanelMenu<Label: View, Content: View>: View {
                 .frame(width: 48, height: 48)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(title))
         .focused($isFocused)
         .scaleEffect(isFocused ? 1.15 : 1.0)
         .animation(.spring(duration: 0.2), value: isFocused)

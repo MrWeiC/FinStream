@@ -13,12 +13,24 @@ extension SelectUserView {
 
     struct AddUserGridButton: View {
 
+        private static let buttonImageSize: CGFloat = 280
+
         @Environment(\.isEnabled)
         private var isEnabled
 
         let selectedServer: ServerState?
         let servers: OrderedSet<ServerState>
         let action: (ServerState) -> Void
+
+        private var serverForSignIn: ServerState? {
+            if let selectedServer {
+                selectedServer
+            } else if servers.count == 1 {
+                servers.first
+            } else {
+                nil
+            }
+        }
 
         @ViewBuilder
         private var label: some View {
@@ -30,6 +42,7 @@ extension SelectUserView {
             }
             .clipShape(.circle)
             .aspectRatio(1, contentMode: .fill)
+            .frame(width: Self.buttonImageSize, height: Self.buttonImageSize)
             .hoverEffect(.highlight)
 
             Text(L10n.addUser)
@@ -37,7 +50,7 @@ extension SelectUserView {
                 .fontWeight(.semibold)
                 .foregroundStyle(isEnabled ? .primary : .secondary)
 
-            if selectedServer == nil {
+            if serverForSignIn == nil {
                 // For layout, not to be localized
                 Text("Hidden")
                     .font(.footnote)
@@ -47,7 +60,7 @@ extension SelectUserView {
 
         var body: some View {
             ConditionalMenu(
-                tracking: selectedServer,
+                tracking: serverForSignIn,
                 action: action
             ) {
                 Text(L10n.selectServerToSignIn)

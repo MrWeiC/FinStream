@@ -32,11 +32,11 @@ extension VideoPlayer.PlaybackControls.NavigationBar.ActionButtons {
                     isAutoPlayEnabled.toggle()
                 } label: {
                     Label(L10n.autoPlay, systemImage: systemImage)
-                    Text(isAutoPlayEnabled ? "On" : "Off")
+                    Text(isAutoPlayEnabled ? L10n.enabled : L10n.disabled)
                 }
                 .disabled(manager.queue == nil)
             } else {
-                TransportBarButton("AutoPlay") {
+                TransportBarButton(L10n.autoPlay) {
                     isAutoPlayEnabled.toggle()
                 } label: {
                     Image(systemName: systemImage)

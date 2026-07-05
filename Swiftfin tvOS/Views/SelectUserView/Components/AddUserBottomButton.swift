@@ -29,6 +29,16 @@ extension SelectUserView {
                 .padding(.horizontal, 8)
         }
 
+        private var serverForSignIn: ServerState? {
+            if let selectedServer {
+                selectedServer
+            } else if servers.count == 1 {
+                servers.first
+            } else {
+                nil
+            }
+        }
+
         // MARK: - Initializer
 
         init(
@@ -45,7 +55,7 @@ extension SelectUserView {
 
         var body: some View {
             ConditionalMenu(
-                tracking: selectedServer,
+                tracking: serverForSignIn,
                 action: action
             ) {
                 Text(L10n.selectServerToSignIn)

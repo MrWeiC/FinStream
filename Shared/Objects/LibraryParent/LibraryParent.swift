@@ -27,6 +27,18 @@ protocol LibraryParent: Displayable, Hashable, Identifiable<String?> {
 
 extension LibraryParent {
 
+    var localizedLibraryDisplayTitle: String {
+        if let item = self as? BaseItemDto {
+            return item.localizedCollectionDisplayTitle
+        } else {
+            return displayTitle.localizedDefaultLibraryDisplayTitle
+        }
+    }
+
+    var localizedLatestLibraryTitle: String {
+        L10n.latestWithString(localizedLibraryDisplayTitle)
+    }
+
     var supportedItemTypes: [BaseItemKind] {
         switch libraryType {
         case .folder:
@@ -58,5 +70,27 @@ extension LibraryParent {
         }
 
         return parameters
+    }
+}
+
+extension String {
+
+    var localizedDefaultLibraryDisplayTitle: String {
+        switch trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "box set", "box sets", "boxsets", "collection", "collections":
+            L10n.collections
+        case "folder", "folders":
+            L10n.folders
+        case "film", "films", "movie", "movies":
+            L10n.movies
+        case "music video", "music videos":
+            L10n.musicVideos
+        case "series", "show", "shows", "tv series", "tv show", "tv shows":
+            L10n.series
+        case "live tv", "livetv":
+            L10n.liveTV
+        default:
+            self
+        }
     }
 }

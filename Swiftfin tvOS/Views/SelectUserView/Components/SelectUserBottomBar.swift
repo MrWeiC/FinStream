@@ -24,6 +24,8 @@ extension SelectUserView {
         @Binding
         private var serverSelection: SelectUserServerSelection
 
+        private let focusedItem: FocusState<SelectUserView.BottomBarItem?>.Binding
+
         // MARK: - Variables
 
         private let areUsersSelected: Bool
@@ -31,6 +33,7 @@ extension SelectUserView {
         private let selectedServer: ServerState?
         private let servers: OrderedSet<ServerState>
 
+        private let onAddUser: (ServerState) -> Void
         private let onDelete: () -> Void
         private let toggleAllUsersSelected: () -> Void
 
@@ -39,19 +42,23 @@ extension SelectUserView {
         init(
             isEditing: Binding<Bool>,
             serverSelection: Binding<SelectUserServerSelection>,
+            focusedItem: FocusState<SelectUserView.BottomBarItem?>.Binding,
             selectedServer: ServerState?,
             servers: OrderedSet<ServerState>,
             areUsersSelected: Bool,
             hasUsers: Bool,
+            onAddUser: @escaping (ServerState) -> Void,
             onDelete: @escaping () -> Void,
             toggleAllUsersSelected: @escaping () -> Void
         ) {
             self._isEditing = isEditing
             self._serverSelection = serverSelection
+            self.focusedItem = focusedItem
             self.areUsersSelected = areUsersSelected
             self.hasUsers = hasUsers
             self.selectedServer = selectedServer
             self.servers = servers
+            self.onAddUser = onAddUser
             self.onDelete = onDelete
             self.toggleAllUsersSelected = toggleAllUsersSelected
         }
@@ -76,6 +83,7 @@ extension SelectUserView {
                     .labelStyle(.iconOnly)
                     .frame(width: 50, height: 50)
             }
+            .focused(focusedItem, equals: .advanced)
 
             // TODO: Do we want to support a grid view and list view like iOS?
 //            if !viewModel.servers.isEmpty {
@@ -137,8 +145,9 @@ extension SelectUserView {
                         selectedServer: selectedServer,
                         servers: servers
                     ) { server in
-                        router.route(to: .userSignIn(server: server))
+                        onAddUser(server)
                     }
+                    .focused(focusedItem, equals: .addUser)
                     .hidden(!hasUsers)
 
                     ServerSelectionMenu(
@@ -146,6 +155,7 @@ extension SelectUserView {
                         selectedServer: selectedServer,
                         servers: servers
                     )
+                    .focused(focusedItem, equals: .serverSelection)
 
                     advancedMenu
                 }

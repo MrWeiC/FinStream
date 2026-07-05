@@ -212,6 +212,7 @@ extension VideoPlayer.PlaybackControls {
                     .frame(width: 48, height: 48)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(Text(L10n.episodes))
             .focused($isFocused)
             .scaleEffect(isFocused ? 1.15 : 1.0)
             .animation(.spring(duration: 0.2), value: isFocused)

@@ -113,6 +113,21 @@ extension BaseItemKind: ItemFilter {
 
 extension BaseItemKind {
 
+    func localizedCountLabel(_ count: Int) -> String {
+        switch self {
+        case .boxSet:
+            L10n.collectionCountLabel(count)
+        case .episode:
+            L10n.episodeCountLabel(count)
+        case .movie:
+            L10n.movieCountLabel(count)
+        case .series:
+            L10n.seriesCountLabel(count)
+        default:
+            L10n.itemCountLabel(count)
+        }
+    }
+
     var pluralDisplayTitle: String {
         switch self {
         case .aggregateFolder:

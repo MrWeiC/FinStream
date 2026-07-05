@@ -10,12 +10,11 @@ import Foundation
 
 class Fastfile: LaneFile {
     
-    private let swiftfinBundleIdentifier = "org.jellyfin.swiftfin.tvos"
+    private let finStreamBundleIdentifier = "com.mrweic.finstream"
     private let swiftfinXcodeProject = "Swiftfin.xcodeproj"
     
     // MARK: TestFlight
     
-    // TODO: verify tvOS
     /// - Important: Remember to pass in options from GitHub Actions
     func testFlightLane(withOptions options: [String: String]?) {
         
@@ -41,7 +40,7 @@ class Fastfile: LaneFile {
             exit(1)
         }
         
-        if let branch = options["branch"] {
+        if let branch = options["branch"]?.trimOption(), !branch.isEmpty {
             sh(
                 command: "git checkout \(branch)",
                 log: .userDefined(true)
@@ -50,7 +49,7 @@ class Fastfile: LaneFile {
             }
         }
         
-        if let xcodeVersion = options["xcodeVersion"] {
+        if let xcodeVersion = options["xcodeVersion"]?.trimOption(), !xcodeVersion.isEmpty {
             xcodes(version: xcodeVersion)
         }
         
@@ -68,17 +67,17 @@ class Fastfile: LaneFile {
             useAutomaticSigning: false,
             codeSignIdentity: .userDefined(decodedCodeSignIdentity),
             profileName: .userDefined(profileName),
-            bundleIdentifier: .userDefined(swiftfinBundleIdentifier)
+            bundleIdentifier: .userDefined(finStreamBundleIdentifier)
         )
         
-        if let version = options["version"] {
+        if let version = options["version"]?.trimOption(), !version.isEmpty {
             incrementVersionNumber(
                 versionNumber: .userDefined(version),
                 xcodeproj: .userDefined(swiftfinXcodeProject)
             )
         }
         
-        if let build = options["build"] {
+        if let build = options["build"]?.trimOption(), !build.isEmpty {
             incrementBuildNumber(
                 buildNumber: .userDefined(build),
                 xcodeproj: .userDefined(swiftfinXcodeProject)
@@ -108,7 +107,7 @@ class Fastfile: LaneFile {
             exit(1)
         }
         
-        if let xcodeVersion = options["xcodeVersion"] {
+        if let xcodeVersion = options["xcodeVersion"]?.trimOption(), !xcodeVersion.isEmpty {
             xcodes(version: xcodeVersion)
         }
         

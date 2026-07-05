@@ -106,16 +106,13 @@ struct SettingsView: View {
     // MARK: - Playback Section
 
     private var videoPlayerSection: some View {
+        #if os(iOS)
         Section(L10n.playback) {
-            #if os(iOS)
             Picker(L10n.videoPlayerType, selection: $videoPlayerType)
 
             ChevronButton(L10n.nativePlayer) {
                 router.route(to: .nativePlayerSettings)
             }
-            #else
-            ListRowMenu(L10n.videoPlayerType, selection: $videoPlayerType)
-            #endif
 
             ChevronButton(L10n.videoPlayer) {
                 router.route(to: .videoPlayerSettings)
@@ -134,6 +131,32 @@ struct SettingsView: View {
                 value: L10n.playerNativeDescription
             )
         }
+        #else
+        Section(L10n.playback) {
+            ListRowMenu(L10n.videoPlayerType, selection: $videoPlayerType)
+                .focusedValue(\.formLearnMore, videoPlayerTypeLearnMore)
+
+            ChevronButton(L10n.videoPlayer) {
+                router.route(to: .videoPlayerSettings)
+            }
+
+            ChevronButton(L10n.playbackQuality) {
+                router.route(to: .playbackQualitySettings)
+            }
+        }
+        #endif
+    }
+
+    @LabeledContentBuilder
+    private var videoPlayerTypeLearnMore: AnyView {
+        LabeledContent(
+            "FinStream",
+            value: L10n.playerFinStreamDescription
+        )
+        LabeledContent(
+            L10n.native,
+            value: L10n.playerNativeDescription
+        )
     }
 
     // MARK: - Media and Appearance Section

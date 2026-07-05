@@ -78,17 +78,20 @@ extension StateContainer where EmptyContent == EmptyStateView {
 struct EmptyStateView: View {
 
     let message: String
+    let description: String?
     let systemImage: String
     let action: (() -> Void)?
     let actionLabel: String?
 
     init(
         message: String = L10n.noResults,
+        description: String? = nil,
         systemImage: String = "tray",
         action: (() -> Void)? = nil,
         actionLabel: String? = nil
     ) {
         self.message = message
+        self.description = description
         self.systemImage = systemImage
         self.action = action
         self.actionLabel = actionLabel
@@ -105,6 +108,14 @@ struct EmptyStateView: View {
                 .font(.headline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+
+            if let description {
+                Text(description)
+                    .font(.callout)
+                    .foregroundStyle(.tertiary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 520)
+            }
 
             if let action, let actionLabel {
                 Button(actionLabel, action: action)

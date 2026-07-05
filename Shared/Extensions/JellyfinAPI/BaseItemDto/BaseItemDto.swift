@@ -35,6 +35,42 @@ extension BaseItemDto: Displayable {
     }
 }
 
+extension BaseItemDto {
+
+    var localizedCollectionDisplayTitle: String {
+        let normalizedName: String? = name?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let normalizedName = normalizedName, normalizedName.isNotEmpty {
+            return normalizedName.localizedDefaultLibraryDisplayTitle
+        }
+
+        return switch collectionType {
+        case .boxsets:
+            L10n.collections
+        case .folders:
+            L10n.folders
+        case .movies:
+            L10n.movies
+        case .musicvideos:
+            L10n.musicVideos
+        case .tvshows:
+            L10n.series
+        case .livetv:
+            L10n.liveTV
+        default:
+            displayTitle.localizedDefaultLibraryDisplayTitle
+        }
+    }
+
+    mutating func setPlayedState(_ isPlayed: Bool) {
+        var updatedUserData: UserItemDataDto = userData ?? UserItemDataDto()
+        updatedUserData.isPlayed = isPlayed
+        updatedUserData.playbackPositionTicks = 0
+        updatedUserData.playedPercentage = isPlayed ? 100 : 0
+        userData = updatedUserData
+    }
+}
+
 extension BaseItemDto: LibraryIdentifiable {
 
     var unwrappedIDHashOrZero: Int {

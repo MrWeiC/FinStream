@@ -80,6 +80,7 @@ private struct PlatformForm<Image: View, Content: View>: PlatformView {
             Form {
                 content
             }
+            .toggleStyle(.localizedSettings)
             .frame(maxWidth: .infinity)
             .padding(.top)
             .backport
@@ -111,5 +112,63 @@ private struct PlatformForm<Image: View, Content: View>: PlatformView {
                 .fill(Material.thick)
         }
         .padding()
+    }
+}
+
+private struct LocalizedSettingsToggleStyle: ToggleStyle {
+
+    func makeBody(configuration: Configuration) -> some View {
+        LocalizedSettingsToggle(configuration: configuration)
+    }
+}
+
+private struct LocalizedSettingsToggle: View {
+
+    @FocusState
+    private var isFocused: Bool
+
+    let configuration: ToggleStyle.Configuration
+
+    var body: some View {
+        Button {
+            configuration.isOn.toggle()
+        } label: {
+            HStack {
+                configuration.label
+                    .foregroundStyle(isFocused ? .black : .primary)
+                    .padding(.leading, 4)
+
+                Spacer()
+
+                Text(configuration.isOn ? L10n.enabled : L10n.disabled)
+                    .fontWeight(.medium)
+                    .foregroundStyle(isFocused ? .black : .secondary)
+                    .brightness(isFocused ? 0.4 : 0)
+
+                Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
+                    .font(.body.weight(.regular))
+                    .foregroundStyle(isFocused ? .black : .secondary)
+                    .brightness(isFocused ? 0.4 : 0)
+            }
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isFocused ? Color.white : Color.clear)
+            )
+            .scaleEffect(isFocused ? 1.04 : 1.0)
+            .animation(.easeInOut(duration: 0.125), value: isFocused)
+        }
+        .buttonStyle(.plain)
+        .listRowInsets(.zero)
+        .focused($isFocused)
+        .accessibilityValue(configuration.isOn ? L10n.enabled : L10n.disabled)
+    }
+}
+
+private extension ToggleStyle where Self == LocalizedSettingsToggleStyle {
+
+    static var localizedSettings: LocalizedSettingsToggleStyle {
+        LocalizedSettingsToggleStyle()
     }
 }

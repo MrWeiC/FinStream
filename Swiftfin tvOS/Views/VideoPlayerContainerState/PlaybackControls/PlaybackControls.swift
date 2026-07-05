@@ -147,7 +147,7 @@ extension VideoPlayer {
                         }
 
                     // Skip explainer label
-                    Text("← → Skip: 1×=15s  2×=2min  3×=5min")
+                    Text(L10n.playbackSkipHint)
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.6))
                         .padding(.horizontal, 60)

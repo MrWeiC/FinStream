@@ -31,10 +31,10 @@ extension VideoPlayer.PlaybackControls.NavigationBar.ActionButtons {
                         containerState.select(supplement: supplement, isGuest: true)
                     }
                 } label: {
-                    Label("Information", systemImage: "info.circle")
+                    Label(L10n.info, systemImage: "info.circle")
                 }
             } else {
-                TransportBarButton("Info") {
+                TransportBarButton(L10n.info) {
                     if let supplement = infoSupplement {
                         containerState.select(supplement: supplement, isGuest: true)
                     }

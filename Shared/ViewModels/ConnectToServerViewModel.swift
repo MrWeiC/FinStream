@@ -131,7 +131,11 @@ final class ConnectToServerViewModel: ViewModel {
             if existingServer.currentURL == newServerState.currentURL {
                 events.send(.connected(existingServer))
             } else {
-                events.send(.duplicateServer(newServerState))
+                let updatedServer = try updateStoredAddress(
+                    for: existingServer,
+                    discoveredServer: newServerState
+                )
+                events.send(.connected(updatedServer))
             }
         } else {
             try await save(server: newServerState)
@@ -204,23 +208,34 @@ final class ConnectToServerViewModel: ViewModel {
         StoredValues[.Server.publicInfo(id: server.id)] = publicInfo
     }
 
-    /// server has same id, but (possible) new URL
-    @Function(\Action.Cases.addNewURL)
-    private func _addNewURL(_ server: ServerState) throws {
+    private func updateStoredAddress(
+        for existingServer: ServerState,
+        discoveredServer: ServerState
+    ) throws -> ServerState {
         let newState = try dataStack.perform { transaction in
-            guard let editServer = try transaction.fetchOne(From<ServerModel>().where(\.$id == server.id)) else {
-                logger.critical("Could not find server to add new url")
+            guard let editServer = try transaction.fetchOne(From<ServerModel>().where(\.$id == existingServer.id)) else {
+                logger.critical("Could not find server to update current url")
                 throw ErrorMessage("An internal error has occurred")
             }
 
-            editServer.urls.insert(server.currentURL)
-            editServer.currentURL = server.currentURL
+            editServer.urls.insert(discoveredServer.currentURL)
+            editServer.currentURL = discoveredServer.currentURL
+            editServer.name = discoveredServer.name
 
             return editServer.state
         }
 
         refreshStoredServers()
         Notifications[.didChangeCurrentServerURL].post(newState)
+
+        return newState
+    }
+
+    /// server has same id, but (possible) new URL
+    @Function(\Action.Cases.addNewURL)
+    private func _addNewURL(_ server: ServerState) throws {
+        let existingServer = existingServer(for: server) ?? server
+        let newState = try updateStoredAddress(for: existingServer, discoveredServer: server)
         events.send(.connected(newState))
     }
 

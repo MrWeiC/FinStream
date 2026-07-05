@@ -23,42 +23,48 @@ enum MediaPlayerError: LocalizedError, SystemImageable {
     var errorDescription: String? {
         switch self {
         case .networkError:
-            return "Network connection error"
+            return L10n.mediaPlayerNetworkConnectionError
         case let .codecNotSupported(codec):
-            return "Unsupported format\(codec.map { ": \($0)" } ?? "")"
+            if let codec {
+                return L10n.mediaPlayerUnsupportedFormatWithCodec(codec)
+            }
+            return L10n.mediaPlayerUnsupportedFormat
         case .mediaSourceUnavailable:
-            return "Media source not available"
+            return L10n.mediaPlayerMediaSourceUnavailable
         case let .transcodeFailed(reason):
-            return "Transcoding failed\(reason.map { ": \($0)" } ?? "")"
+            if let reason {
+                return L10n.mediaPlayerTranscodingFailedWithReason(reason)
+            }
+            return L10n.mediaPlayerTranscodingFailed
         case .authenticationRequired:
-            return "Authentication required"
+            return L10n.mediaPlayerAuthenticationRequired
         case .serverUnreachable:
-            return "Cannot reach server"
+            return L10n.mediaPlayerServerUnreachable
         case let .playerCrashed(player):
-            return "\(player) player error"
+            return L10n.mediaPlayerPlayerError(player)
         case let .unknown(message):
-            return message ?? "Unknown playback error"
+            return message ?? L10n.mediaPlayerUnknownPlaybackError
         }
     }
 
     var recoverySuggestion: String? {
         switch self {
         case .networkError:
-            return "Check your network connection and try again"
+            return L10n.mediaPlayerNetworkRecovery
         case .codecNotSupported:
-            return "Try switching to a different player in Settings"
+            return L10n.mediaPlayerCodecRecovery
         case .mediaSourceUnavailable:
-            return "The media file may have been moved or deleted"
+            return L10n.mediaPlayerMediaSourceRecovery
         case .transcodeFailed:
-            return "Try a lower quality setting or different player"
+            return L10n.mediaPlayerTranscodeRecovery
         case .authenticationRequired:
-            return "Please sign in again"
+            return L10n.mediaPlayerAuthenticationRecovery
         case .serverUnreachable:
-            return "Verify your server address and try again"
+            return L10n.mediaPlayerServerRecovery
         case .playerCrashed:
-            return "Try playing again or switch players"
+            return L10n.mediaPlayerCrashRecovery
         case .unknown:
-            return "Try again or restart the app"
+            return L10n.mediaPlayerUnknownRecovery
         }
     }
 

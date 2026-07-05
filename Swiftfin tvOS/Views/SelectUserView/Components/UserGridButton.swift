@@ -14,6 +14,8 @@ extension SelectUserView {
 
     struct UserGridButton: View {
 
+        private static let profileImageSize: CGFloat = 280
+
         @Default(.accentColor)
         private var accentColor
 
@@ -25,6 +27,7 @@ extension SelectUserView {
         private let user: UserState
         private let server: ServerState
         private let showServer: Bool
+        private let focusedUserID: FocusState<String?>.Binding
         private let action: () -> Void
         private let onDelete: () -> Void
 
@@ -34,12 +37,14 @@ extension SelectUserView {
             user: UserState,
             server: ServerState,
             showServer: Bool,
+            focusedUserID: FocusState<String?>.Binding,
             action: @escaping () -> Void,
             onDelete: @escaping () -> Void
         ) {
             self.user = user
             self.server = server
             self.showServer = showServer
+            self.focusedUserID = focusedUserID
             self.action = action
             self.onDelete = onDelete
         }
@@ -63,6 +68,7 @@ extension SelectUserView {
                     ),
                     pipeline: .Swiftfin.local
                 )
+                .frame(width: Self.profileImageSize, height: Self.profileImageSize)
                 .overlay(alignment: .bottom) {
                     if isEditing && isSelected {
                         Image(systemName: "checkmark.circle.fill")
@@ -89,6 +95,7 @@ extension SelectUserView {
             }
             .buttonStyle(.borderless)
             .buttonBorderShape(.circle)
+            .focused(focusedUserID, equals: user.id)
             .contextMenu {
                 if !isEditing {
                     Button(

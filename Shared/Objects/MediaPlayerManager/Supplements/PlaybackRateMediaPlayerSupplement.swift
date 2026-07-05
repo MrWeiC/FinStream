@@ -13,8 +13,8 @@ import SwiftUI
 //       - audio/subtitle offset
 struct PlaybackRateMediaPlayerSupplement: MediaPlayerSupplement {
 
-    let displayTitle: String = "Playback Rate"
-    let id: String = "Playback Rate"
+    let displayTitle: String = L10n.playbackSpeed
+    let id: String = "playbackRate"
 
     var videoPlayerBody: some PlatformView {
         PlaybackRateOverlay()

@@ -21,7 +21,7 @@ extension CustomDeviceProfileSettingsView {
                 Text(L10n.profile)
                     .font(.headline)
 
-                Text("\(profile.audio.count) \(L10n.audio), \(profile.video.count) \(L10n.video)")
+                Text(L10n.audioVideoProfileSummary(profile.audio.count, profile.video.count))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

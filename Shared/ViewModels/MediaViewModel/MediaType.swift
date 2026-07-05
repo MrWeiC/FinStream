@@ -21,7 +21,7 @@ extension MediaViewModel {
         var displayTitle: String {
             switch self {
             case let .collectionFolder(item):
-                return item.displayTitle
+                return item.localizedCollectionDisplayTitle
             case .downloads:
                 return L10n.downloads
             case .favorites:

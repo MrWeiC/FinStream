@@ -37,7 +37,7 @@ extension VideoPlayer.PlaybackControls.NavigationBar.ActionButtons {
                     isAspectFilled.toggle()
                 }
             } else {
-                TransportBarButton("AspectFill") {
+                TransportBarButton(L10n.aspectFill) {
                     isAspectFilled.toggle()
                 } label: {
                     Image(systemName: systemImage)

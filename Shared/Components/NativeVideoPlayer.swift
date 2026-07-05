@@ -64,8 +64,7 @@ struct NativeVideoPlayer: View {
                 router.dismiss()
             }
         } message: {
-            // TODO: localize
-            Text("Unable to load this item.")
+            Text(L10n.unableToLoadThisItem)
         }
     }
 }

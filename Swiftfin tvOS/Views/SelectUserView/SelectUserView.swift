@@ -9,7 +9,6 @@
 import Defaults
 import Factory
 import JellyfinAPI
-import OrderedCollections
 import SwiftUI
 
 struct SelectUserView: View {
@@ -42,6 +41,14 @@ struct SelectUserView: View {
     private var selectedUsers: Set<UserState> = []
     @State
     private var selectedPinUserItem: UserItem? = nil
+
+    @FocusState
+    private var focusedUserID: String?
+    @FocusState
+    private var focusedBottomBarItem: BottomBarItem?
+
+    @State
+    private var lastFocusedRegion: FocusRegion = .users
 
     // MARK: - Dialog States
 
@@ -93,13 +100,49 @@ struct SelectUserView: View {
                 return []
             }
 
-            return viewModel.servers[server]!
+            guard let users = viewModel.servers[server] else {
+                return []
+            }
+
+            return users
                 .sorted(using: \.username)
                 .map { UserItem(user: $0, server: server) }
         }
     }
 
+    private var userSelectionDescription: String {
+        if userItems.isEmpty {
+            L10n.addExistingUserStartDescription
+        } else {
+            L10n.selectUserDescription
+        }
+    }
+
+    private var userSelectionTitle: String {
+        if userItems.isEmpty {
+            L10n.signInExistingJellyfinUser
+        } else {
+            L10n.selectUser
+        }
+    }
+
+    // MARK: - Focus
+
+    enum BottomBarItem: Hashable {
+        case addUser
+        case serverSelection
+        case advanced
+    }
+
+    private enum FocusRegion {
+        case users
+        case bottomBar
+    }
+
     private func addUserSelected(server: ServerState) {
+        focusedBottomBarItem = nil
+        lastFocusedRegion = .users
+        focusFirstUserIfNeeded(force: true)
         router.route(to: .userSignIn(server: server))
     }
 
@@ -115,7 +158,7 @@ struct SelectUserView: View {
 
         guard user.hasAccessToken else {
             selectedUsers.removeAll()
-            router.route(to: .userSignIn(server: server))
+            router.route(to: .userSignIn(server: server, reauthenticatingUser: user))
             return
         }
 
@@ -144,13 +187,14 @@ struct SelectUserView: View {
             columns: 5,
             spacing: EdgeInsets.edgePadding
         ) { gridItem in
-            let user = gridItem.user
-            let server = gridItem.server
+            let user: UserState = gridItem.user
+            let server: ServerState = gridItem.server
 
             UserGridButton(
                 user: user,
                 server: server,
-                showServer: serverSelection == .all
+                showServer: serverSelection == .all,
+                focusedUserID: $focusedUserID
             ) {
                 if isEditingUsers {
                     selectedUsers.toggle(value: user)
@@ -175,9 +219,24 @@ struct SelectUserView: View {
                 selectedServer: selectedServer,
                 servers: viewModel.servers.keys
             ) { server in
-                router.route(to: .userSignIn(server: server))
+                addUserSelected(server: server)
             }
         }
+    }
+
+    private var selectionHeader: some View {
+        VStack(spacing: 12) {
+            Text(userSelectionTitle)
+                .font(.largeTitle.weight(.semibold))
+
+            Text(userSelectionDescription)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 760)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 24)
     }
 
     // MARK: - User View
@@ -190,7 +249,9 @@ struct SelectUserView: View {
                 VStack(spacing: 0) {
 
                     Color.clear
-                        .frame(height: 100)
+                        .frame(height: 70)
+
+                    selectionHeader
 
                     Group {
                         if userItems.isEmpty {
@@ -209,11 +270,14 @@ struct SelectUserView: View {
             SelectUserBottomBar(
                 isEditing: $isEditingUsers,
                 serverSelection: $serverSelection,
+                focusedItem: $focusedBottomBarItem,
                 selectedServer: selectedServer,
                 servers: viewModel.servers.keys,
                 areUsersSelected: selectedUsers.isNotEmpty,
                 hasUsers: userItems.isNotEmpty
             ) {
+                addUserSelected(server: $0)
+            } onDelete: {
                 isPresentingConfirmDeleteUsers = true
             } toggleAllUsersSelected: {
                 if selectedUsers.isNotEmpty {
@@ -280,6 +344,23 @@ struct SelectUserView: View {
         }
     }
 
+    private func focusFirstUserIfNeeded(force: Bool = false) {
+        guard !isEditingUsers else { return }
+        guard let firstUserID = userItems.first?.user.id else { return }
+
+        if !force,
+           let focusedUserID,
+           userItems.contains(where: { $0.user.id == focusedUserID })
+        {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            focusedBottomBarItem = nil
+            focusedUserID = firstUserID
+        }
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -294,10 +375,37 @@ struct SelectUserView: View {
         .navigationBarBranding()
         .onAppear {
             viewModel.getServers()
+            focusFirstUserIfNeeded(force: true)
         }
         .onChange(of: isEditingUsers) {
             guard !isEditingUsers else { return }
             selectedUsers.removeAll()
+            focusFirstUserIfNeeded(force: true)
+        }
+        .onChange(of: userItems.map(\.user.id)) {
+            focusFirstUserIfNeeded()
+        }
+        .onChange(of: focusedUserID) { _, newValue in
+            if newValue != nil {
+                lastFocusedRegion = .users
+                focusedBottomBarItem = nil
+            }
+        }
+        .onChange(of: focusedBottomBarItem) { _, newValue in
+            guard let newValue else { return }
+
+            if newValue == .serverSelection,
+               lastFocusedRegion == .users,
+               userItems.isNotEmpty,
+               !isEditingUsers
+            {
+                DispatchQueue.main.async {
+                    focusedBottomBarItem = .addUser
+                }
+                return
+            }
+
+            lastFocusedRegion = .bottomBar
         }
         .onChange(of: isPresentingLocalPin) {
             if isPresentingLocalPin {
@@ -308,13 +416,13 @@ struct SelectUserView: View {
             }
         }
         .onChange(of: viewModel.servers.keys) {
-            let newValue = viewModel.servers.keys
+            let newValue: [ServerState] = Array(viewModel.servers.keys)
 
             if case let SelectUserServerSelection.server(id: id) = serverSelection,
                !newValue.contains(where: { $0.id == id })
             {
                 if newValue.count == 1, let firstServer = newValue.first {
-                    let newSelection = SelectUserServerSelection.server(id: firstServer.id)
+                    let newSelection: SelectUserServerSelection = .server(id: firstServer.id)
                     serverSelection = newSelection
                     selectUserAllServersSplashscreen = newSelection
                 } else {
@@ -325,9 +433,9 @@ struct SelectUserView: View {
         }
         .onReceive(viewModel.events) { event in
             switch event {
-            case let .expiredSession(_, server):
+            case let .expiredSession(user, server):
                 selectedUsers.removeAll()
-                router.route(to: .userSignIn(server: server))
+                router.route(to: .userSignIn(server: server, reauthenticatingUser: user))
             case let .signedIn(user):
                 Defaults[.lastSignedInUserID] = .signedIn(userID: user.id)
                 Container.shared.currentUserSession.reset()
@@ -354,9 +462,11 @@ struct SelectUserView: View {
             }
         } message: {
             if selectedUsers.count == 1, let first = selectedUsers.first {
-                Text(L10n.deleteUserSingleConfirmation(first.username))
+                let message: String = L10n.deleteUserSingleConfirmation(first.username)
+                Text(message)
             } else {
-                Text(L10n.deleteUserMultipleConfirmation(selectedUsers.count))
+                let message: String = L10n.deleteUserMultipleConfirmation(selectedUsers.count)
+                Text(message)
             }
         }
         .alert(L10n.signIn, isPresented: $isPresentingLocalPin) {

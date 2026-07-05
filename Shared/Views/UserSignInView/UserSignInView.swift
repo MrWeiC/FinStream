@@ -47,9 +47,15 @@ struct UserSignInView: View {
     @StateObject
     private var viewModel: UserSignInViewModel
 
+    private let reauthenticatingUser: UserState?
+
     private let logger = Logger.swiftfin()
 
-    init(server: ServerState) {
+    init(
+        server: ServerState,
+        reauthenticatingUser: UserState? = nil
+    ) {
+        self.reauthenticatingUser = reauthenticatingUser
         self._viewModel = StateObject(wrappedValue: UserSignInViewModel(server: server))
     }
 
@@ -71,6 +77,14 @@ struct UserSignInView: View {
                 evaluatedPolicyMap: .init(action: processEvaluatedPolicy)
             )
         case let .existingUser(existingUser):
+            if existingUser.state.state.id == reauthenticatingUser?.id {
+                saveExistingUser(
+                    existingUser,
+                    replaceForAccessToken: true
+                )
+                return
+            }
+
             self.existingUser = existingUser
             self.isPresentingExistingUser = true
         case let .saved(user):
@@ -82,6 +96,56 @@ struct UserSignInView: View {
             Container.shared.currentUserSession.reset()
             Notifications[.didSignIn].post()
         }
+    }
+
+    private var isReauthenticating: Bool {
+        reauthenticatingUser != nil
+    }
+
+    private var signInButtonTitle: String {
+        isReauthenticating ? L10n.signIn : L10n.addUser
+    }
+
+    private var signInDescription: String {
+        isReauthenticating ? L10n.reauthenticateJellyfinUserDescription : L10n.signInExistingJellyfinUserDescription
+    }
+
+    private var signInHeader: String {
+        if let reauthenticatingUser {
+            L10n.reauthenticateJellyfinUserOnServer(
+                reauthenticatingUser.username,
+                viewModel.server.name
+            )
+        } else {
+            L10n.addExistingJellyfinUserToServer(viewModel.server.name)
+        }
+    }
+
+    private var signInTitle: String {
+        isReauthenticating ? L10n.reauthenticateJellyfinUser : L10n.signInExistingJellyfinUser
+    }
+
+    private func saveExistingUser(
+        _ existingUser: UserSignInViewModel.UserStateDataPair,
+        replaceForAccessToken: Bool
+    ) {
+        guard let authenticationAction else { return }
+
+        let userState: UserState = existingUser.state.state
+        let existingUserAccessPolicy: UserAccessPolicy = userState.accessPolicy
+
+        viewModel.saveExisting(
+            user: existingUser,
+            replaceForAccessToken: replaceForAccessToken,
+            authenticationAction: (
+                authenticationAction,
+                existingUserAccessPolicy,
+                existingUserAccessPolicy.authenticateReason(
+                    user: userState
+                )
+            ),
+            evaluatedPolicyMap: .init(action: processEvaluatedPolicy)
+        )
     }
 
     private func runQuickConnect() {
@@ -125,6 +189,7 @@ struct UserSignInView: View {
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .focused($focusedTextField, equals: .username)
+                .disabled(isReauthenticating)
                 .onSubmit {
                     focusedTextField = .password
                 }
@@ -152,7 +217,7 @@ struct UserSignInView: View {
                 .frame(minHeight: 60)
             #endif
         } header: {
-            Text(L10n.signInToServer(viewModel.server.name))
+            Text(signInHeader)
         } footer: {
             switch accessPolicy {
             case .requireDeviceAuthentication:
@@ -162,7 +227,7 @@ struct UserSignInView: View {
                 Label(L10n.userPinRequiredDescription, systemImage: "exclamationmark.circle.fill")
                     .labelStyle(.sectionFooterWithImage(imageStyle: .orange))
             case .none:
-                Text(L10n.signInExistingJellyfinUserDescription)
+                Text(signInDescription)
             }
         }
 
@@ -173,7 +238,7 @@ struct UserSignInView: View {
             .buttonStyle(.primary)
             .frame(height: 64)
         } else {
-            Button(L10n.signIn) {
+            Button(signInButtonTitle) {
                 viewModel.signIn(
                     username: username,
                     password: password
@@ -181,29 +246,35 @@ struct UserSignInView: View {
             }
             .buttonStyle(.primary)
             .frame(height: 64)
-            .disabled(username.isEmpty)
+            .disabled(username.isEmpty || password.isEmpty)
             .foregroundStyle(
                 Color.jellyfinPurple.overlayColor,
                 Color.jellyfinPurple
             )
-            .opacity(username.isEmpty ? 0.5 : 1)
+            .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
         }
 
         if viewModel.isQuickConnectEnabled {
             Section {
-                Button(
-                    L10n.quickConnect,
-                    action: runQuickConnect
-                )
+                Button(action: runQuickConnect) {
+                    Label(L10n.quickConnect, systemImage: "bolt.horizontal")
+                        .frame(maxWidth: .infinity, minHeight: 64)
+                }
                 .buttonStyle(.primary)
                 .frame(height: 64)
                 .disabled(viewModel.state == .signingIn)
-                .foregroundStyle(
-                    Color.jellyfinPurple.overlayColor,
-                    Color.jellyfinPurple
-                )
             }
         }
+
+        #if os(tvOS)
+        if viewModel.state != .signingIn {
+            Button(L10n.cancel) {
+                router.dismiss()
+            }
+            .buttonStyle(.primary)
+            .frame(height: 64)
+        }
+        #endif
 
         if let disclaimer = viewModel.serverDisclaimer {
             Section(L10n.disclaimer) {
@@ -216,12 +287,12 @@ struct UserSignInView: View {
     // MARK: - Public Users Section
 
     private var publicUsersSection: some View {
-        Section(L10n.publicUsers) {
+        Section {
             if viewModel.publicUsers.isEmpty {
-                Text(L10n.noPublicUsers)
+                Label(L10n.noVisibleUsers, systemImage: "person.slash")
                     .font(.callout)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
             } else {
                 #if os(iOS)
                 ForEach(viewModel.publicUsers) { user in
@@ -253,6 +324,10 @@ struct UserSignInView: View {
                 }
                 #endif
             }
+        } header: {
+            Text(L10n.visibleUsers)
+        } footer: {
+            Text(L10n.visibleUsersDescription)
         }
         .disabled(viewModel.state == .signingIn)
     }
@@ -299,11 +374,17 @@ struct UserSignInView: View {
 
     var body: some View {
         contentView
-            .navigationTitle(L10n.signInExistingJellyfinUser)
+            .navigationTitle(signInTitle)
             .interactiveDismissDisabled(viewModel.state == .signingIn)
             .onReceive(viewModel.events, perform: handleEvent)
             .onFirstAppear {
-                focusedTextField = .username
+                if let reauthenticatingUser {
+                    username = reauthenticatingUser.username
+                    focusedTextField = .password
+                } else {
+                    focusedTextField = .username
+                }
+
                 viewModel.getPublicData()
             }
             .alert(
@@ -311,37 +392,17 @@ struct UserSignInView: View {
                 isPresented: $isPresentingExistingUser,
                 presenting: existingUser
             ) { existingUser in
-
-                let userState = existingUser.state.state
-                let existingUserAccessPolicy = userState.accessPolicy
-
                 Button(L10n.continue) {
-                    viewModel.saveExisting(
-                        user: existingUser,
-                        replaceForAccessToken: false,
-                        authenticationAction: (
-                            authenticationAction!,
-                            existingUserAccessPolicy,
-                            existingUserAccessPolicy.authenticateReason(
-                                user: userState
-                            )
-                        ),
-                        evaluatedPolicyMap: .init(action: processEvaluatedPolicy)
+                    saveExistingUser(
+                        existingUser,
+                        replaceForAccessToken: false
                     )
                 }
 
                 Button(L10n.replace) {
-                    viewModel.saveExisting(
-                        user: existingUser,
-                        replaceForAccessToken: true,
-                        authenticationAction: (
-                            authenticationAction!,
-                            existingUserAccessPolicy,
-                            existingUserAccessPolicy.authenticateReason(
-                                user: userState
-                            )
-                        ),
-                        evaluatedPolicyMap: .init(action: processEvaluatedPolicy)
+                    saveExistingUser(
+                        existingUser,
+                        replaceForAccessToken: true
                     )
                 }
 

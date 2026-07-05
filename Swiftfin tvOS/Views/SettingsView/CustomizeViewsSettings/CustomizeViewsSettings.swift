@@ -48,11 +48,11 @@ struct CustomizeViewsSettings: View {
 
                 Toggle(L10n.showPosterLabels, isOn: $showPosterLabels)
 
-                ListRowMenu(L10n.next, selection: $nextUpPosterType)
+                ListRowMenu(L10n.nextUp, selection: $nextUpPosterType)
                 ListRowMenu(L10n.recentlyAdded, selection: $recentlyAddedPosterType)
-                ListRowMenu(L10n.latestWithString(L10n.library), selection: $latestInLibraryPosterType)
-                ListRowMenu(L10n.recommended, selection: $similarPosterType)
-                ListRowMenu(L10n.search, selection: $searchPosterType)
+                ListRowMenu(L10n.latestMediaLibraries, selection: $latestInLibraryPosterType)
+                ListRowMenu(L10n.recommendedMedia, selection: $similarPosterType)
+                ListRowMenu(L10n.searchResults, selection: $searchPosterType)
             }
 
             LibrarySection()

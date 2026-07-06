@@ -146,22 +146,39 @@ class AVMediaPlayerProxy: VideoMediaPlayerProxy {
     }
 
     func setSubtitleStream(_ stream: MediaStream) {
+        applySubtitleSelection(
+            streamIndex: stream.index,
+            optionIndex: Self.legibleOptionIndex(
+                for: stream.index,
+                subtitleStreams: manager?.playbackItem?.subtitleStreams ?? []
+            )
+        )
+    }
+
+    private func applySubtitleSelection(streamIndex: Int?, optionIndex: Int?) {
         guard let playerItem = player.currentItem else { return }
         guard let group = playerItem.asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else { return }
 
         // Handle "Off" (index -1)
-        if stream.index == -1 {
+        if streamIndex == -1 {
             playerItem.select(nil, in: group)
             return
         }
 
-        // Find matching option by index
-        if let index = stream.index {
-            let options = group.options
-            if index < options.count {
-                playerItem.select(options[index], in: group)
-            }
+        let options = group.options
+        guard let optionIndex,
+              optionIndex >= 0,
+              optionIndex < options.count
+        else {
+            return
         }
+
+        playerItem.select(options[optionIndex], in: group)
+    }
+
+    static func legibleOptionIndex(for streamIndex: Int?, subtitleStreams: [MediaStream]) -> Int? {
+        guard let streamIndex, streamIndex >= 0 else { return nil }
+        return subtitleStreams.firstIndex { $0.index == streamIndex }
     }
 
     func setAspectFill(_ aspectFill: Bool) {
@@ -226,6 +243,11 @@ extension AVMediaPlayerProxy {
         // Extract values from baseItem before closure to avoid capturing non-Sendable type
         let baseItemStartSeconds = item.baseItem.startSeconds
         let resumeOffset = Defaults[.VideoPlayer.resumeOffset]
+        let selectedSubtitleStreamIndex = item.selectedSubtitleStreamIndex
+        let selectedSubtitleOptionIndex = Self.legibleOptionIndex(
+            for: item.selectedSubtitleStreamIndex,
+            subtitleStreams: item.subtitleStreams
+        )
 
         // TODO: protect against paused
 //        rateObserver = player.observe(\.rate, options: [.new, .initial]) { _, value in
@@ -265,6 +287,13 @@ extension AVMediaPlayerProxy {
                 }
             case .none, .readyToPlay, .unknown:
                 let startSeconds = max(.zero, (baseItemStartSeconds ?? .zero) - Duration.seconds(resumeOffset))
+
+                Task { @MainActor in
+                    self.applySubtitleSelection(
+                        streamIndex: selectedSubtitleStreamIndex,
+                        optionIndex: selectedSubtitleOptionIndex
+                    )
+                }
 
                 self.player.seek(
                     to: CMTimeMake(

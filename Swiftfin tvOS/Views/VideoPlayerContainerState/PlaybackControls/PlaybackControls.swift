@@ -236,14 +236,13 @@ extension VideoPlayer {
                 case (.menu, .began):
                     if isPresentingSupplement {
                         containerState.select(supplement: nil)
-                    } else if containerState.supplementRecentlyDismissed {
-                        // Supplement was just dismissed - clear flag but keep overlay visible
-                        containerState.supplementRecentlyDismissed = false
+                    } else if containerState.shouldBlockMenuExit {
+                        break
+                    } else if isScrubbing {
+                        containerState.dismissScrubbingFromMenu()
                     } else if isPresentingOverlay {
                         // First menu press hides overlay
-                        withAnimation(.linear(duration: 0.25)) {
-                            containerState.isPresentingOverlay = false
-                        }
+                        containerState.dismissOverlayFromMenu()
                     } else {
                         // Overlay hidden - exit playback
                         manager.proxy?.stop()

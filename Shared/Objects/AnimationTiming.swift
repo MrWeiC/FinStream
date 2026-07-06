@@ -22,6 +22,10 @@ enum AnimationTiming {
     /// Used in: VideoPlayerContainerView focus callbacks
     static let focusUpdateDelay: TimeInterval = 0.35
 
+    /// Delay before Menu/Escape can exit playback after chrome dismissal (1.0s)
+    /// Used in: VideoPlayerContainerState menu exit guards
+    static let menuExitBlockDelay: TimeInterval = 1.0
+
     // MARK: - Skip Indicator
 
     /// Delay before skip indicator resets after tap (0.4s)

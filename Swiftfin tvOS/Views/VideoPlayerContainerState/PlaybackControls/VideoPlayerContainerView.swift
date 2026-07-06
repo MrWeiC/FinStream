@@ -343,13 +343,18 @@ extension VideoPlayer {
                 return
             }
 
+            if buttonPress.type == .menu, isSwallowingMenuPress {
+                return
+            }
+
+            let shouldSwallowMenuPress = buttonPress.type == .menu && containerState.shouldSwallowMenuPress
+
             // Send event to SwiftUI for overlay toggle handling
             onPressEvent.send((type: buttonPress.type, phase: .began))
 
-            // For Menu button: swallow press when overlay/supplement is visible
-            if buttonPress.type == .menu,
-               containerState.isPresentingOverlay || containerState.isPresentingSupplement
-            {
+            // For Menu button: swallow the press based on pre-handler state. The
+            // SwiftUI handler may hide the overlay before this check runs.
+            if shouldSwallowMenuPress {
                 isSwallowingMenuPress = true
                 return
             }

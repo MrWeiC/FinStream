@@ -124,7 +124,14 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
             selectedAudioStreamIndex = audioStreams.first?.index
         }
 
-        selectedSubtitleStreamIndex = mediaSource.defaultSubtitleStreamIndex ?? -1
+        if let defaultIndex = mediaSource.defaultSubtitleStreamIndex,
+           defaultIndex >= 0,
+           subtitleStreams.contains(where: { $0.index == defaultIndex })
+        {
+            selectedSubtitleStreamIndex = defaultIndex
+        } else {
+            selectedSubtitleStreamIndex = subtitleStreams.first?.index ?? -1
+        }
 
         observers.append(MediaProgressObserver(item: self))
     }

@@ -52,11 +52,14 @@ class VideoPlayerContainerState: ObservableObject {
     @Published
     private(set) var overlayState: OverlayVisibility = .hidden {
         didSet {
+            let wasVisible = oldValue == .visible
             updatePlaybackControlsVisibility()
 
             // When overlay becomes visible (not locked), start auto-hide timer
             if overlayState == .visible, supplementState == .closed {
                 timer.poke()
+            } else if wasVisible {
+                blockMenuExitAfterOverlayDismissal()
             }
         }
     }
@@ -115,6 +118,16 @@ class VideoPlayerContainerState: ObservableObject {
         set { scrubState = newValue ? .scrubbing : .idle }
     }
 
+    /// Whether a Menu/Escape press should be consumed by the player chrome.
+    var shouldSwallowMenuPress: Bool {
+        isPresentingOverlay || isPresentingSupplement || isScrubbing || shouldBlockMenuExit
+    }
+
+    /// Whether Menu/Escape should be ignored instead of exiting playback.
+    var shouldBlockMenuExit: Bool {
+        overlayRecentlyDismissed || supplementRecentlyDismissed || scrubbingRecentlyDismissed
+    }
+
     /// Whether gestures are locked (overlay is hidden and cannot be shown)
     var isGestureLocked: Bool {
         get { overlayState == .locked }
@@ -168,6 +181,14 @@ class VideoPlayerContainerState: ObservableObject {
     /// Tracks when a supplement was recently dismissed to prevent immediate overlay hiding
     var supplementRecentlyDismissed = false
 
+    /// Tracks when the overlay was recently dismissed to prevent the same
+    /// Menu/Escape press from also exiting playback.
+    var overlayRecentlyDismissed = false
+
+    /// Tracks when scrubbing/progress chrome was recently dismissed to prevent
+    /// the same Menu/Escape press from also exiting playback.
+    var scrubbingRecentlyDismissed = false
+
     // MARK: - Hold-to-Scrub State
 
     @Published
@@ -215,6 +236,8 @@ class VideoPlayerContainerState: ObservableObject {
     private var jumpProgressCancellable: AnyCancellable?
     private var timerCancellable: AnyCancellable?
     private var playbackStatusCancellable: AnyCancellable?
+    private var overlayDismissalID = UUID()
+    private var scrubbingDismissalID = UUID()
 
     // MARK: - Initialization
 
@@ -284,6 +307,45 @@ class VideoPlayerContainerState: ObservableObject {
     /// Toggle overlay visibility
     func toggleOverlay() {
         setOverlayVisible(overlayState != .visible)
+    }
+
+    /// Hide the overlay from Menu/Escape and briefly block playback exit in case
+    /// the platform sends another Menu began event for the same key press.
+    func dismissOverlayFromMenu() {
+        withAnimation(.linear(duration: 0.25)) {
+            overlayState = .hidden
+        }
+    }
+
+    /// Stop scrubbing from Menu/Escape and briefly block playback exit in case
+    /// the platform sends another Menu began event for the same key press.
+    func dismissScrubbingFromMenu() {
+        cleanupScrubbing()
+        isScrubbing = false
+
+        blockMenuExitAfterScrubbingDismissal()
+    }
+
+    private func blockMenuExitAfterOverlayDismissal() {
+        let dismissalID = UUID()
+        overlayDismissalID = dismissalID
+        overlayRecentlyDismissed = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.menuExitBlockDelay) {
+            guard self.overlayDismissalID == dismissalID else { return }
+            self.overlayRecentlyDismissed = false
+        }
+    }
+
+    private func blockMenuExitAfterScrubbingDismissal() {
+        let dismissalID = UUID()
+        scrubbingDismissalID = dismissalID
+        scrubbingRecentlyDismissed = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.menuExitBlockDelay) {
+            guard self.scrubbingDismissalID == dismissalID else { return }
+            self.scrubbingRecentlyDismissed = false
+        }
     }
 
     /// Select a supplement panel to display

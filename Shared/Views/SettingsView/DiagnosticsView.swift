@@ -20,6 +20,7 @@ struct DiagnosticsView: View {
 
     var body: some View {
         Form(systemImage: "wrench.and.screwdriver") {
+            appSection
             connectionSection
 
             #if DEBUG || !os(tvOS)
@@ -27,6 +28,23 @@ struct DiagnosticsView: View {
             #endif
         }
         .navigationTitle(L10n.diagnostics)
+    }
+
+    private var appSection: some View {
+        Section("FinStream") {
+            LabeledContent(
+                L10n.version,
+                value: AppBuildInfo.current.versionDisplay
+            )
+            .focusable(false)
+
+            LabeledContent {
+                Text(AppBuildInfo.current.commitDisplay)
+            } label: {
+                Text(verbatim: "Commit")
+            }
+            .focusable(false)
+        }
     }
 
     @ViewBuilder

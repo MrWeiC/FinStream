@@ -72,6 +72,51 @@ final class VideoPlayerContainerStateTests: XCTestCase {
         XCTAssertTrue(sut.presentationControllerShouldDismiss)
     }
 
+    func testMenuPressSwallowDecisionCanBeCapturedBeforeOverlayDismissal() {
+        sut.isPresentingOverlay = true
+
+        let shouldSwallowMenuPress = sut.shouldSwallowMenuPress
+        sut.isPresentingOverlay = false
+
+        XCTAssertTrue(shouldSwallowMenuPress)
+    }
+
+    func testMenuPressAfterOverlayDismissalIsTemporarilyBlocked() {
+        sut.isPresentingOverlay = true
+
+        sut.dismissOverlayFromMenu()
+
+        XCTAssertFalse(sut.isPresentingOverlay)
+        XCTAssertTrue(sut.overlayRecentlyDismissed)
+        XCTAssertTrue(sut.shouldBlockMenuExit)
+    }
+
+    func testMenuPressAfterOverlayAutoDismissalIsTemporarilyBlocked() {
+        sut.setOverlayVisible(true, animated: false)
+
+        sut.setOverlayVisible(false, animated: false)
+
+        XCTAssertFalse(sut.isPresentingOverlay)
+        XCTAssertTrue(sut.overlayRecentlyDismissed)
+        XCTAssertTrue(sut.shouldBlockMenuExit)
+    }
+
+    func testMenuPressIsSwallowedWhileScrubbing() {
+        sut.isScrubbing = true
+
+        XCTAssertTrue(sut.shouldSwallowMenuPress)
+    }
+
+    func testMenuPressAfterScrubbingDismissalIsTemporarilyBlocked() {
+        sut.isScrubbing = true
+
+        sut.dismissScrubbingFromMenu()
+
+        XCTAssertFalse(sut.isScrubbing)
+        XCTAssertTrue(sut.scrubbingRecentlyDismissed)
+        XCTAssertTrue(sut.shouldBlockMenuExit)
+    }
+
     // MARK: - Scrub State Tests
 
     func testInitialScrubStateIsIdle() {

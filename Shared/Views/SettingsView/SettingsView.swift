@@ -192,6 +192,13 @@ struct SettingsView: View {
 
     private var diagnosticsSection: some View {
         Section(L10n.advancedAndDiagnostics) {
+            LabeledContent {
+                Text(AppBuildInfo.current.commitDisplay)
+            } label: {
+                Text(verbatim: "Commit")
+            }
+            .focusable(false)
+
             ChevronButton(
                 L10n.diagnostics,
                 subtitle: L10n.diagnosticsDescription

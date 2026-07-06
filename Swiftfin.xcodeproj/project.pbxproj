@@ -8,6 +8,7 @@
 
 	/* Begin PBXBuildFile section */
 			08BEEA4E5F77A74D7B6FE59F /* VideoPlayerContainerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAEE9EF7528B67B93A71FB1 /* VideoPlayerContainerStateTests.swift */; };
+			1A7F0B902E1BE2B000ABC001 /* AppBuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */; };
 			2F0A116D2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */; };
 			53ABFDDC267972BF00886593 /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53ABFDDB267972BF00886593 /* TVServices.framework */; };
 			62666DFA27E5013700EC0ECD /* TVVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 625CB57D2678E81E00530A6E /* TVVLCKit.xcframework */; };
@@ -87,6 +88,7 @@
 
 	/* Begin PBXFileReference section */
 			1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkErrorTests.swift; sourceTree = "<group>"; };
+			1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppBuildInfoTests.swift; sourceTree = "<group>"; };
 			2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BaseItemDtoUserDataTests.swift; sourceTree = "<group>"; };
 			E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaPlayerItemAudioSelectionTests.swift; sourceTree = "<group>"; };
 			535870602669D21600D05A09 /* Swiftfin tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swiftfin tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -357,6 +359,7 @@
 			AAD4A20CAC7D1BEC55450E5C /* Swiftfin tvOS Tests */ = {
 				isa = PBXGroup;
 				children = (
+					1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */,
 					2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */,
 					5DAEE9EF7528B67B93A71FB1 /* VideoPlayerContainerStateTests.swift */,
 					1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */,
@@ -381,6 +384,7 @@
 				5358705C2669D21600D05A09 /* Sources */,
 				5358705D2669D21600D05A09 /* Frameworks */,
 				5358705E2669D21600D05A09 /* Resources */,
+				1A7F0B912E1BE2B000ABC001 /* Generate Git Commit Info */,
 				62666DFC27E5013700EC0ECD /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -633,6 +637,26 @@
 			shellPath = /bin/sh;
 			shellScript = "# Add Homebrew to the path to support Apple Silicon Homebrew SwiftFormat installations\nexport PATH=/opt/homebrew/bin:$PATH\n\n# Skip phase if the action is not build (ie. analyze, archive, etc).\nif [ \"$ACTION\" != \"build\" ]; then\n    exit 0\nfi\n\nif which swiftformat >/dev/null; then\n    swiftformat . --exclude build/SourcePackages\nelse\n    echo \"error: SwiftFormat not installed, check contributing.md for installation instructions.\"\nfi\n";
 		};
+		1A7F0B912E1BE2B000ABC001 /* Generate Git Commit Info */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Generate Git Commit Info";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/GitCommitInfoPrefix.h",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\n\ncommit=\"unknown\"\nif command -v git >/dev/null 2>&1; then\n    commit=$(git -C \"${SRCROOT}\" rev-parse --short HEAD 2>/dev/null || printf unknown)\nfi\n\nprintf '#define GIT_COMMIT_HASH %s\\n' \"$commit\" > \"${DERIVED_FILE_DIR}/GitCommitInfoPrefix.h\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -648,6 +672,7 @@
 				buildActionMask = 2147483647;
 				files = (
 					08BEEA4E5F77A74D7B6FE59F /* VideoPlayerContainerStateTests.swift in Sources */,
+					1A7F0B902E1BE2B000ABC001 /* AppBuildInfoTests.swift in Sources */,
 					2F0A116D2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift in Sources */,
 					B6FD5626C1D953D86DA73199 /* NetworkErrorTests.swift in Sources */,
 					6C6178530A261AC4FD50E4DC /* MediaErrorTests.swift in Sources */,
@@ -707,6 +732,8 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Swiftfin tvOS/Resources/Info.plist";
+				INFOPLIST_PREFIX_HEADER = "$(DERIVED_FILE_DIR)/GitCommitInfoPrefix.h";
+				INFOPLIST_PREPROCESS = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -737,6 +764,8 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Swiftfin tvOS/Resources/Info.plist";
+				INFOPLIST_PREFIX_HEADER = "$(DERIVED_FILE_DIR)/GitCommitInfoPrefix.h";
+				INFOPLIST_PREPROCESS = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

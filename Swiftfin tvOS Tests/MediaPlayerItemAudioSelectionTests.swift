@@ -11,7 +11,7 @@ import JellyfinAPI
 @testable import Swiftfin_tvOS
 import XCTest
 
-/// Regression tests for initial audio stream selection.
+/// Regression tests for initial media stream selection.
 @MainActor
 final class MediaPlayerItemAudioSelectionTests: XCTestCase {
 
@@ -26,7 +26,12 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
         return stream
     }
 
-    private func makeMediaSource(defaultAudioStreamIndex: Int?, audioLanguages: [String]) -> MediaSourceInfo {
+    private func makeMediaSource(
+        defaultAudioStreamIndex: Int?,
+        defaultSubtitleStreamIndex: Int? = nil,
+        audioLanguages: [String],
+        subtitleLanguages: [String] = []
+    ) -> MediaSourceInfo {
         var mediaStreams: [MediaStream] = [
             makeStream(index: 0, type: .video),
         ]
@@ -37,10 +42,18 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
             )
         }
 
+        let subtitleStartIndex = mediaStreams.count
+        for (offset, language) in subtitleLanguages.enumerated() {
+            mediaStreams.append(
+                makeStream(index: subtitleStartIndex + offset, type: .subtitle, language: language, displayTitle: language)
+            )
+        }
+
         var mediaSource = MediaSourceInfo()
         mediaSource.transcodingURL = nil
         mediaSource.mediaStreams = mediaStreams
         mediaSource.defaultAudioStreamIndex = defaultAudioStreamIndex
+        mediaSource.defaultSubtitleStreamIndex = defaultSubtitleStreamIndex
         return mediaSource
     }
 
@@ -103,5 +116,19 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
         XCTAssertNotNil(item.selectedAudioStreamIndex)
         XCTAssertGreaterThanOrEqual(item.selectedAudioStreamIndex ?? -1, 0)
         XCTAssertEqual(item.selectedAudioStreamIndex, item.audioStreams.first?.index)
+    }
+
+    func testSelectsFirstSubtitleWhenDefaultIsMissing() {
+        let mediaSource = makeMediaSource(
+            defaultAudioStreamIndex: 1,
+            defaultSubtitleStreamIndex: -1,
+            audioLanguages: ["eng"],
+            subtitleLanguages: ["eng", "spa"]
+        )
+        let item = makeItem(mediaSource: mediaSource)
+
+        XCTAssertEqual(item.subtitleStreams.count, 2)
+        XCTAssertNotNil(item.selectedSubtitleStreamIndex)
+        XCTAssertEqual(item.selectedSubtitleStreamIndex, item.subtitleStreams.first?.index)
     }
 }

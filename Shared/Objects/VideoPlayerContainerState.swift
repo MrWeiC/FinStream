@@ -117,12 +117,12 @@ class VideoPlayerContainerState: ObservableObject {
 
     /// Whether a Menu/Escape press should be consumed by the player chrome.
     var shouldSwallowMenuPress: Bool {
-        isPresentingOverlay || isPresentingSupplement || shouldBlockMenuExit
+        isPresentingOverlay || isPresentingSupplement || isScrubbing || shouldBlockMenuExit
     }
 
     /// Whether Menu/Escape should be ignored instead of exiting playback.
     var shouldBlockMenuExit: Bool {
-        overlayRecentlyDismissed || supplementRecentlyDismissed
+        overlayRecentlyDismissed || supplementRecentlyDismissed || scrubbingRecentlyDismissed
     }
 
     /// Whether gestures are locked (overlay is hidden and cannot be shown)
@@ -181,6 +181,10 @@ class VideoPlayerContainerState: ObservableObject {
     /// Tracks when the overlay was recently dismissed to prevent the same
     /// Menu/Escape press from also exiting playback.
     var overlayRecentlyDismissed = false
+
+    /// Tracks when scrubbing/progress chrome was recently dismissed to prevent
+    /// the same Menu/Escape press from also exiting playback.
+    var scrubbingRecentlyDismissed = false
 
     // MARK: - Hold-to-Scrub State
 
@@ -310,6 +314,18 @@ class VideoPlayerContainerState: ObservableObject {
         overlayRecentlyDismissed = true
         DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.focusUpdateDelay) {
             self.overlayRecentlyDismissed = false
+        }
+    }
+
+    /// Stop scrubbing from Menu/Escape and briefly block playback exit in case
+    /// the platform sends another Menu began event for the same key press.
+    func dismissScrubbingFromMenu() {
+        cleanupScrubbing()
+        isScrubbing = false
+
+        scrubbingRecentlyDismissed = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.focusUpdateDelay) {
+            self.scrubbingRecentlyDismissed = false
         }
     }
 

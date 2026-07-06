@@ -91,6 +91,22 @@ final class VideoPlayerContainerStateTests: XCTestCase {
         XCTAssertTrue(sut.shouldBlockMenuExit)
     }
 
+    func testMenuPressIsSwallowedWhileScrubbing() {
+        sut.isScrubbing = true
+
+        XCTAssertTrue(sut.shouldSwallowMenuPress)
+    }
+
+    func testMenuPressAfterScrubbingDismissalIsTemporarilyBlocked() {
+        sut.isScrubbing = true
+
+        sut.dismissScrubbingFromMenu()
+
+        XCTAssertFalse(sut.isScrubbing)
+        XCTAssertTrue(sut.scrubbingRecentlyDismissed)
+        XCTAssertTrue(sut.shouldBlockMenuExit)
+    }
+
     // MARK: - Scrub State Tests
 
     func testInitialScrubStateIsIdle() {

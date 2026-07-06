@@ -238,6 +238,8 @@ extension VideoPlayer {
                         containerState.select(supplement: nil)
                     } else if containerState.shouldBlockMenuExit {
                         break
+                    } else if isScrubbing {
+                        containerState.dismissScrubbingFromMenu()
                     } else if isPresentingOverlay {
                         // First menu press hides overlay
                         containerState.dismissOverlayFromMenu()

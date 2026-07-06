@@ -343,6 +343,10 @@ extension VideoPlayer {
                 return
             }
 
+            if buttonPress.type == .menu, isSwallowingMenuPress {
+                return
+            }
+
             let shouldSwallowMenuPress = buttonPress.type == .menu && containerState.shouldSwallowMenuPress
 
             // Send event to SwiftUI for overlay toggle handling

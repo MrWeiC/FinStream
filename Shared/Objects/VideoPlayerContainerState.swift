@@ -117,7 +117,12 @@ class VideoPlayerContainerState: ObservableObject {
 
     /// Whether a Menu/Escape press should be consumed by the player chrome.
     var shouldSwallowMenuPress: Bool {
-        isPresentingOverlay || isPresentingSupplement
+        isPresentingOverlay || isPresentingSupplement || shouldBlockMenuExit
+    }
+
+    /// Whether Menu/Escape should be ignored instead of exiting playback.
+    var shouldBlockMenuExit: Bool {
+        overlayRecentlyDismissed || supplementRecentlyDismissed
     }
 
     /// Whether gestures are locked (overlay is hidden and cannot be shown)
@@ -172,6 +177,10 @@ class VideoPlayerContainerState: ObservableObject {
 
     /// Tracks when a supplement was recently dismissed to prevent immediate overlay hiding
     var supplementRecentlyDismissed = false
+
+    /// Tracks when the overlay was recently dismissed to prevent the same
+    /// Menu/Escape press from also exiting playback.
+    var overlayRecentlyDismissed = false
 
     // MARK: - Hold-to-Scrub State
 
@@ -289,6 +298,19 @@ class VideoPlayerContainerState: ObservableObject {
     /// Toggle overlay visibility
     func toggleOverlay() {
         setOverlayVisible(overlayState != .visible)
+    }
+
+    /// Hide the overlay from Menu/Escape and briefly block playback exit in case
+    /// the platform sends another Menu began event for the same key press.
+    func dismissOverlayFromMenu() {
+        withAnimation(.linear(duration: 0.25)) {
+            overlayState = .hidden
+        }
+
+        overlayRecentlyDismissed = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.focusUpdateDelay) {
+            self.overlayRecentlyDismissed = false
+        }
     }
 
     /// Select a supplement panel to display

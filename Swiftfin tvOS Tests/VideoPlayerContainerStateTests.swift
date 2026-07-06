@@ -91,6 +91,16 @@ final class VideoPlayerContainerStateTests: XCTestCase {
         XCTAssertTrue(sut.shouldBlockMenuExit)
     }
 
+    func testMenuPressAfterOverlayAutoDismissalIsTemporarilyBlocked() {
+        sut.setOverlayVisible(true, animated: false)
+
+        sut.setOverlayVisible(false, animated: false)
+
+        XCTAssertFalse(sut.isPresentingOverlay)
+        XCTAssertTrue(sut.overlayRecentlyDismissed)
+        XCTAssertTrue(sut.shouldBlockMenuExit)
+    }
+
     func testMenuPressIsSwallowedWhileScrubbing() {
         sut.isScrubbing = true
 

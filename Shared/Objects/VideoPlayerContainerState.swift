@@ -52,11 +52,14 @@ class VideoPlayerContainerState: ObservableObject {
     @Published
     private(set) var overlayState: OverlayVisibility = .hidden {
         didSet {
+            let wasVisible = oldValue == .visible
             updatePlaybackControlsVisibility()
 
             // When overlay becomes visible (not locked), start auto-hide timer
             if overlayState == .visible, supplementState == .closed {
                 timer.poke()
+            } else if wasVisible {
+                blockMenuExitAfterOverlayDismissal()
             }
         }
     }
@@ -233,6 +236,8 @@ class VideoPlayerContainerState: ObservableObject {
     private var jumpProgressCancellable: AnyCancellable?
     private var timerCancellable: AnyCancellable?
     private var playbackStatusCancellable: AnyCancellable?
+    private var overlayDismissalID = UUID()
+    private var scrubbingDismissalID = UUID()
 
     // MARK: - Initialization
 
@@ -310,11 +315,6 @@ class VideoPlayerContainerState: ObservableObject {
         withAnimation(.linear(duration: 0.25)) {
             overlayState = .hidden
         }
-
-        overlayRecentlyDismissed = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.focusUpdateDelay) {
-            self.overlayRecentlyDismissed = false
-        }
     }
 
     /// Stop scrubbing from Menu/Escape and briefly block playback exit in case
@@ -323,8 +323,27 @@ class VideoPlayerContainerState: ObservableObject {
         cleanupScrubbing()
         isScrubbing = false
 
+        blockMenuExitAfterScrubbingDismissal()
+    }
+
+    private func blockMenuExitAfterOverlayDismissal() {
+        let dismissalID = UUID()
+        overlayDismissalID = dismissalID
+        overlayRecentlyDismissed = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.menuExitBlockDelay) {
+            guard self.overlayDismissalID == dismissalID else { return }
+            self.overlayRecentlyDismissed = false
+        }
+    }
+
+    private func blockMenuExitAfterScrubbingDismissal() {
+        let dismissalID = UUID()
+        scrubbingDismissalID = dismissalID
         scrubbingRecentlyDismissed = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.focusUpdateDelay) {
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.menuExitBlockDelay) {
+            guard self.scrubbingDismissalID == dismissalID else { return }
             self.scrubbingRecentlyDismissed = false
         }
     }

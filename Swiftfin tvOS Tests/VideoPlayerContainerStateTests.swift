@@ -72,6 +72,15 @@ final class VideoPlayerContainerStateTests: XCTestCase {
         XCTAssertTrue(sut.presentationControllerShouldDismiss)
     }
 
+    func testMenuPressSwallowDecisionCanBeCapturedBeforeOverlayDismissal() {
+        sut.isPresentingOverlay = true
+
+        let shouldSwallowMenuPress = sut.shouldSwallowMenuPress
+        sut.isPresentingOverlay = false
+
+        XCTAssertTrue(shouldSwallowMenuPress)
+    }
+
     // MARK: - Scrub State Tests
 
     func testInitialScrubStateIsIdle() {

@@ -36,12 +36,22 @@ struct AppSettingsView: View {
         }
     }
 
+    private var buildInfo: AppBuildInfo {
+        .current
+    }
+
     var body: some View {
         Form(image: .finstreamLogo) {
             LabeledContent(
                 L10n.version,
-                value: "\(UIApplication.appVersion ?? .emptyDash) (\(UIApplication.bundleVersion ?? .emptyDash))"
+                value: buildInfo.versionDisplay
             )
+
+            LabeledContent {
+                Text(buildInfo.commitDisplay)
+            } label: {
+                Text(verbatim: "Commit")
+            }
 
             Section {
                 Toggle(L10n.useSplashscreen, isOn: $selectUserUseSplashscreen)

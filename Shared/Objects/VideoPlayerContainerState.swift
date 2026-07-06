@@ -115,6 +115,11 @@ class VideoPlayerContainerState: ObservableObject {
         set { scrubState = newValue ? .scrubbing : .idle }
     }
 
+    /// Whether a Menu/Escape press should be consumed by the player chrome.
+    var shouldSwallowMenuPress: Bool {
+        isPresentingOverlay || isPresentingSupplement
+    }
+
     /// Whether gestures are locked (overlay is hidden and cannot be shown)
     var isGestureLocked: Bool {
         get { overlayState == .locked }

@@ -131,4 +131,28 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
         XCTAssertNotNil(item.selectedSubtitleStreamIndex)
         XCTAssertEqual(item.selectedSubtitleStreamIndex, item.subtitleStreams.first?.index)
     }
+
+    func testMapsSubtitleStreamIndexToNativeLegibleOptionIndex() {
+        let mediaSource = makeMediaSource(
+            defaultAudioStreamIndex: 1,
+            audioLanguages: ["eng"],
+            subtitleLanguages: ["eng", "spa"]
+        )
+        let item = makeItem(mediaSource: mediaSource)
+
+        XCTAssertEqual(
+            AVMediaPlayerProxy.legibleOptionIndex(
+                for: item.subtitleStreams[0].index,
+                subtitleStreams: item.subtitleStreams
+            ),
+            0
+        )
+        XCTAssertEqual(
+            AVMediaPlayerProxy.legibleOptionIndex(
+                for: item.subtitleStreams[1].index,
+                subtitleStreams: item.subtitleStreams
+            ),
+            1
+        )
+    }
 }

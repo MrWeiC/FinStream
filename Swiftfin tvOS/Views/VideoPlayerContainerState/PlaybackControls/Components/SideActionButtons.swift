@@ -8,7 +8,6 @@
 
 import JellyfinAPI
 import SwiftUI
-import VLCUI
 
 extension VideoPlayer.PlaybackControls {
 

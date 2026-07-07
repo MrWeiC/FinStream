@@ -11,7 +11,6 @@ import Defaults
 import Factory
 import Foundation
 import JellyfinAPI
-import VLCUI
 
 typealias MediaPlayerManagerPublisher = LegacyEventPublisher<MediaPlayerManager?>
 
@@ -223,7 +222,7 @@ final class MediaPlayerManager: ViewModel {
         let nextItemProvider = queue?.nextItem // Capture next item early!
 
         // Verify we're still playing the same item (guards against race conditions
-        // where item changed between VLC sending ended and us processing it)
+        // where item changed between player end signal and us processing it)
         guard playbackItem?.baseItem.id == endedItemID else {
             logger.trace(
                 "Ignoring ended event for different item",
@@ -237,16 +236,16 @@ final class MediaPlayerManager: ViewModel {
 
         // Ended should represent natural ending of playback, which
         // is verifiable by given seconds being near item runtime.
-        // VLC proxy will send ended early.
+        // Player backends can send ended early.
 
         // For live streams, ignore ended events (should be filtered by proxy, but defensive)
-        if item.isLiveStream ?? false {
+        if item.isLiveStream {
             logger.trace("Ignoring ended event for live stream")
             return
         }
 
         // If runtime is available, verify this is a natural ending (near end of content).
-        // VLC proxy can send ended early, so we need to verify.
+        // Player backends can send ended early, so we need to verify.
         if let runtime = item.runtime {
             let isNearEnd = (runtime - seconds) <= .seconds(1)
 

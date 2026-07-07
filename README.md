@@ -16,7 +16,7 @@
 
 ## About
 
-**FinStream** is a native Jellyfin media client built exclusively for Apple TV. It uses VLC for direct playback and is designed to feel native on tvOS.
+**FinStream** is a native Jellyfin media client built exclusively for Apple TV. It uses MPV for direct playback and is designed to feel native on tvOS.
 
 This project focuses purely on the tvOS experience — no iOS, just Apple TV.
 
@@ -29,7 +29,7 @@ This project focuses purely on the tvOS experience — no iOS, just Apple TV.
 - **Native progress slider** — Pill-shaped playback scrubber
 - **Full-screen item views** — Proper detail views, not cards
 - **Improved focus states** — Smooth scale animations on button focus
-- **VLC-based playback** — Wide codec support for all your media files
+- **MPV-based playback** — Wide codec and subtitle support for your media files
 
 ---
 

@@ -155,4 +155,49 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
             1
         )
     }
+
+    func testMPVMapsAdjustedAudioIndexesToOneBasedTrackIDs() {
+        let streams = [
+            makeStream(index: 1, type: .audio, language: "eng"),
+            makeStream(index: 2, type: .audio, language: "spa"),
+        ]
+
+        XCTAssertEqual(MPVMediaPlayerProxy.audioTrackID(for: 1, audioStreams: streams), 1)
+        XCTAssertEqual(MPVMediaPlayerProxy.audioTrackID(for: 2, audioStreams: streams), 2)
+        XCTAssertNil(MPVMediaPlayerProxy.audioTrackID(for: -1, audioStreams: streams))
+        XCTAssertNil(MPVMediaPlayerProxy.audioTrackID(for: 8, audioStreams: streams))
+    }
+
+    func testMPVMapsAdjustedSubtitleIndexesToOneBasedTrackIDs() {
+        let streams = [
+            makeStream(index: 3, type: .subtitle, language: "eng"),
+            makeStream(index: 4, type: .subtitle, language: "chi"),
+        ]
+
+        XCTAssertEqual(MPVMediaPlayerProxy.subtitleTrackID(for: 3, subtitleStreams: streams), 1)
+        XCTAssertEqual(MPVMediaPlayerProxy.subtitleTrackID(for: 4, subtitleStreams: streams), 2)
+        XCTAssertEqual(MPVMediaPlayerProxy.subtitleTrackID(for: -1, subtitleStreams: streams), -1)
+        XCTAssertNil(MPVMediaPlayerProxy.subtitleTrackID(for: 8, subtitleStreams: streams))
+    }
+
+    func testMPVMapsReplayGainToVolumePercent() {
+        let originalEnabled = Defaults[.VideoPlayer.Audio.replayGainEnabled]
+        let originalPreAmp = Defaults[.VideoPlayer.Audio.replayGainPreAmp]
+        let originalPreventClipping = Defaults[.VideoPlayer.Audio.replayGainPreventClipping]
+        defer {
+            Defaults[.VideoPlayer.Audio.replayGainEnabled] = originalEnabled
+            Defaults[.VideoPlayer.Audio.replayGainPreAmp] = originalPreAmp
+            Defaults[.VideoPlayer.Audio.replayGainPreventClipping] = originalPreventClipping
+        }
+
+        Defaults[.VideoPlayer.Audio.replayGainEnabled] = true
+        Defaults[.VideoPlayer.Audio.replayGainPreAmp] = 0
+        Defaults[.VideoPlayer.Audio.replayGainPreventClipping] = false
+
+        var item = BaseItemDto()
+        item.type = .audio
+        item.normalizationGain = -6
+
+        XCTAssertEqual(MPVMediaPlayerProxy.volumePercent(for: item), 50.1187, accuracy: 0.0001)
+    }
 }

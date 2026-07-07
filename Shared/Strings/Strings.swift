@@ -1316,8 +1316,8 @@ internal enum L10n {
   internal static let playCount = L10n.tr("Localizable", "playCount", fallback: "Play count")
   /// Played
   internal static let played = L10n.tr("Localizable", "played", fallback: "Played")
-  /// Uses VLC/ VLCKit for broad format compatibility. It does not support HomePod, AirPlay speakers, HDR, Picture in Picture, or AirPlay casting.
-  internal static let playerFinStreamDescription = L10n.tr("Localizable", "playerFinStreamDescription", fallback: "Uses VLC/ VLCKit for broad format compatibility. It does not support HomePod, AirPlay speakers, HDR, Picture in Picture, or AirPlay casting.")
+  /// Uses MPV/libmpv for broad format compatibility and stronger subtitle rendering. It does not support HomePod, AirPlay speakers, Picture in Picture, or AirPlay casting.
+  internal static let playerFinStreamDescription = L10n.tr("Localizable", "playerFinStreamDescription", fallback: "Uses MPV/libmpv for broad format compatibility and stronger subtitle rendering. It does not support HomePod, AirPlay speakers, Picture in Picture, or AirPlay casting.")
   /// Uses Apple AVPlayer for HDR, Picture in Picture, AirPlay casting, HomePod, and AirPlay speakers. Subtitle and file-format support is more limited.
   internal static let playerNativeDescription = L10n.tr("Localizable", "playerNativeDescription", fallback: "Uses Apple AVPlayer for HDR, Picture in Picture, AirPlay casting, HomePod, and AirPlay speakers. Subtitle and file-format support is more limited.")
   /// Play From beginning

@@ -120,6 +120,7 @@ extension MediaPlayerItem {
         let playbackURL = try Self.streamURL(
             item: item,
             mediaSource: mediaSource,
+            maxBitrate: maxBitrate,
             playSessionID: playSessionID,
             userSession: userSession,
             logger: logger
@@ -172,6 +173,7 @@ extension MediaPlayerItem {
     private static func streamURL(
         item: BaseItemDto,
         mediaSource: MediaSourceInfo,
+        maxBitrate: Int,
         playSessionID: String,
         userSession: UserSession,
         logger: Logger
@@ -193,19 +195,14 @@ extension MediaPlayerItem {
 
             logger.trace("Making video stream URL for item \(itemID)")
 
-            let videoStreamParameters = Paths.GetVideoStreamParameters(
-                isStatic: true,
-                tag: item.etag,
-                playSessionID: playSessionID,
-                mediaSourceID: itemID
-            )
-
-            let videoStreamRequest = Paths.getVideoStream(
+            guard let videoStreamURL = makeDirectVideoStreamURL(
                 itemID: itemID,
-                parameters: videoStreamParameters
+                item: item,
+                mediaSource: mediaSource,
+                maxBitrate: maxBitrate,
+                playSessionID: playSessionID,
+                userSession: userSession
             )
-
-            guard let videoStreamURL = userSession.client.fullURL(with: videoStreamRequest)
             else { throw ErrorMessage("Unable to make video stream URL") }
 
             return videoStreamURL
@@ -218,5 +215,42 @@ extension MediaPlayerItem {
         ) else { throw ErrorMessage("Unable to make stream URL") }
 
         return streamURL
+    }
+
+    private static func makeDirectVideoStreamURL(
+        itemID: String,
+        item: BaseItemDto,
+        mediaSource: MediaSourceInfo,
+        maxBitrate: Int,
+        playSessionID: String,
+        userSession: UserSession
+    ) -> URL? {
+
+        guard let streamBaseURL = userSession.client.fullURL(with: "/Videos/\(itemID)/stream"),
+              var components = URLComponents(url: streamBaseURL, resolvingAgainstBaseURL: false)
+        else {
+            return nil
+        }
+
+        let configuration = userSession.client.configuration
+        var queryItems: [URLQueryItem] = [
+            .init(name: "static", value: "true"),
+            .init(name: "container", value: mediaSource.container ?? "mp4"),
+            .init(name: "mediaSourceId", value: mediaSource.id ?? itemID),
+            .init(name: "audioStreamIndex", value: "\(mediaSource.defaultAudioStreamIndex ?? 0)"),
+            .init(name: "subtitleStreamIndex", value: "\(mediaSource.defaultSubtitleStreamIndex ?? -1)"),
+            .init(name: "deviceId", value: configuration.deviceID),
+            .init(name: "startTimeTicks", value: "0"),
+            .init(name: "maxStreamingBitrate", value: "\(maxBitrate)"),
+            .init(name: "userId", value: userSession.user.id),
+            .init(name: "playSessionId", value: playSessionID),
+        ]
+
+        if let tag = item.etag {
+            queryItems.append(.init(name: "tag", value: tag))
+        }
+
+        components.queryItems = queryItems
+        return components.url
     }
 }

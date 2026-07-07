@@ -9,7 +9,6 @@
 import Defaults
 import os.log
 import SwiftUI
-import VLCUI
 
 private let focusLog = Logger(subsystem: "org.jellyfin.swiftfin", category: "ActionButtonsFocus")
 private let audioDebugLog = Logger(subsystem: "org.jellyfin.swiftfin", category: "AudioButtonDebug")

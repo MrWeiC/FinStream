@@ -48,13 +48,13 @@ FinStream is designed for Jellyfin 10.11+. Older versions may work but are not o
 
 ### What media formats does FinStream support?
 
-FinStream uses VLC for playback, which supports a wide range of codecs including:
+FinStream uses MPV for playback, which supports a wide range of codecs including:
 - H.264, H.265/HEVC
 - VP9, AV1
 - MP4, MKV, AVI containers
 - AAC, AC3, DTS audio
 
-See VLCKit documentation for the complete codec list.
+See MPV documentation for the complete codec list.
 
 ### Does FinStream support HDR?
 

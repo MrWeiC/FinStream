@@ -9,7 +9,6 @@
 import Factory
 import Foundation
 import JellyfinAPI
-import VLCUI
 
 extension MediaStream {
 
@@ -76,20 +75,6 @@ extension MediaStream {
         }
 
         return components.isEmpty ? L10n.unknown : components.joined(separator: " - ")
-    }
-
-    var asVLCPlaybackChild: VLCVideoPlayer.PlaybackChild? {
-        guard let deliveryURL, let client = Container.shared.currentUserSession()?.client else { return nil }
-
-        let deliveryPath = deliveryURL.removingFirst(if: client.configuration.url.absoluteString.last == "/")
-
-        guard let fullURL = client.fullURL(with: deliveryPath) else { return nil }
-
-        return .init(
-            url: fullURL,
-            type: .subtitle,
-            enforce: false
-        )
     }
 
     var is4kVideo: Bool {

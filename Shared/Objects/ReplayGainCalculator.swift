@@ -15,8 +15,8 @@ import Foundation
 /// a track to a target loudness level (typically -18 LUFS or -89 dB SPL).
 enum ReplayGainCalculator {
 
-    /// Valid range for VLC gain adjustment in dB.
-    /// VLC accepts gain values roughly in this range before clipping occurs.
+    /// Valid range for player gain adjustment in dB.
+    /// MPV accepts a broad volume range, but keeping this bounded avoids excessive amplification.
     static let gainRange: ClosedRange<Float> = -20 ... 20
 
     /// Calculate the final gain adjustment in dB.
@@ -26,7 +26,7 @@ enum ReplayGainCalculator {
     ///   - preAmp: User-configurable adjustment added to the gain (-12 to +12 dB typical).
     ///   - preventClipping: If true, limits positive gains to 0 dB to avoid digital clipping.
     ///
-    /// - Returns: Final gain in dB, clamped to VLC's acceptable range.
+    /// - Returns: Final gain in dB, clamped to the player's acceptable range.
     static func calculateFinalGain(
         normalizationGain: Float?,
         preAmp: Float,
@@ -45,9 +45,8 @@ enum ReplayGainCalculator {
         return finalGain.clamped(to: gainRange)
     }
 
-    /// Convert dB gain to linear scale for VLC's gain option.
+    /// Convert dB gain to linear scale.
     ///
-    /// VLC's gain parameter uses linear scale (1.0 = unity gain).
     /// Formula: linear = 10^(dB/20)
     ///
     /// - Parameter dB: Gain in decibels

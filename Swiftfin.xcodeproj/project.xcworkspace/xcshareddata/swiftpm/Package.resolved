@@ -1,5 +1,5 @@
 {
-  "originHash" : "38a493503cb22432e1bf1b0b812569bb2bdd51f821207a74b6b78ff16a049011",
+  "originHash" : "449f7b1893a636167df9fb30f845d1cd8696445dee1d976bc6af81c223624363",
   "pins" : [
     {
       "identity" : "blurhashkit",
@@ -152,6 +152,15 @@
       "state" : {
         "revision" : "f15be5f37a54f1dbb11e739b62286c12ee644446",
         "version" : "2.28.0"
+      }
+    },
+    {
+      "identity" : "mpvkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/streamyfin/MPVKit.git",
+      "state" : {
+        "revision" : "d3d341129f77a5eb5251bd8c68fd1243a0ca1c73",
+        "version" : "0.40.0-av"
       }
     },
     {
@@ -314,15 +323,6 @@
       "state" : {
         "revision" : "4ce950479707ea109f229d7230ec074a133b15d7",
         "version" : "0.2.1"
-      }
-    },
-    {
-      "identity" : "vlcui",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LePips/VLCUI",
-      "state" : {
-        "revision" : "9850f460ce5f4154979d17aeae92674c1632ff53",
-        "version" : "0.7.4"
       }
     },
     {

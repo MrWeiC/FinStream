@@ -99,5 +99,5 @@ This usually means clipping from excessive gain:
 
 - ReplayGain target loudness: -18 LUFS (standard)
 - Gain range: -20 dB to +20 dB (clamped)
-- Applied via VLC's gain audio filter
+- Applied through MPV player volume adjustment
 - Only affects items with `type: audio` — video playback is unchanged

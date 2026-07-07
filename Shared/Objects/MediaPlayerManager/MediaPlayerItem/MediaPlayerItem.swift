@@ -42,12 +42,13 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
     @Published
     var selectedSubtitleStreamIndex: Int? = nil {
         didSet {
-            // Defer VLC track change to next run loop to avoid blocking during UI updates
+            // Defer track change to next run loop to avoid blocking during UI updates
             let subtitleIndex = selectedSubtitleStreamIndex
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 if let proxy = self.manager?.proxy as? any VideoMediaPlayerProxy {
-                    proxy.setSubtitleStream(.init(index: subtitleIndex))
+                    let stream = self.subtitleStreams.first { $0.index == subtitleIndex } ?? MediaStream(index: subtitleIndex)
+                    proxy.setSubtitleStream(stream)
                 }
             }
         }
@@ -75,6 +76,12 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
     let videoStreams: [MediaStream]
 
     let requestedBitrate: PlaybackBitrate
+
+    var selectedSubtitleStream: MediaStream? {
+        guard let selectedSubtitleStreamIndex, selectedSubtitleStreamIndex >= 0 else { return nil }
+
+        return subtitleStreams.first { $0.index == selectedSubtitleStreamIndex }
+    }
 
     // MARK: init
 
@@ -111,7 +118,7 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
         super.init()
 
         // Select audio stream based on user's preferred language, falling back to server default,
-        // then first available audio track. Avoid using -1 for audio, as VLC treats it as disabled.
+        // then first available audio track. Avoid using -1 for audio, as player backends treat it as disabled.
         let preferredLanguage = Defaults[.VideoPlayer.Audio.preferredLanguage]
         if let preferredStream = audioStreams.first(where: { $0.language?.lowercased() == preferredLanguage.lowercased() }) {
             selectedAudioStreamIndex = preferredStream.index

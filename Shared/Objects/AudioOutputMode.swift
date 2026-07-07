@@ -12,7 +12,7 @@
 /// devices with different speaker configurations.
 enum AudioOutputMode: String, CaseIterable, Displayable, Storable {
 
-    /// Automatic with proper downmix - disables passthrough so VLC can
+    /// Automatic with proper downmix - disables passthrough so the player can
     /// properly mix surround channels to stereo (center to both L+R)
     case auto
 

@@ -8,7 +8,7 @@
 
 import JellyfinAPI
 
-// TODO: remove, change to VLC, AVPlayer
+// TODO: remove, change to MPV, AVPlayer
 
 enum VideoPlayerType: String, CaseIterable, Displayable, Storable {
 

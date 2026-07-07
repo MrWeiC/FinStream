@@ -11,8 +11,6 @@
 			1A7F0B902E1BE2B000ABC001 /* AppBuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */; };
 			2F0A116D2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */; };
 			53ABFDDC267972BF00886593 /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53ABFDDB267972BF00886593 /* TVServices.framework */; };
-			62666DFA27E5013700EC0ECD /* TVVLCKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 625CB57D2678E81E00530A6E /* TVVLCKit.xcframework */; };
-			62666DFB27E5013700EC0ECD /* TVVLCKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 625CB57D2678E81E00530A6E /* TVVLCKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		62666E1327E501C300EC0ECD /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62666E1227E501C300EC0ECD /* AudioToolbox.framework */; };
 		62666E1527E501C800EC0ECD /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62666E1427E501C800EC0ECD /* AVFoundation.framework */; };
 		62666E1727E501CC00EC0ECD /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62666E1627E501CC00EC0ECD /* CFNetwork.framework */; };
@@ -34,8 +32,8 @@
 			EE9A94A7172E4DA099EED926 /* MediaPlayerItemAudioSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */; };
 			BD88CB422D77E6A0006BB5E3 /* TVOSPicker in Frameworks */ = {isa = PBXBuildFile; productRef = BD88CB412D77E6A0006BB5E3 /* TVOSPicker */; };
 			D04348C2BD461D556AC693DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1438DC36A93916AACE477B /* Foundation.framework */; };
-			E1002B6B2793E36600E47059 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = E1002B6A2793E36600E47059 /* Algorithms */; };
-		E1137D312E090C230091EB60 /* VLCUI in Frameworks */ = {isa = PBXBuildFile; productRef = E1137D302E090C230091EB60 /* VLCUI */; };
+		E1002B6B2793E36600E47059 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = E1002B6A2793E36600E47059 /* Algorithms */; };
+		5DC1556BD6544BD2A63CA336 /* MPVKit-GPL in Frameworks */ = {isa = PBXBuildFile; productRef = 7BF2735257A24BF8B7B9A5E3 /* MPVKit-GPL */; };
 		E1153DD22BBB649C00424D36 /* SVGKit in Frameworks */ = {isa = PBXBuildFile; productRef = E1153DD12BBB649C00424D36 /* SVGKit */; };
 		E1155ACB2D0584A90021557A /* IdentifiedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = E1155ACA2D0584A90021557A /* IdentifiedCollections */; };
 		E12186DE2718F1C50010884C /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = E12186DD2718F1C50010884C /* Defaults */; };
@@ -72,20 +70,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		62666DFC27E5013700EC0ECD /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				62666DFB27E5013700EC0ECD /* TVVLCKit.xcframework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 	/* Begin PBXFileReference section */
 			1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkErrorTests.swift; sourceTree = "<group>"; };
 			1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppBuildInfoTests.swift; sourceTree = "<group>"; };
@@ -111,7 +95,6 @@
 		5362E4C8267D40F7000E2F71 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		53ABFDDB267972BF00886593 /* TVServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TVServices.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS15.0.sdk/System/Library/Frameworks/TVServices.framework; sourceTree = DEVELOPER_DIR; };
 		5DAEE9EF7528B67B93A71FB1 /* VideoPlayerContainerStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VideoPlayerContainerStateTests.swift; sourceTree = "<group>"; };
-		625CB57D2678E81E00530A6E /* TVVLCKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = TVVLCKit.xcframework; path = Carthage/Build/TVVLCKit.xcframework; sourceTree = "<group>"; };
 		62666E0027E5016900EC0ECD /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		62666E0527E5017A00EC0ECD /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		62666E0727E5018D00EC0ECD /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
@@ -218,9 +201,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1137D312E090C230091EB60 /* VLCUI in Frameworks */,
+				5DC1556BD6544BD2A63CA336 /* MPVKit-GPL in Frameworks */,
 				62666E1727E501CC00EC0ECD /* CFNetwork.framework in Frameworks */,
-				62666DFA27E5013700EC0ECD /* TVVLCKit.xcframework in Frameworks */,
 				62666E3227E5021E00EC0ECD /* UIKit.framework in Frameworks */,
 				62666E2A27E5020A00EC0ECD /* OpenGLES.framework in Frameworks */,
 				E1002B6B2793E36600E47059 /* Algorithms in Frameworks */,
@@ -348,7 +330,6 @@
 				5362E4AA267D40AD000E2F71 /* AVFoundation.framework */,
 				5362E4A7267D4067000E2F71 /* GoogleCast.framework */,
 				53ABFDDB267972BF00886593 /* TVServices.framework */,
-				625CB57D2678E81E00530A6E /* TVVLCKit.xcframework */,
 				628B95212670CABD0091AF3B /* WidgetKit.framework */,
 				628B95232670CABD0091AF3B /* SwiftUI.framework */,
 				3E9D391B2692E96A78595C29 /* tvOS */,
@@ -385,7 +366,6 @@
 				5358705D2669D21600D05A09 /* Frameworks */,
 				5358705E2669D21600D05A09 /* Resources */,
 				1A7F0B912E1BE2B000ABC001 /* Generate Git Commit Info */,
-				62666DFC27E5013700EC0ECD /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -423,7 +403,7 @@
 				E1A09F762D05935A00835265 /* CollectionVGrid */,
 				E1A09F782D05935A00835265 /* CollectionHStack */,
 				BD88CB412D77E6A0006BB5E3 /* TVOSPicker */,
-				E1137D302E090C230091EB60 /* VLCUI */,
+				7BF2735257A24BF8B7B9A5E3 /* MPVKit-GPL */,
 				E1E2D7BE2E3FD936004E2E5F /* Transmission */,
 				E14000BC2EF622AC00354A3C /* StatefulMacros */,
 			);
@@ -546,7 +526,7 @@
 				E1A09F702D05933D00835265 /* XCRemoteSwiftPackageReference "CollectionVGrid" */,
 				E1A09F732D05935100835265 /* XCRemoteSwiftPackageReference "CollectionHStack" */,
 				BD88CB402D77E6A0006BB5E3 /* XCRemoteSwiftPackageReference "TVOSPicker" */,
-				E1137D2D2E090C1A0091EB60 /* XCRemoteSwiftPackageReference "VLCUI" */,
+				CA0B8AF275C549A1AB319330 /* XCRemoteSwiftPackageReference "MPVKit" */,
 				E164308A2E3AA9710028D4E8 /* XCRemoteSwiftPackageReference "Transmission" */,
 				E13CCE482E6C077D0070965F /* XCRemoteSwiftPackageReference "LNPopupUI" */,
 				E1C404CB2EF61D4C00959C4F /* XCRemoteSwiftPackageReference "StatefulMacro" */,
@@ -1008,12 +988,12 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		E1137D2D2E090C1A0091EB60 /* XCRemoteSwiftPackageReference "VLCUI" */ = {
+		CA0B8AF275C549A1AB319330 /* XCRemoteSwiftPackageReference "MPVKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/LePips/VLCUI";
+			repositoryURL = "https://github.com/streamyfin/MPVKit.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.7.2;
+				kind = exactVersion;
+				version = "0.40.0-av";
 			};
 		};
 		E1153DCE2BBB634F00424D36 /* XCRemoteSwiftPackageReference "SVGKit" */ = {
@@ -1189,10 +1169,10 @@
 			package = E1002B662793CFBA00E47059 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
 		};
-		E1137D302E090C230091EB60 /* VLCUI */ = {
+		7BF2735257A24BF8B7B9A5E3 /* MPVKit-GPL */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E1137D2D2E090C1A0091EB60 /* XCRemoteSwiftPackageReference "VLCUI" */;
-			productName = VLCUI;
+			package = CA0B8AF275C549A1AB319330 /* XCRemoteSwiftPackageReference "MPVKit" */;
+			productName = "MPVKit-GPL";
 		};
 		E1153DD12BBB649C00424D36 /* SVGKit */ = {
 			isa = XCSwiftPackageProductDependency;

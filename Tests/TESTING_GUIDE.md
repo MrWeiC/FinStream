@@ -18,7 +18,7 @@ Tests/
 ## Running Tests
 
 ### Via Xcode
-1. Open `Swiftfin.xcodeproj` (Note: Update to actual project file name)
+1. Open `WatermelonFin.xcodeproj` (Note: Update to actual project file name)
 2. Select the test scheme
 3. Press `Cmd+U` to run all tests
 4. Press `Cmd+Control+Option+U` to run tests with code coverage
@@ -26,13 +26,13 @@ Tests/
 ### Via Command Line
 ```bash
 # Run all tests (update scheme name to match your project)
-xcodebuild test -scheme "Swiftfin tvOS" -destination "platform=tvOS Simulator,name=Apple TV 4K"
+xcodebuild test -scheme "WatermelonFin tvOS" -destination "platform=tvOS Simulator,name=Apple TV 4K"
 
 # Run specific test class
-xcodebuild test -scheme "Swiftfin tvOS" -only-testing:SharedTests/DownloadTaskTests
+xcodebuild test -scheme "WatermelonFin tvOS" -only-testing:SharedTests/DownloadTaskTests
 
 # Run with code coverage
-xcodebuild test -scheme "Swiftfin tvOS" -enableCodeCoverage YES
+xcodebuild test -scheme "WatermelonFin tvOS" -enableCodeCoverage YES
 ```
 
 ## Writing Tests

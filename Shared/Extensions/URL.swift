@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -30,9 +30,9 @@ extension URL {
         URL(string: NSTemporaryDirectory())!
     }
 
-    static let swiftfinGithub: URL = URL(string: "https://github.com/jellyfin/Swiftfin")!
+    static let watermelonfinGithub: URL = URL(string: "https://github.com/MrWeiC/WatermelonFin")!
 
-    static let swiftfinGithubIssues: URL = URL(string: "https://github.com/jellyfin/Swiftfin/issues")!
+    static let watermelonfinGithubIssues: URL = URL(string: "https://github.com/MrWeiC/WatermelonFin/issues")!
 
     static let jellyfinDocsDevices: URL = URL(string: "https://jellyfin.org/docs/general/server/devices")!
 

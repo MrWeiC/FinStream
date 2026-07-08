@@ -10,5 +10,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Initial FinStream fork, based on [Reefy](https://github.com/jmhunter83/reefy) (itself a fork of [Swiftfin](https://github.com/jellyfin/Swiftfin)).
-- Rebranded application identity: name, bundle identifier (`com.mrweic.finstream`), app icons, top-shelf art, and in-app logo.
+- Rebranded application identity: name, bundle identifier (`org.chenacademy.watermelonfin`), app icons, top-shelf art, and in-app logo.
+- Renamed project paths, schemes, targets, automation defaults, and release tooling for WatermelonFin.

@@ -1,12 +1,12 @@
 # Player Differences
 
-FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit). FinStream recommends MPV for optimal compatibility and subtitle rendering, though Native (AVKit) is also available for cases that benefit from Apple's native capabilities. All video, audio, and subtitle formats listed are supported for direct playback but may be repackaged based on container support. If transcoding is enabled on your server, any unsupported formats will be converted automatically.
+WatermelonFin offers two player options: **WatermelonFin** (MPV) and **Native** (AVKit). WatermelonFin recommends MPV for optimal compatibility and subtitle rendering, though Native (AVKit) is also available for cases that benefit from Apple's native capabilities. All video, audio, and subtitle formats listed are supported for direct playback but may be repackaged based on container support. If transcoding is enabled on your server, any unsupported formats will be converted automatically.
 
 ---
 
 ## Feature Support
 
-| Feature                 | FinStream (MPV) | Native (AVKit) |
+| Feature                 | WatermelonFin (MPV) | Native (AVKit) |
 |-------------------------|-------------------|----------------|
 | **Framerate Matching**  | ❌                | ✅             |
 | **HDR to SDR Tonemapping** | ✅ [1]         | 🔶 [2] |
@@ -17,7 +17,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 **Notes**
 
-[1] HDR to SDR Tonemapping on FinStream (MPV) may have colorspace accuracy variations depending on content and device configuration.
+[1] HDR to SDR Tonemapping on WatermelonFin (MPV) may have colorspace accuracy variations depending on content and device configuration.
 
 [2] In Native (AVKit), HDR to SDR Tonemapping requires Direct Playing compatible MP4 files and may require Dolby Vision Profiles 5 & 8 for full support.
 
@@ -29,7 +29,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 ## Container Support
 
-| Container | FinStream (MPV) | Native (AVKit) |
+| Container | WatermelonFin (MPV) | Native (AVKit) |
 |-----------|-------------------|----------------|
 | **AVI**   | ✅                | 🔶 [1]         |
 | **FLV**   | ✅                | ❌             |
@@ -57,7 +57,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 ## Audio Support
 
-| Audio Codec   | FinStream (MPV) | Native (AVKit) |
+| Audio Codec   | WatermelonFin (MPV) | Native (AVKit) |
 |---------------|-------------------|----------------|
 | **AAC**       | ✅                | ✅             |
 | **AC3**       | ✅                | ✅             |
@@ -93,7 +93,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 ## Video Support
 
-| Video Codec | FinStream (MPV) | Native (AVKit) |
+| Video Codec | WatermelonFin (MPV) | Native (AVKit) |
 |------------------------------------------------------------------------------------------------|-------------------|----------------|
 | [H.261](https://en.wikipedia.org/wiki/H.261)                                                   | ✅                | ✅             |
 | [MPEG-4 Part 2/SP](https://en.wikipedia.org/wiki/DivX)                                         | ✅                | 🔶 [1]         |
@@ -111,7 +111,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 [2] HEVC decoding is supported on Apple devices with the A8X chip or newer and at least iOS 14. HEVC is only supported in MP4, M4V, and MOV containers.
 
-[3] AV1 is disabled by default but can be enabled for Native (AVKit) using Custom Device Profiles. Enabling AV1 may result in a poor experience for SOCs prior to A17. AV1 is enabled by default for FinStream (MPV).
+[3] AV1 is disabled by default but can be enabled for Native (AVKit) using Custom Device Profiles. Enabling AV1 may result in a poor experience for SOCs prior to A17. AV1 is enabled by default for WatermelonFin (MPV).
 
 - Unsupported video formats will require transcoding or remuxing to play.
 
@@ -119,7 +119,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 ## Subtitle Support
 
-| Subtitle Format | FinStream (MPV) | Native (AVKit) |
+| Subtitle Format | WatermelonFin (MPV) | Native (AVKit) |
 |----------------|-------------------|----------------|
 | **ASS**        | ✅                | ❌             |
 | **CC_DEC**     | ✅                | ✅             |
@@ -143,7 +143,7 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 ## HDR Support
 
-| Format | FinStream (MPV) | Native (AVKit) |
+| Format | WatermelonFin (MPV) | Native (AVKit) |
 |--------|-------------------|----------------|
 | **Dolby Vision Profile 5** | ❌             | ✅             |
 | **Dolby Vision Profile 8** | ❌             | 🔶 [2]         |
@@ -162,20 +162,20 @@ FinStream offers two player options: **FinStream** (MPV) and **Native** (AVKit).
 
 [4] HDR10+ support is limited to certain devices, such as the Apple TV 4K (3rd Generation) and recent iPhones and iPads with compatible hardware.
 
-- HLG (Hybrid Log-Gamma) support in Native (AVKit) is limited and not currently supported in FinStream.
-- FinStream (MPV) does not support HDR playback natively. HDR content may play back without the intended high dynamic range effect.
+- HLG (Hybrid Log-Gamma) support in Native (AVKit) is limited and not currently supported in WatermelonFin.
+- WatermelonFin (MPV) does not support HDR playback natively. HDR content may play back without the intended high dynamic range effect.
 
 --- 
 
 ### Track Selection
 
-FinStream track selection is limited by compatibility with each player. In testing, the following interactions have been tested.
+WatermelonFin track selection is limited by compatibility with each player. In testing, the following interactions have been tested.
 
 ✅ Working correctly </br>
 🔶 Partially working with limitations </br>
 ❌ Not working
 
-## Swiftfin Player
+## WatermelonFin Player
 
 | File Configuration                                       | DirectPlay | Transcode | Notes |
 |---------------------------------------------------------|------------|-----------|------------------------------------------------|
@@ -209,9 +209,9 @@ FinStream track selection is limited by compatibility with each player. In testi
 
 ### Miscellaneous
 
-| Feature | FinStream (MPV) | Native (AVKit) | Notes |
+| Feature | WatermelonFin (MPV) | Native (AVKit) | Notes |
 |-------------|-------------------|----------------|----------------|
-| **External Display Support** | 🔶        | ✅        | FinStream Player can only be mirrored. As a result, the player will retain the source device dimensions. |
-| **Energy Consumption** | 🔶        | ✅        | FinStream Player will use a software decoder if the media cannot be handled by the platform natively. This results in higher power consumption. |
+| **External Display Support** | 🔶        | ✅        | WatermelonFin Player can only be mirrored. As a result, the player will retain the source device dimensions. |
+| **Energy Consumption** | 🔶        | ✅        | WatermelonFin Player will use a software decoder if the media cannot be handled by the platform natively. This results in higher power consumption. |
 
 ---

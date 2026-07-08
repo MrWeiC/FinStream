@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -20,7 +20,7 @@ class ViewModel: ObservableObject {
     @Injected(\.keychainService)
     var keychain
 
-    let logger = Logger.swiftfin()
+    let logger = Logger.watermelonfin()
 
     /// The current *signed in* user session (nil if signed out)
     @Injected(\.currentUserSession)

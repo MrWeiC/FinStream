@@ -1,0 +1,74 @@
+//
+// WatermelonFin is subject to the terms of the Mozilla Public
+// License, v2.0. If a copy of the MPL was not distributed with this
+// file, you can obtain one at https://mozilla.org/MPL/2.0/.
+//
+// Copyright (c) 2026 Jellyfin & Jellyfin Contributors
+//
+
+import os.log
+import SwiftUI
+
+private let audioDebugLog = Logger(subsystem: "org.chenacademy.watermelonfin", category: "AudioButtonDebug")
+
+extension VideoPlayer.PlaybackControls.NavigationBar.ActionButtons {
+
+    struct Audio: View {
+
+        @Environment(\.isInMenu)
+        private var isInMenu
+
+        @EnvironmentObject
+        private var manager: MediaPlayerManager
+
+        @State
+        private var selectedAudioStreamIndex: Int?
+
+        private var systemImage: String {
+            selectedAudioStreamIndex == nil ? "speaker.wave.2" : "speaker.wave.2.fill"
+        }
+
+        private func content(playbackItem: MediaPlayerItem) -> some View {
+            ForEach(playbackItem.audioStreams, id: \.index) { stream in
+                Button {
+                    playbackItem.selectedAudioStreamIndex = stream.index ?? -1
+                } label: {
+                    if selectedAudioStreamIndex == stream.index {
+                        Label(stream.formattedAudioTitle, systemImage: "checkmark")
+                    } else {
+                        Text(stream.formattedAudioTitle)
+                    }
+                }
+            }
+        }
+
+        var body: some View {
+            let _ = audioDebugLog.debug("🔊 RENDER: playbackItem=\(manager.playbackItem != nil) isInMenu=\(isInMenu)")
+
+            if let playbackItem = manager.playbackItem {
+                let _ = audioDebugLog
+                    .debug(
+                        "🔊 RENDER: audioStreams.count=\(playbackItem.audioStreams.count) selectedIndex=\(String(describing: selectedAudioStreamIndex))"
+                    )
+
+                if isInMenu {
+                    Menu(L10n.audio, systemImage: systemImage) {
+                        content(playbackItem: playbackItem)
+                    }
+                    .assign(playbackItem.$selectedAudioStreamIndex, to: $selectedAudioStreamIndex)
+                } else {
+                    TransportBarMenu(L10n.audio) {
+                        Image(systemName: systemImage)
+                    } content: {
+                        Section(L10n.audio) {
+                            content(playbackItem: playbackItem)
+                        }
+                    }
+                    .assign(playbackItem.$selectedAudioStreamIndex, to: $selectedAudioStreamIndex)
+                }
+            } else {
+                let _ = audioDebugLog.debug("🔊 RENDER: playbackItem is nil - not rendering")
+            }
+        }
+    }
+}

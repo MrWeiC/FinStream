@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -10,11 +10,11 @@ import Foundation
 import JellyfinAPI
 import Pulse
 
-private let redactedMessage = "<Redacted by Swiftfin>"
+private let redactedMessage = "<Redacted by WatermelonFin>"
 
 extension NetworkLogger {
 
-    static func swiftfin() -> NetworkLogger {
+    static func watermelonfin() -> NetworkLogger {
         var configuration = NetworkLogger.Configuration()
 
         configuration.willHandleEvent = { event -> LoggerStore.Event? in

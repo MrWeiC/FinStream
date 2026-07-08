@@ -1,10 +1,10 @@
 # Audio Normalization (ReplayGain)
 
-FinStream supports **ReplayGain volume normalization** for music playback. This keeps volume consistent across tracks mastered at different loudness levels — no more reaching for the remote when a quiet jazz track is followed by a loud rock song.
+WatermelonFin supports **ReplayGain volume normalization** for music playback. This keeps volume consistent across tracks mastered at different loudness levels — no more reaching for the remote when a quiet jazz track is followed by a loud rock song.
 
 ## How It Works
 
-ReplayGain analyzes the perceived loudness of audio tracks and stores a gain adjustment value in the file metadata. When you play music, FinStream reads this value from your Jellyfin server and adjusts the playback volume automatically.
+ReplayGain analyzes the perceived loudness of audio tracks and stores a gain adjustment value in the file metadata. When you play music, WatermelonFin reads this value from your Jellyfin server and adjusts the playback volume automatically.
 
 **Example:** A quiet classical recording might need +3 dB boost, while a loudly mastered pop track might need -5 dB reduction. With ReplayGain enabled, both play at similar perceived volume.
 
@@ -14,7 +14,7 @@ ReplayGain analyzes the perceived loudness of audio tracks and stores a gain adj
 |-------------|---------|
 | **Jellyfin Server** | Version 10.9.0 or later |
 | **Server Task** | "Audio Normalization" scheduled task must be run |
-| **FinStream Setting** | Enable "Volume Normalization" in Settings → Video Player |
+| **WatermelonFin Setting** | Enable "Volume Normalization" in Settings → Video Player |
 
 ## Server Setup
 
@@ -31,9 +31,9 @@ Your Jellyfin server must scan your music library to populate ReplayGain data:
 - **Server version matters** — Audio normalization has had stability issues in some Jellyfin versions. If the task fails, check for server updates
 - **Pre-tagged files work best** — If your music files already have ReplayGain tags (from tools like `mp3gain`, `r128gain`, or music taggers like beets), the server scan will read these values
 
-## FinStream Settings
+## WatermelonFin Settings
 
-Once your server has ReplayGain data, enable it in FinStream:
+Once your server has ReplayGain data, enable it in WatermelonFin:
 
 **Settings → Video Player → Audio Normalization**
 
@@ -73,7 +73,7 @@ When enabled (recommended), this prevents the gain from going above 0 dB. This a
 
 1. **Check server setup** — Verify the Audio Normalization task has completed successfully in Jellyfin Dashboard → Scheduled Tasks
 2. **Check track metadata** — In Jellyfin web, view a track's details. Look for "Normalization Gain" in the metadata. If it's missing, the server hasn't scanned that track
-3. **Verify FinStream setting** — Ensure Volume Normalization is enabled in Settings → Video Player
+3. **Verify WatermelonFin setting** — Ensure Volume Normalization is enabled in Settings → Video Player
 
 ### Normalization task fails on server
 
@@ -92,7 +92,7 @@ Audio normalization has had stability issues in certain Jellyfin versions:
 
 This usually means clipping from excessive gain:
 
-1. Enable **Prevent Clipping** in FinStream settings
+1. Enable **Prevent Clipping** in WatermelonFin settings
 2. Reduce the **Pre-Amp** value (try -3 dB)
 
 ## Technical Details

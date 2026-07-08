@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -46,7 +46,7 @@ final class SelectUserViewModel: ViewModel {
 
     @Function(\Action.Cases.getServers)
     private func _getServers() async throws {
-        let newServers = try SwiftfinStore
+        let newServers = try WatermelonFinStore
             .dataStack
             .fetchAll(From<ServerModel>())
             .map(\.state)

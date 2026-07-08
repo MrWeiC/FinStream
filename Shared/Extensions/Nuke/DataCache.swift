@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -16,14 +16,14 @@ import Nuke
 //       host and only use path + query which has ids and tags
 
 extension DataCache {
-    enum Swiftfin {}
+    enum WatermelonFin {}
 }
 
-extension DataCache.Swiftfin {
+extension DataCache.WatermelonFin {
 
     static let posters: DataCache? = {
 
-        let dataCache = try? DataCache(name: "org.jellyfin.swiftfin/Posters") { name in
+        let dataCache = try? DataCache(name: "org.chenacademy.watermelonfin/Posters") { name in
             guard let url = name.url else { return nil }
             return ImagePipeline.cacheKey(for: url)
         }
@@ -43,7 +43,7 @@ extension DataCache.Swiftfin {
             return nil
         }
 
-        let path = root.appendingPathComponent("Caches/org.jellyfin.swiftfin.local", isDirectory: true)
+        let path = root.appendingPathComponent("Caches/org.chenacademy.watermelonfin.local", isDirectory: true)
 
         return try? DataCache(path: path) { name in
 
@@ -59,7 +59,7 @@ extension DataCache.Swiftfin {
 
                 // We can assume that the request is from the current server
                 let urlFilter: Where<ServerModel> = Where(\.$currentURL == prefixURL)
-                guard let server = try? SwiftfinStore.dataStack.fetchOne(
+                guard let server = try? WatermelonFinStore.dataStack.fetchOne(
                     From<ServerModel>()
                         .where(urlFilter)
                 ) else { return nil }

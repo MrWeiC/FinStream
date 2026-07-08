@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -26,13 +26,13 @@ final class UserSession {
         self.server = server
         self.user = user
 
-        let client = JellyfinClient.swiftfinClient(
-            configuration: .swiftfinConfiguration(
+        let client = JellyfinClient.watermelonfinClient(
+            configuration: .watermelonfinConfiguration(
                 url: server.currentURL,
                 accessToken: user.accessToken
             ),
-            sessionConfiguration: .swiftfin,
-            sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.swiftfin())
+            sessionConfiguration: .watermelonfin,
+            sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.watermelonfin())
         )
 
         self.client = client
@@ -49,7 +49,7 @@ extension Container {
         self {
             guard case let .signedIn(userId) = Defaults[.lastSignedInUserID] else { return nil }
 
-            guard let user = try? SwiftfinStore.dataStack.fetchOne(
+            guard let user = try? WatermelonFinStore.dataStack.fetchOne(
                 From<UserModel>().where(\.$id == userId)
             ) else {
                 // had last user ID but no saved user
@@ -59,24 +59,24 @@ extension Container {
             }
 
             guard let server = user.server,
-                  let _ = SwiftfinStore.dataStack.fetchExisting(server)
+                  let _ = WatermelonFinStore.dataStack.fetchExisting(server)
             else {
                 // Orphaned user - sign out gracefully
-                let logger = Logger.swiftfin()
+                let logger = Logger.watermelonfin()
                 logger.error("No associated server for user \(userId). Signing out.")
                 Defaults[.lastSignedInUserID] = .signedOut
                 return nil
             }
 
             guard let userState = user.state else {
-                let logger = Logger.swiftfin()
+                let logger = Logger.watermelonfin()
                 logger.error("User \(userId) has no valid state. Signing out.")
                 Defaults[.lastSignedInUserID] = .signedOut
                 return nil
             }
 
             guard userState.hasAccessToken else {
-                let logger = Logger.swiftfin()
+                let logger = Logger.watermelonfin()
                 logger.error("User \(userId) has no access token in keychain. Signing out.")
                 Defaults[.lastSignedInUserID] = .signedOut
                 return nil

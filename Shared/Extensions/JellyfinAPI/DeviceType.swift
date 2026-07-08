@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -91,8 +91,8 @@ enum DeviceType: String, Displayable, Codable, CaseIterable {
         case let str where str.range(of: #"android|findroid"#, options: .regularExpression) != nil:
             self = .android
 
-        /* Apple devices: iOS, tvOS, iPadOS, Swiftfin, or Infuse */
-        case let str where str.range(of: #"ios|tvos|ipados|swiftfin|infuse"#, options: .regularExpression) != nil:
+        /* Apple devices: iOS, tvOS, iPadOS, WatermelonFin, or Infuse */
+        case let str where str.range(of: #"ios|tvos|ipados|watermelonfin|infuse"#, options: .regularExpression) != nil:
             self = .apple
 
         /* Finamp */

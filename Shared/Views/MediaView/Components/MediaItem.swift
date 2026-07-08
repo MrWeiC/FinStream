@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -15,7 +15,7 @@ import SwiftUI
 extension MediaView {
 
     // TODO: custom view for folders and tv (allow customization?)
-    //       - differentiate between what media types are Swiftfin only
+    //       - differentiate between what media types are WatermelonFin only
     //         which would allow some cleanup
     //       - allow server or random view per library?
     // TODO: if local label on image, also needs to be in blurhash placeholder

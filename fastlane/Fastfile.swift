@@ -10,8 +10,8 @@ import Foundation
 
 class Fastfile: LaneFile {
     
-    private let swiftfinBundleIdentifier = "org.jellyfin.swiftfin.tvos"
-    private let swiftfinXcodeProject = "Swiftfin.xcodeproj"
+    private let watermelonfinBundleIdentifier = "org.chenacademy.watermelonfin"
+    private let watermelonfinXcodeProject = "WatermelonFin.xcodeproj"
     
     // MARK: TestFlight
     
@@ -64,28 +64,28 @@ class Fastfile: LaneFile {
         )
         
         updateCodeSigningSettings(
-            path: swiftfinXcodeProject,
+            path: watermelonfinXcodeProject,
             useAutomaticSigning: false,
             codeSignIdentity: .userDefined(decodedCodeSignIdentity),
             profileName: .userDefined(profileName),
-            bundleIdentifier: .userDefined(swiftfinBundleIdentifier)
+            bundleIdentifier: .userDefined(watermelonfinBundleIdentifier)
         )
         
         if let version = options["version"] {
             incrementVersionNumber(
                 versionNumber: .userDefined(version),
-                xcodeproj: .userDefined(swiftfinXcodeProject)
+                xcodeproj: .userDefined(watermelonfinXcodeProject)
             )
         }
         
         if let build = options["build"] {
             incrementBuildNumber(
                 buildNumber: .userDefined(build),
-                xcodeproj: .userDefined(swiftfinXcodeProject)
+                xcodeproj: .userDefined(watermelonfinXcodeProject)
             )
         } else {
             incrementBuildNumber(
-                xcodeproj: .userDefined(swiftfinXcodeProject)
+                xcodeproj: .userDefined(watermelonfinXcodeProject)
             )
         }
         
@@ -97,7 +97,7 @@ class Fastfile: LaneFile {
         )
         
         uploadToTestflight(
-            ipa: "Swiftfin tvOS.ipa"
+            ipa: "WatermelonFin tvOS.ipa"
         )
     }
     

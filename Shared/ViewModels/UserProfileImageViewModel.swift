@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -185,18 +185,18 @@ final class UserProfileImageViewModel: ViewModel, Eventful, Stateful {
         guard let userSession = currentSession else { return }
 
         if let userImageURL = user.profileImageSource(client: userSession.client, maxWidth: 60).url {
-            ImagePipeline.Swiftfin.local.removeItem(for: userImageURL)
-            ImagePipeline.Swiftfin.posters.removeItem(for: userImageURL)
+            ImagePipeline.WatermelonFin.local.removeItem(for: userImageURL)
+            ImagePipeline.WatermelonFin.posters.removeItem(for: userImageURL)
         }
 
         if let userImageURL = user.profileImageSource(client: userSession.client, maxWidth: 120).url {
-            ImagePipeline.Swiftfin.local.removeItem(for: userImageURL)
-            ImagePipeline.Swiftfin.posters.removeItem(for: userImageURL)
+            ImagePipeline.WatermelonFin.local.removeItem(for: userImageURL)
+            ImagePipeline.WatermelonFin.posters.removeItem(for: userImageURL)
         }
 
         if let userImageURL = user.profileImageSource(client: userSession.client, maxWidth: 150).url {
-            ImagePipeline.Swiftfin.local.removeItem(for: userImageURL)
-            ImagePipeline.Swiftfin.posters.removeItem(for: userImageURL)
+            ImagePipeline.WatermelonFin.local.removeItem(for: userImageURL)
+            ImagePipeline.WatermelonFin.posters.removeItem(for: userImageURL)
         }
     }
 }

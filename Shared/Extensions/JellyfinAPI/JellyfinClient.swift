@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -38,12 +38,12 @@ extension JellyfinClient {
 
 extension JellyfinClient.Configuration {
 
-    static func swiftfinConfiguration(
+    static func watermelonfinConfiguration(
         url: URL,
         accessToken: String? = nil
     ) -> Self {
 
-        let client = "Swiftfin \(UIDevice.platform)"
+        let client = "WatermelonFin \(UIDevice.platform)"
         let deviceName = UIDevice.current.name
             .folding(options: .diacriticInsensitive, locale: .current)
             .unicodeScalars

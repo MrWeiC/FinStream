@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -9,7 +9,7 @@
 import XCTest
 
 // NOTE: Update the module name below to match your actual tvOS target name
-// @testable import Swiftfin_tvOS
+// @testable import WatermelonFin_tvOS
 // For atvfin project, this might be different. Check your target name in Xcode.
 
 /// Example unit tests for DownloadTask

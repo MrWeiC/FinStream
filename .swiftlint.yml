@@ -113,7 +113,7 @@ reporter: "xcode"
 # Paths to include (if not specified, all Swift files are included)
 included:
   - Shared
-  - Swiftfin tvOS
+  - WatermelonFin tvOS
   - PreferencesView/Sources
 
 # Allow these specific patterns

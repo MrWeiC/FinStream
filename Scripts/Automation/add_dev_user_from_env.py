@@ -11,12 +11,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SERVER_URL = "http://192.168.86.88:8096"
-DEFAULT_DESTINATION = "platform=tvOS Simulator,name=FinStream-tvOS"
-DEFAULTS_DOMAINS = ("com.mrweic.finstream", "com.mrweic.finstream.tests")
+DEFAULT_DESTINATION = "platform=tvOS Simulator,name=WatermelonFin-tvOS"
+DEFAULTS_DOMAINS = ("org.chenacademy.watermelonfin", "org.chenacademy.watermelonfin.tests")
 AUTOMATION_KEYS = (
-    "FINSTREAM_AUTOMATION_SERVER_URL",
-    "FINSTREAM_AUTOMATION_USERNAME",
-    "FINSTREAM_AUTOMATION_PASSWORD",
+    "WATERMELONFIN_AUTOMATION_SERVER_URL",
+    "WATERMELONFIN_AUTOMATION_USERNAME",
+    "WATERMELONFIN_AUTOMATION_PASSWORD",
 )
 
 
@@ -61,7 +61,7 @@ def simulator_udid(destination: str) -> str:
 
     simulator_name = destination_value(destination, "name")
     if not simulator_name:
-        raise SystemExit("FINSTREAM_AUTOMATION_DESTINATION must include a simulator name or id")
+        raise SystemExit("WATERMELONFIN_AUTOMATION_DESTINATION must include a simulator name or id")
 
     output = subprocess.check_output(
         ["xcrun", "simctl", "list", "devices", "available", "-j"],
@@ -80,7 +80,7 @@ def simulator_udid(destination: str) -> str:
 def write_simulator_defaults(udid: str, values: dict[str, str]) -> None:
     subprocess.run(["xcrun", "simctl", "boot", udid], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(["xcrun", "simctl", "bootstatus", udid, "-b"], check=True)
-    subprocess.run(["xcrun", "simctl", "uninstall", udid, "com.mrweic.finstream"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["xcrun", "simctl", "uninstall", udid, "org.chenacademy.watermelonfin"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     for domain in DEFAULTS_DOMAINS:
         for key, value in values.items():
@@ -110,7 +110,7 @@ def main() -> int:
     username = require(env_values.get("USERNAME"), "USERNAME")
     password = require(env_values.get("PASSWORD"), "PASSWORD")
     server_url = (
-        env_values.get("FINSTREAM_AUTOMATION_SERVER_URL")
+        env_values.get("WATERMELONFIN_AUTOMATION_SERVER_URL")
         or env_values.get("JELLYFIN_SERVER_URL")
         or DEFAULT_SERVER_URL
     )
@@ -118,11 +118,11 @@ def main() -> int:
     if "://" not in server_url:
         server_url = f"http://{server_url}"
 
-    destination = os.environ.get("FINSTREAM_AUTOMATION_DESTINATION", DEFAULT_DESTINATION)
+    destination = os.environ.get("WATERMELONFIN_AUTOMATION_DESTINATION", DEFAULT_DESTINATION)
     automation_values = {
-        "FINSTREAM_AUTOMATION_SERVER_URL": server_url,
-        "FINSTREAM_AUTOMATION_USERNAME": username,
-        "FINSTREAM_AUTOMATION_PASSWORD": password,
+        "WATERMELONFIN_AUTOMATION_SERVER_URL": server_url,
+        "WATERMELONFIN_AUTOMATION_USERNAME": username,
+        "WATERMELONFIN_AUTOMATION_PASSWORD": password,
     }
     udid = simulator_udid(destination)
 
@@ -131,10 +131,10 @@ def main() -> int:
         "test",
         "-skipMacroValidation",
         "-scheme",
-        "Swiftfin tvOS Tests",
+        "WatermelonFin tvOS Tests",
         "-destination",
         destination,
-        "-only-testing:Swiftfin tvOS Tests/FirstTimeAccountFlowAutomationTests/testDevServerCanBeAddedFromEmptyLocalState",
+        "-only-testing:WatermelonFin tvOS Tests/FirstTimeAccountFlowAutomationTests/testDevServerCanBeAddedFromEmptyLocalState",
     ]
 
     print(f"Running first-time account flow automation against {server_url}")

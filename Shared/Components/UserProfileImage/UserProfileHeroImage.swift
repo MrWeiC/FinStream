@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -45,7 +45,7 @@ struct UserProfileHeroImage: View {
     init(
         user: UserDto,
         source: ImageSource,
-        pipeline: ImagePipeline = .Swiftfin.posters,
+        pipeline: ImagePipeline = .WatermelonFin.posters,
         onUpdate: @escaping () -> Void,
         onDelete: @escaping () -> Void
     ) {
@@ -68,7 +68,7 @@ struct UserProfileHeroImage: View {
                         UserProfileImage(
                             userID: user.id,
                             source: source,
-                            pipeline: userSession?.user.id == user.id ? .Swiftfin.local : .Swiftfin.posters
+                            pipeline: userSession?.user.id == user.id ? .WatermelonFin.local : .WatermelonFin.posters
                         )
                         .frame(width: 150, height: 150)
 

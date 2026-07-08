@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -11,12 +11,12 @@ import Logging
 
 extension Logger {
 
-    static func swiftfin() -> Logger {
-        Logger(label: "org.jellyfin.swiftfin")
+    static func watermelonfin() -> Logger {
+        Logger(label: "org.chenacademy.watermelonfin")
     }
 }
 
-struct SwiftfinConsoleHandler: LogHandler {
+struct WatermelonFinConsoleHandler: LogHandler {
 
     var logLevel: Logger.Level = .trace
     var metadata: Logger.Metadata = [:]

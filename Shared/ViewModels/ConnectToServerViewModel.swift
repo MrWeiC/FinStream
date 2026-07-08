@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -99,9 +99,9 @@ final class ConnectToServerViewModel: ViewModel {
             logger.warning("Connecting to server over insecure HTTP connection: \(url.host ?? "unknown")")
         }
 
-        let client = JellyfinClient.swiftfinClient(
-            configuration: .swiftfinConfiguration(url: url),
-            sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.swiftfin())
+        let client = JellyfinClient.watermelonfinClient(
+            configuration: .watermelonfinConfiguration(url: url),
+            sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.watermelonfin())
         )
 
         let response = try await client.send(Paths.getPublicSystemInfo)
@@ -170,7 +170,7 @@ final class ConnectToServerViewModel: ViewModel {
             return storedServer
         }
 
-        guard let existingServer = try? SwiftfinStore
+        guard let existingServer = try? WatermelonFinStore
             .dataStack
             .fetchOne(From<ServerModel>().where(\.$id == server.id))
         else {
@@ -181,7 +181,7 @@ final class ConnectToServerViewModel: ViewModel {
     }
 
     private func refreshStoredServers() {
-        let servers = (try? SwiftfinStore
+        let servers = (try? WatermelonFinStore
             .dataStack
             .fetchAll(From<ServerModel>())
             .map(\.state)) ?? []

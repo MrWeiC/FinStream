@@ -1,12 +1,12 @@
-# Contributing to Swiftfin
+# Contributing to WatermelonFin
 
-> Thank you for your interest in contributing to the Jellyfin (Swiftfin) project! This page and its children describe the ways you can contribute, as well as some of our policies. This should help guide you through your first Issue or PR.
+> Thank you for your interest in contributing to WatermelonFin. This page and its children describe the ways you can contribute, as well as some of our policies. This should help guide you through your first Issue or PR.
 
-> Even if you can't contribute code, you can still help Jellyfin (Swiftfin)! The two main things you can help with are testing and creating issues. Contributing to code, documentation, ..., and other non-code components are all outlined in the sections below.
+> Even if you can't contribute code, you can still help WatermelonFin. The two main things you can help with are testing and creating issues. Contributing to code, documentation, and other non-code components are all outlined in the sections below.
 
 ## Setup
 
-Fork the Swiftfin repo and install the necessary dependencies with Xcode 15:
+Fork the WatermelonFin repo and install the necessary dependencies with Xcode 15:
 
 ```bash
 # install Carthage, SwiftFormat, and SwiftGen with homebrew
@@ -26,20 +26,20 @@ Create the `XcodeConfig/DevelopmentTeam.xcconfig` file [through Xcode](https://d
 
 ```
 DEVELOPMENT_TEAM = ""
-PRODUCT_BUNDLE_IDENTIFIER = org.jellyfin.swiftfin
+PRODUCT_BUNDLE_IDENTIFIER = org.chenacademy.watermelonfin
 ```
 
 Update the `DEVELOPMENT_TEAM` value with your Team ID. This can be found by:
 - Setting the `Development Team` value under the `Signing & Capabilities` tab in Xcode and get the value from source control. Make sure to discard this change.
 - Logging into your Apple Developer account and [view your membership details](https://developer.apple.com/account/#/membership). It will be listed next to `Team ID`.
 
-You can change the `PRODUCT_BUNDLE_IDENTIFIER` value to have multiple builds of Swiftfin on your devices or for provisioning purposes.
+You can change the `PRODUCT_BUNDLE_IDENTIFIER` value to have multiple builds of WatermelonFin on your devices or for provisioning purposes.
 
 `DevelopmentTeam.xcconfig` is already added to the `.gitignore`.
 
 ## Git Flow
 
-Swiftfin follows the same Pull Request Guidelines as outlined in the [Jellyfin Pull Request Guidelines](https://jellyfin.org/docs/general/contributing/development.html#pull-request-guidelines).
+WatermelonFin follows a focused pull request workflow: keep changes scoped, include local validation output, and explain user-facing impact.
 
 If a Pull Request relates to an Issue, mention the issue correctly in the PR description.
 
@@ -62,8 +62,8 @@ swift Scripts/Checks/ValidateATSConfiguration.swift
 swiftlint lint
 swiftformat . --lint --config ".swiftformat"
 xcodebuild build \
-  -project Swiftfin.xcodeproj \
-  -scheme "Swiftfin tvOS" \
+  -project WatermelonFin.xcodeproj \
+  -scheme "WatermelonFin tvOS" \
   -destination "generic/platform=tvOS Simulator" \
   CODE_SIGN_IDENTITY="" \
   CODE_SIGNING_REQUIRED=NO
@@ -85,15 +85,15 @@ Documentation for advanced or complex features and other implementation reasonin
 
 ## Architecture
 
-Swiftfin is developed using SwiftUI. The iOS and tvOS Jellyfin clients share the same backend with each client containing their respective views. Due to this architecture, working on both clients at once may be necessary.
+WatermelonFin is developed using SwiftUI with shared backend code and tvOS-specific views.
 
 Playback is done with [MPV](https://mpv.io) for its broad codec and subtitle support. Becoming familiar with libmpv and MPVKit will be necessary for video playback development and debugging.
 
 ## Design
 
-While there are no design guidelines for UI/UX features, Swiftfin has the goal to use native SwiftUI/UIKit components while adhering to a Jellyfin theme. If a feature creates new UI/UX components, it may receive feedback during the PR process or may be re-designed later on.
+While there are no design guidelines for UI/UX features, WatermelonFin has the goal to use native SwiftUI/UIKit components while adhering to a Jellyfin theme. If a feature creates new UI/UX components, it may receive feedback during the PR process or may be re-designed later on.
 
-User customizable UI/UX features are welcome and intended, however not all customization may be accepted for code maintainability and to also establish a distinct Swiftfin design. Taking inspiration, but not always copying, from other applications is encouraged.
+User customizable UI/UX features are welcome and intended, however not all customization may be accepted for code maintainability and to also establish a distinct WatermelonFin design. Taking inspiration, but not always copying, from other applications is encouraged.
 
 ## App Icons
 

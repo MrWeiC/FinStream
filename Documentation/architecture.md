@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document provides an overview of key architectural patterns used in FinStream.
+This document provides an overview of key architectural patterns used in WatermelonFin.
 
 ---
 
@@ -154,7 +154,7 @@ Notifications[.didSignIn].publisher
 
 ## Testing
 
-Test files are located in `Swiftfin tvOS Tests/`:
+Test files are located in `WatermelonFin tvOS Tests/`:
 
 | File | Coverage |
 |------|----------|

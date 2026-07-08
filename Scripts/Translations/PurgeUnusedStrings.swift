@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -12,7 +12,7 @@ import Foundation
 let localizationFile = "./Translations/en.lproj/Localizable.strings"
 
 /// Directories to scan for Swift files
-let directoriesToScan = ["./Shared", "./Swiftfin", "./Swiftfin tvOS"]
+let directoriesToScan = ["./Shared", "./WatermelonFin", "./WatermelonFin tvOS"]
 
 /// File to exclude from scanning
 let excludedFile = "./Shared/Strings/Strings.swift"

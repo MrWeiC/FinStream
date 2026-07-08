@@ -1,6 +1,6 @@
-# Installing FinStream
+# Installing WatermelonFin
 
-FinStream is available through two methods: the Apple App Store (recommended for most users) or building from source (for developers).
+WatermelonFin is available through two methods: the Apple App Store (recommended for most users) or building from source (for developers).
 
 ---
 
@@ -16,7 +16,7 @@ FinStream is available through two methods: the Apple App Store (recommended for
 1. **On your Apple TV:**
    - Open the App Store application
    - Navigate to the Search tab
-   - Search for "FinStream Media Player"
+   - Search for "WatermelonFin Media Player"
    - Select the app from search results
 
 2. **Purchase and Download:**
@@ -26,31 +26,31 @@ FinStream is available through two methods: the Apple App Store (recommended for
    - Wait for download to complete
 
 3. **Launch:**
-   - Find FinStream on your home screen
+   - Find WatermelonFin on your home screen
    - Launch the app
    - Connect to your Jellyfin server
 
 ### International Availability
 
-FinStream is available in 175 countries on the App Store. Pricing is automatically converted to your local currency by Apple.
+WatermelonFin is available in 175 countries on the App Store. Pricing is automatically converted to your local currency by Apple.
 
 ### Troubleshooting
 
-**"Cannot find FinStream on App Store"**
+**"Cannot find WatermelonFin on App Store"**
 - Ensure you're searching on your Apple TV device (not iPhone/iPad)
-- Try the full name: "FinStream Media Player"
+- Try the full name: "WatermelonFin Media Player"
 - Check that your Apple TV is running tvOS 17 or later
 - Verify your region is supported (175 countries supported)
 
 **"Already purchased on another device"**
 - Navigate to your Purchased apps in the App Store
-- Re-download FinStream for free
+- Re-download WatermelonFin for free
 
 ---
 
 ## Option 2: Build from Source (Developers)
 
-FinStream is open source under the MPL 2.0 license. Developers can build and run the app for free.
+WatermelonFin is open source under the MPL 2.0 license. Developers can build and run the app for free.
 
 ### Requirements
 - macOS with Xcode 16.4+
@@ -67,14 +67,14 @@ Quick start:
 brew install carthage swiftformat swiftgen
 
 # Clone repository
-git clone https://github.com/mrweic/FinStream.git
-cd finstream
+git clone https://github.com/MrWeiC/WatermelonFin.git
+cd watermelonfin
 
 # Install Carthage dependencies
 carthage update --use-xcframeworks --cache-builds
 
 # Open in Xcode
-open Swiftfin.xcodeproj
+open WatermelonFin.xcodeproj
 ```
 
 ### Developer vs. App Store Version
@@ -91,6 +91,6 @@ open Swiftfin.xcodeproj
 
 ## Support
 
-- **Bug Reports**: [GitHub Issues](https://github.com/mrweic/FinStream/issues)
-- **Feature Requests**: [GitHub Discussions](https://github.com/mrweic/FinStream/discussions)
-- **Source Code**: [github.com/mrweic/FinStream](https://github.com/mrweic/FinStream)
+- **Bug Reports**: [GitHub Issues](https://github.com/MrWeiC/WatermelonFin/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/MrWeiC/WatermelonFin/discussions)
+- **Source Code**: [github.com/MrWeiC/WatermelonFin](https://github.com/MrWeiC/WatermelonFin)

@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -65,7 +65,7 @@ class ChapterPreviewImageProvider: PreviewImageProvider {
             do {
                 response = try await userSession.client.send(request)
             } catch {
-                Logger.swiftfin().warning("Failed to fetch chapter preview image: \(error.localizedDescription)")
+                Logger.watermelonfin().warning("Failed to fetch chapter preview image: \(error.localizedDescription)")
                 return nil
             }
             guard let image = UIImage(data: response.value) else { return nil }

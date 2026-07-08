@@ -1,4 +1,4 @@
-# FinStream tvOS First-Run UI Review
+# WatermelonFin tvOS First-Run UI Review
 
 Date: 2026-07-04
 
@@ -7,7 +7,7 @@ This review covers the tvOS first-run path for adding a server, adding an existi
 ## Direction
 
 - Keep the app video-first and remote-friendly: clear focus states, predictable up/down navigation, and no landing-page style onboarding.
-- Treat Jellyfin as the source of truth for users and permissions. FinStream should say “add existing user” rather than implying that it creates Jellyfin users.
+- Treat Jellyfin as the source of truth for users and permissions. WatermelonFin should say “add existing user” rather than implying that it creates Jellyfin users.
 - Use Chinese as a first-class default experience. Avoid mixed labels such as “最新 Movies” or “最新 Shows”.
 
 ## Findings
@@ -316,12 +316,12 @@ Verification:
 - `swiftformat . --lint --config .swiftformat` passed.
 - `git diff --check` passed.
 - `swift Scripts/Checks/ValidateATSConfiguration.swift` passed.
-- `build_run_sim` for `Swiftfin tvOS` passed.
+- `build_run_sim` for `WatermelonFin tvOS` passed.
 - `python3 Scripts/Automation/add_dev_user_from_env.py .env` passed `FirstTimeAccountFlowAutomationTests/testDevServerCanBeAddedFromEmptyLocalState` with 0 failures.
 
 Follow-up plan:
 
-- Localize the advanced logs controls listed above. They come from hard-coded PulseUI tvOS labels, so this likely needs either a small FinStream-owned log view or an upstream/forked PulseUI localization patch.
+- Localize the advanced logs controls listed above. They come from hard-coded PulseUI tvOS labels, so this likely needs either a small WatermelonFin-owned log view or an upstream/forked PulseUI localization patch.
 - Continue settings screenshots for user profile, local security, video player, playback quality, personalization, and any experimental settings pages not yet captured in this round.
 - Review settings row affordances so rows that open inline pickers are visually distinct from rows that navigate into detail pages.
 - Consider hiding or visually separating Quick Connect on the re-authentication form, because remote navigation can land there when the password sign-in button is disabled.
@@ -337,7 +337,7 @@ Screenshots captured:
 Findings:
 
 - The previous PulseUI tvOS log screen hard-coded labels such as `Errors Only`, `Network Only`, `Store Info`, and `Remove Logs`, so the page could not be made Chinese-first through string resources alone.
-- A FinStream-owned tvOS log view now keeps the diagnostics controls in Chinese: `仅错误`, `仅网络`, `日志条目`, `网络请求`, `应用消息`, `刷新`, and `删除日志`.
+- A WatermelonFin-owned tvOS log view now keeps the diagnostics controls in Chinese: `仅错误`, `仅网络`, `日志条目`, `网络请求`, `应用消息`, `刷新`, and `删除日志`.
 - Network rows now summarize common states in Chinese. Cancelled image requests display as `已取消` and are not treated as real errors; successful Jellyfin requests display as `200 成功`.
 - The page keeps the important debugging data visible: method, path, host, payload size, duration, and timestamp.
 
@@ -353,7 +353,7 @@ Verification:
 - `plutil -lint Translations/en.lproj/Localizable.strings Translations/zh-Hans.lproj/Localizable.strings` passed.
 - `swiftformat Shared/Views/SettingsView/DiagnosticsView.swift --config .swiftformat` passed.
 - `git diff --check` passed.
-- `build_run_sim` for `Swiftfin tvOS` passed.
+- `build_run_sim` for `WatermelonFin tvOS` passed.
 - Simulator automation reached Settings -> Diagnostics -> Advanced Logs and confirmed the localized controls and log row titles.
 
 Follow-up plan:
@@ -408,7 +408,7 @@ Verification:
 - `swiftformat . --lint --config .swiftformat` passed.
 - `git diff --check` passed.
 - A targeted hard-coded string search no longer finds those English literals in source files, outside generated fallback strings.
-- `build_run_sim` for `Swiftfin tvOS` passed.
+- `build_run_sim` for `WatermelonFin tvOS` passed.
 
 Follow-up plan:
 
@@ -442,7 +442,7 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed.
+- `build_run_sim` for `WatermelonFin tvOS` passed.
 - `swiftformat . --lint --config .swiftformat` passed.
 - `plutil -lint Translations/en.lproj/Localizable.strings Translations/zh-Hans.lproj/Localizable.strings` passed.
 - `git diff --check` passed.
@@ -483,7 +483,7 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed.
+- `build_run_sim` for `WatermelonFin tvOS` passed.
 - Simulator automation reached Home -> item detail -> `从头播放` -> playback overlay.
 - Runtime snapshot confirmed localized button names: `音频`, `剧集`, and `下一集`.
 - Runtime snapshot confirmed the localized skip hint text.
@@ -511,9 +511,9 @@ Screenshots captured:
 Findings:
 
 - Back from `视频播放器` correctly returned to the settings root list.
-- The visible focus returned to the `视频播放器` row, but the left help panel still showed `视频播放器类型` help copy (`FinStream` / `原生 (AVKit)`).
+- The visible focus returned to the `视频播放器` row, but the left help panel still showed `视频播放器类型` help copy (`WatermelonFin` / `原生 (AVKit)`).
 - The root cause was section-level help: the entire `播放` section advertised the same `formLearnMore` content, so rows for `视频播放器` and `播放质量` inherited help that only described the player type picker.
-- After the fix, focusing `视频播放器` returns the left panel to the FinStream brand image, while focusing `视频播放器类型` still shows the FinStream/native-player explanation.
+- After the fix, focusing `视频播放器` returns the left panel to the WatermelonFin brand image, while focusing `视频播放器类型` still shows the WatermelonFin/native-player explanation.
 
 Changes for this iteration:
 
@@ -523,9 +523,9 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed.
+- `build_run_sim` for `WatermelonFin tvOS` passed.
 - Simulator automation reproduced the issue via Settings -> `视频播放器` -> Back.
-- Runtime snapshot after the fix no longer includes `FinStream` / `原生 (AVKit)` help text when focus is on `视频播放器`.
+- Runtime snapshot after the fix no longer includes `WatermelonFin` / `原生 (AVKit)` help text when focus is on `视频播放器`.
 - Runtime snapshot confirms the help text still appears when focus moves to `视频播放器类型`.
 
 Follow-up plan:
@@ -560,7 +560,7 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed after the string and error changes.
+- `build_run_sim` for `WatermelonFin tvOS` passed after the string and error changes.
 - Simulator automation confirmed Live TV now displays `直播 / 即将推出`.
 - `swiftformat . --lint --config .swiftformat` passed.
 - `plutil -lint Translations/en.lproj/Localizable.strings Translations/zh-Hans.lproj/Localizable.strings` passed.
@@ -598,7 +598,7 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed after the download and `ListRowMenu` changes.
+- `build_run_sim` for `WatermelonFin tvOS` passed after the download and `ListRowMenu` changes.
 - Runtime snapshot before the fix exposed blank menu buttons on Playback Quality.
 - Runtime snapshot after the fix reports `最大比特率 | 自动`, `测试大小 | 常规`, and `兼容性 | 自动`.
 - `swiftformat . --lint --config .swiftformat` passed.
@@ -638,7 +638,7 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed after the Search empty-state change.
+- `build_run_sim` for `WatermelonFin tvOS` passed after the Search empty-state change.
 - Runtime snapshot confirmed the Search suggestions page is Chinese.
 - `swiftformat . --lint --config .swiftformat` passed.
 - `plutil -lint Translations/en.lproj/Localizable.strings Translations/zh-Hans.lproj/Localizable.strings` passed.
@@ -683,9 +683,9 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed after the string and helper changes.
+- `build_run_sim` for `WatermelonFin tvOS` passed after the string and helper changes.
 - Simulator runtime snapshot confirmed the TV section pill changed from `电视节目` to `剧集`.
-- `xcodebuild test -project Swiftfin.xcodeproj -scheme 'Swiftfin tvOS Tests' -destination 'platform=tvOS Simulator,id=AAFE64CE-367E-48B8-9E6D-C48EDD46DC74' -only-testing:'Swiftfin tvOS Tests/BaseItemDtoUserDataTests' -skipMacroValidation` passed: 15 tests, 0 failures.
+- `xcodebuild test -project WatermelonFin.xcodeproj -scheme 'WatermelonFin tvOS Tests' -destination 'platform=tvOS Simulator,id=AAFE64CE-367E-48B8-9E6D-C48EDD46DC74' -only-testing:'WatermelonFin tvOS Tests/BaseItemDtoUserDataTests' -skipMacroValidation` passed: 15 tests, 0 failures.
 - `swiftformat . --lint --config .swiftformat` passed.
 - `plutil -lint Translations/en.lproj/Localizable.strings Translations/zh-Hans.lproj/Localizable.strings` passed.
 - `git diff --check` passed.
@@ -727,7 +727,7 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed after the Diagnostics focus-state change.
+- `build_run_sim` for `WatermelonFin tvOS` passed after the Diagnostics focus-state change.
 - Simulator screenshots confirm Advanced Logs still renders the filter controls, counts, and actions correctly after the change.
 - Runtime snapshot confirms Advanced Logs filter buttons have accessible labels and values such as `仅错误, 禁用` and `仅网络, 启用`.
 - `swiftformat . --lint --config .swiftformat` passed.
@@ -765,10 +765,10 @@ Changes for this iteration:
 
 Verification:
 
-- `build_run_sim` for `Swiftfin tvOS` passed before this documentation update, with only the existing `ServerTicks` deprecation warning.
+- `build_run_sim` for `WatermelonFin tvOS` passed before this documentation update, with only the existing `ServerTicks` deprecation warning.
 - Simulator screenshots confirm the Playback Quality and Video Player settings pages render Chinese labels and row values.
 - Runtime snapshot confirms Playback Quality exposes accessible labels and values such as `最大比特率|自动`, `测试大小|常规`, and `兼容性|自动`.
-- `xcodebuild test -project Swiftfin.xcodeproj -scheme 'Swiftfin tvOS Tests' -destination 'platform=tvOS Simulator,id=AAFE64CE-367E-48B8-9E6D-C48EDD46DC74' -only-testing:'Swiftfin tvOS Tests/BaseItemDtoUserDataTests' -skipMacroValidation` passed: 16 tests, 0 failures.
+- `xcodebuild test -project WatermelonFin.xcodeproj -scheme 'WatermelonFin tvOS Tests' -destination 'platform=tvOS Simulator,id=AAFE64CE-367E-48B8-9E6D-C48EDD46DC74' -only-testing:'WatermelonFin tvOS Tests/BaseItemDtoUserDataTests' -skipMacroValidation` passed: 16 tests, 0 failures.
 - `swiftformat . --lint --config .swiftformat` passed.
 - `plutil -lint Translations/en.lproj/Localizable.strings Translations/zh-Hans.lproj/Localizable.strings` passed.
 - `git diff --check` passed.

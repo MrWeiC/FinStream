@@ -1,6 +1,6 @@
 # TestFlight Beta Tester Import Workflow
 
-> **⚠️ ARCHIVED**: This workflow was used during FinStream's public beta program (ended January 17, 2026). FinStream is now available on the Apple App Store in 175 countries. This document is preserved for historical reference and potential future beta programs.
+> **⚠️ ARCHIVED**: This workflow was used during WatermelonFin's public beta program (ended January 17, 2026). WatermelonFin is now available on the Apple App Store in 175 countries. This document is preserved for historical reference and potential future beta programs.
 
 ---
 
@@ -22,7 +22,7 @@ This workflow automates the process of:
 
 ## Source Data
 
-**Google Sheet**: FinStream Beta/TestFlight Sign-up (Responses)
+**Google Sheet**: WatermelonFin Beta/TestFlight Sign-up (Responses)
 - URL: `https://docs.google.com/spreadsheets/d/1e5xx_9UfzJJkgUM31eTLqQqnxr-VH4bQMSgKTw500bY/edit`
 - Columns: Timestamp, Email Address, First Name, Last Name
 

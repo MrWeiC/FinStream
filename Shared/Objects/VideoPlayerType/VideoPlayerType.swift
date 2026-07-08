@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -13,14 +13,14 @@ import JellyfinAPI
 enum VideoPlayerType: String, CaseIterable, Displayable, Storable {
 
     case native
-    case swiftfin
+    case watermelonfin
 
     var displayTitle: String {
         switch self {
         case .native:
             L10n.native
-        case .swiftfin:
-            "FinStream"
+        case .watermelonfin:
+            "WatermelonFin"
         }
     }
 
@@ -28,8 +28,8 @@ enum VideoPlayerType: String, CaseIterable, Displayable, Storable {
         switch self {
         case .native:
             Self._nativeDirectPlayProfiles
-        case .swiftfin:
-            Self._swiftfinDirectPlayProfiles
+        case .watermelonfin:
+            Self._watermelonfinDirectPlayProfiles
         }
     }
 
@@ -37,8 +37,8 @@ enum VideoPlayerType: String, CaseIterable, Displayable, Storable {
         switch self {
         case .native:
             Self._nativeTranscodingProfiles
-        case .swiftfin:
-            Self._swiftfinTranscodingProfiles
+        case .watermelonfin:
+            Self._watermelonfinTranscodingProfiles
         }
     }
 
@@ -46,8 +46,8 @@ enum VideoPlayerType: String, CaseIterable, Displayable, Storable {
         switch self {
         case .native:
             Self._nativeSubtitleProfiles
-        case .swiftfin:
-            Self._swiftfinSubtitleProfiles
+        case .watermelonfin:
+            Self._watermelonfinSubtitleProfiles
         }
     }
 }

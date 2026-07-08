@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -483,8 +483,8 @@ private final class MPVLayerRenderer {
     private static let queueKey = DispatchSpecificKey<Bool>()
 
     private let displayLayer: AVSampleBufferDisplayLayer
-    private let logger = Logger.swiftfin()
-    private let queue = DispatchQueue(label: "finstream.mpv.renderer", qos: .userInitiated)
+    private let logger = Logger.watermelonfin()
+    private let queue = DispatchQueue(label: "watermelonfin.mpv.renderer", qos: .userInitiated)
     private var mpv: OpaquePointer?
     private var statusObservation: NSKeyValueObservation?
     private var isStopping = false

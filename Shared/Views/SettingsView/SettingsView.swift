@@ -1,5 +1,5 @@
 //
-// Swiftfin is subject to the terms of the Mozilla Public
+// WatermelonFin is subject to the terms of the Mozilla Public
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 //
@@ -33,7 +33,7 @@ struct SettingsView: View {
     // MARK: - Body
 
     var body: some View {
-        Form(image: .finstreamLogo) {
+        Form(image: .watermelonfinLogo) {
             accountAndServerSection
             videoPlayerSection
             mediaAndAppearanceSection
@@ -123,8 +123,8 @@ struct SettingsView: View {
             }
         } learnMore: {
             LabeledContent(
-                "FinStream",
-                value: L10n.playerFinStreamDescription
+                "WatermelonFin",
+                value: L10n.playerWatermelonFinDescription
             )
             LabeledContent(
                 L10n.native,
@@ -150,8 +150,8 @@ struct SettingsView: View {
     @LabeledContentBuilder
     private var videoPlayerTypeLearnMore: AnyView {
         LabeledContent(
-            "FinStream",
-            value: L10n.playerFinStreamDescription
+            "WatermelonFin",
+            value: L10n.playerWatermelonFinDescription
         )
         LabeledContent(
             L10n.native,

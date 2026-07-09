@@ -13,11 +13,6 @@ extension SelectUserView {
 
     struct ServerSelectionMenu: View {
 
-        // MARK: - Observed & Environment Objects
-
-        @Router
-        private var router
-
         // MARK: - Server Selection
 
         @Binding
@@ -75,20 +70,6 @@ extension SelectUserView {
                     if servers.count > 1 {
                         Label(L10n.allServers, systemImage: "person.2.fill")
                             .tag(SelectUserServerSelection.all)
-                    }
-                }
-                Section {
-                    if let selectedServer {
-                        Button(L10n.editServer, systemImage: "server.rack") {
-                            router.route(
-                                to: .editServer(server: selectedServer, isEditing: true),
-                                style: .sheet
-                            )
-                        }
-                    }
-
-                    Button(L10n.addServer, systemImage: "plus") {
-                        router.route(to: .connectToServer)
                     }
                 }
             } label: {

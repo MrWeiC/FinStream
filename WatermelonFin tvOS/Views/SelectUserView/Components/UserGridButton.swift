@@ -14,7 +14,8 @@ extension SelectUserView {
 
     struct UserGridButton: View {
 
-        private static let profileImageSize: CGFloat = 280
+        private static let profileImageSize: CGFloat = 220
+        private static let selectedBadgeSize: CGFloat = 56
 
         @Default(.accentColor)
         private var accentColor
@@ -74,7 +75,7 @@ extension SelectUserView {
                         Image(systemName: "checkmark.circle.fill")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 75, height: 75)
+                            .frame(width: Self.selectedBadgeSize, height: Self.selectedBadgeSize)
                             .symbolRenderingMode(.palette)
                             .foregroundStyle(accentColor.overlayColor, accentColor)
                     }

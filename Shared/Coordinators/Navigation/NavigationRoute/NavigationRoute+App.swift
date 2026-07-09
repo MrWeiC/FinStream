@@ -27,12 +27,18 @@ extension NavigationRoute {
     }
     #endif
 
+    #if os(tvOS)
+    static let appSettings = NavigationRoute(id: "app-settings") {
+        AppSettingsView()
+    }
+    #else
     static let appSettings = NavigationRoute(
         id: "app-settings",
         style: .sheet
     ) {
         AppSettingsView()
     }
+    #endif
 
     #if os(tvOS)
     static let hourPicker = NavigationRoute(

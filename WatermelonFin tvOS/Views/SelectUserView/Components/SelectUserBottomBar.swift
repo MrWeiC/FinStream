@@ -67,8 +67,22 @@ extension SelectUserView {
 
         private var advancedMenu: some View {
             Menu {
-                Button(L10n.editUsers, systemImage: "person.crop.circle") {
-                    isEditing.toggle()
+                if hasUsers {
+                    Button(L10n.editUsers, systemImage: "person.crop.circle") {
+                        isEditing.toggle()
+                    }
+
+                    Divider()
+                }
+
+                if let selectedServer {
+                    Button(L10n.editServer, systemImage: "server.rack") {
+                        router.route(to: .editServer(server: selectedServer, isEditing: true))
+                    }
+                }
+
+                Button(L10n.addServer, systemImage: "plus") {
+                    router.route(to: .connectToServer)
                 }
 
                 Divider()
@@ -110,24 +124,24 @@ extension SelectUserView {
                 action: onDelete
             )
             .buttonStyle(.primary)
-            .frame(width: 400, height: 75)
+            .frame(width: 300, height: 64)
             .disabled(!areUsersSelected)
         }
 
         // MARK: - Content View
 
         private var contentView: some View {
-            HStack(alignment: .top, spacing: 20) {
+            HStack(alignment: .top, spacing: 18) {
                 if isEditing {
                     deleteUsersButton
 
                     Button {
                         toggleAllUsersSelected()
                     } label: {
-                        Text(areUsersSelected ? L10n.removeAll : L10n.selectAll)
+                        Text(areUsersSelected ? L10n.deselectAll : L10n.selectAll)
                             .foregroundStyle(Color.primary)
                             .font(.body.weight(.semibold))
-                            .frame(width: 200, height: 50)
+                            .frame(width: 220, height: 64)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
@@ -137,18 +151,19 @@ extension SelectUserView {
                         Text(L10n.cancel)
                             .foregroundStyle(Color.primary)
                             .font(.body.weight(.semibold))
-                            .frame(width: 200, height: 50)
+                            .frame(width: 220, height: 64)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 } else {
-                    AddUserBottomButton(
-                        selectedServer: selectedServer,
-                        servers: servers
-                    ) { server in
-                        onAddUser(server)
+                    if hasUsers {
+                        AddUserBottomButton(
+                            selectedServer: selectedServer,
+                            servers: servers
+                        ) { server in
+                            onAddUser(server)
+                        }
+                        .focused(focusedItem, equals: .addUser)
                     }
-                    .focused(focusedItem, equals: .addUser)
-                    .hidden(!hasUsers)
 
                     ServerSelectionMenu(
                         selection: $serverSelection,

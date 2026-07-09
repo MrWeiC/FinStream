@@ -146,8 +146,18 @@ struct SelectUserView: View {
     }
 
     private func delete(user: UserState) {
-        selectedUsers.insert(user)
-        isPresentingConfirmDeleteUsers = true
+        viewModel.deleteUsers([user])
+    }
+
+    private func deleteSelectedUsers() {
+        guard selectedUsers.isNotEmpty else { return }
+
+        if selectedUsers.count == 1 {
+            viewModel.deleteUsers(selectedUsers)
+            selectedUsers.removeAll()
+        } else {
+            isPresentingConfirmDeleteUsers = true
+        }
     }
 
     // MARK: - Select User(s)
@@ -179,11 +189,23 @@ struct SelectUserView: View {
 
     // MARK: - Grid Content View
 
+    private var userGridColumnCount: Int {
+        max(1, min(userItems.count, 5))
+    }
+
+    private var userGridMaxWidth: CGFloat {
+        let itemWidth: CGFloat = 260
+        let itemSpacing = EdgeInsets.edgePadding
+
+        return CGFloat(userGridColumnCount) * itemWidth
+            + CGFloat(userGridColumnCount - 1) * itemSpacing
+    }
+
     private var userGrid: some View {
         CenteredLazyVGrid(
             data: userItems,
             id: \.user.id,
-            columns: 5,
+            columns: userGridColumnCount,
             spacing: EdgeInsets.edgePadding
         ) { gridItem in
             let user: UserState = gridItem.user
@@ -201,41 +223,35 @@ struct SelectUserView: View {
                     select(user: user, server: server)
                 }
             } onDelete: {
-                selectedUsers.insert(user)
-                isPresentingConfirmDeleteUsers = true
+                delete(user: user)
             }
             .isSelected(selectedUsers.contains(user))
         }
+        .frame(maxWidth: userGridMaxWidth)
     }
 
     private var addUserButtonGrid: some View {
-        CenteredLazyVGrid(
-            data: [0],
-            id: \.self,
-            columns: 5
-        ) { _ in
-            AddUserGridButton(
-                selectedServer: selectedServer,
-                servers: viewModel.servers.keys
-            ) { server in
-                addUserSelected(server: server)
-            }
+        AddUserGridButton(
+            selectedServer: selectedServer,
+            servers: viewModel.servers.keys
+        ) { server in
+            addUserSelected(server: server)
         }
     }
 
     private var selectionHeader: some View {
         VStack(spacing: 12) {
             Text(userSelectionTitle)
-                .font(.largeTitle.weight(.semibold))
+                .font(.title.weight(.semibold))
 
             Text(userSelectionDescription)
-                .font(.callout)
+                .font(userItems.isEmpty ? .body : .callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: 760)
+                .frame(maxWidth: userItems.isEmpty ? 680 : 760)
         }
         .frame(maxWidth: .infinity)
-        .padding(.bottom, 24)
+        .padding(.bottom, userItems.isEmpty ? 30 : 44)
     }
 
     // MARK: - User View
@@ -248,7 +264,7 @@ struct SelectUserView: View {
                 VStack(spacing: 0) {
 
                     Color.clear
-                        .frame(height: 70)
+                        .frame(height: userItems.isEmpty ? 70 : 50)
 
                     selectionHeader
 
@@ -277,7 +293,7 @@ struct SelectUserView: View {
             ) {
                 addUserSelected(server: $0)
             } onDelete: {
-                isPresentingConfirmDeleteUsers = true
+                deleteSelectedUsers()
             } toggleAllUsersSelected: {
                 if selectedUsers.isNotEmpty {
                     selectedUsers.removeAll()
@@ -457,8 +473,12 @@ struct SelectUserView: View {
             isPresented: $isPresentingConfirmDeleteUsers
         ) {
             Button(L10n.delete, role: .destructive) {
-                viewModel.deleteUsers(selectedUsers)
+                let users = selectedUsers
+                selectedUsers.removeAll()
+                viewModel.deleteUsers(users)
             }
+
+            Button(L10n.cancel, role: .cancel) {}
         } message: {
             if selectedUsers.count == 1, let first = selectedUsers.first {
                 let message: String = L10n.deleteUserSingleConfirmation(first.username)

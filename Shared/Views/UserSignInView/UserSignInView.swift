@@ -20,6 +20,9 @@ struct UserSignInView: View {
         case password
     }
 
+    @Default(.accentColor)
+    private var accentColor
+
     @Environment(\.localUserAuthenticationAction)
     private var authenticationAction
     @Environment(\.quickConnectAction)
@@ -248,8 +251,8 @@ struct UserSignInView: View {
             .frame(height: 64)
             .disabled(username.isEmpty || password.isEmpty)
             .foregroundStyle(
-                Color.jellyfinPurple.overlayColor,
-                Color.jellyfinPurple
+                accentColor.overlayColor,
+                accentColor
             )
             .opacity(username.isEmpty || password.isEmpty ? 0.5 : 1)
         }

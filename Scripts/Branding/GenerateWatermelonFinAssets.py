@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import argparse
+import base64
+from collections import deque
+import io
 import math
+import re
 
 try:
     from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -15,22 +20,23 @@ ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "WatermelonFin tvOS/Resources/Assets.xcassets"
 BRAND = ASSETS / "App Icon & Top Shelf Image.brandassets"
 PREVIEW = ROOT / "docs/watermelonfin-logo-assets-preview.png"
+DEFAULT_SOURCE = ROOT / "Scripts/Branding/Sources/watermelonfin-original.png"
 
 COLORS = {
-    "obsidian": "#050711",
-    "night": "#0B1021",
-    "deep_teal": "#061E23",
-    "badge": "#08131D",
-    "cyan": "#25C4FF",
-    "aqua": "#27F5B8",
-    "blue": "#4B7BFF",
+    "obsidian": "#050907",
+    "night": "#10120B",
+    "deep_teal": "#082B15",
+    "badge": "#141006",
+    "cyan": "#F53C5F",
+    "aqua": "#36A423",
+    "blue": "#F4E9B8",
     "white": "#FFFFFF",
 }
 
 LOGO_TARGETS = [
-    ("watermelonfin-logo.png", (100, 60)),
-    ("watermelonfin-logo@2x.png", (200, 120)),
-    ("watermelonfin-logo@3x.png", (300, 180)),
+    ("watermelonfin-logo.png", (520, 120)),
+    ("watermelonfin-logo@2x.png", (1040, 240)),
+    ("watermelonfin-logo@3x.png", (1560, 360)),
 ]
 
 ICON_TARGETS = [
@@ -71,6 +77,195 @@ def font(size, bold=False):
         except OSError:
             continue
     return ImageFont.load_default()
+
+
+def load_source_image(source):
+    if not source.exists():
+        raise SystemExit(f"Source artwork does not exist: {source}")
+
+    if source.suffix.lower() == ".svg":
+        text = source.read_text(errors="ignore")
+        match = re.search(r'data:image/(?:png|jpeg|jpg);base64,([^"]+)', text)
+        if not match:
+            raise SystemExit(f"Could not find an embedded raster image in SVG: {source}")
+        data = base64.b64decode(match.group(1))
+        return Image.open(io.BytesIO(data)).convert("RGBA")
+
+    return Image.open(source).convert("RGBA")
+
+
+def is_light_background(pixel):
+    red, green, blue, alpha = pixel
+    return alpha == 0 or (red > 230 and green > 230 and blue > 230)
+
+
+def remove_edge_background(image):
+    image = image.convert("RGBA")
+    width, height = image.size
+    pixels = image.load()
+    background = Image.new("L", image.size, 0)
+    background_pixels = background.load()
+    queue = deque()
+
+    for x in range(width):
+        for y in (0, height - 1):
+            if is_light_background(pixels[x, y]):
+                background_pixels[x, y] = 255
+                queue.append((x, y))
+
+    for y in range(height):
+        for x in (0, width - 1):
+            if is_light_background(pixels[x, y]) and background_pixels[x, y] == 0:
+                background_pixels[x, y] = 255
+                queue.append((x, y))
+
+    while queue:
+        x, y = queue.popleft()
+        for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+            if 0 <= nx < width and 0 <= ny < height and background_pixels[nx, ny] == 0:
+                if is_light_background(pixels[nx, ny]):
+                    background_pixels[nx, ny] = 255
+                    queue.append((nx, ny))
+
+    foreground = background.point(lambda value: 0 if value else 255).filter(ImageFilter.GaussianBlur(0.6))
+    result = image.copy()
+    result.putalpha(foreground)
+    return result
+
+
+def trim(image, padding=0):
+    bbox = image.getchannel("A").getbbox()
+    if bbox is None:
+        return image
+
+    left = max(0, bbox[0] - padding)
+    top = max(0, bbox[1] - padding)
+    right = min(image.width, bbox[2] + padding)
+    bottom = min(image.height, bbox[3] + padding)
+    return image.crop((left, top, right, bottom))
+
+
+def remove_white_matte(image):
+    image = image.convert("RGBA")
+    pixels = image.load()
+    for y in range(image.height):
+        for x in range(image.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha == 0:
+                continue
+
+            distance_from_white = max(255 - red, 255 - green, 255 - blue)
+            if distance_from_white <= 10:
+                pixels[x, y] = (red, green, blue, 0)
+                continue
+
+            # The source wordmark was rasterized on white. Convert the white
+            # matte into alpha so anti-aliased edges do not leave a light halo.
+            normalized = min(1, (distance_from_white - 10) / 80)
+            new_alpha = round(255 * normalized)
+            if new_alpha >= 250:
+                pixels[x, y] = (red, green, blue, 255)
+                continue
+
+            matte = 255 * (1 - new_alpha / 255)
+            unpremultiplied = []
+            for channel in (red, green, blue):
+                value = (channel - matte) / max(new_alpha / 255, 0.001)
+                unpremultiplied.append(round(max(0, min(255, value))))
+            pixels[x, y] = (*unpremultiplied, new_alpha)
+    return image
+
+
+def solid_brand_wordmark(image):
+    image = remove_white_matte(image)
+    pixels = image.load()
+    red_fill = rgb("#F53357")
+    green_fill = rgb("#2D8F1E")
+
+    for y in range(image.height):
+        for x in range(image.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha == 0:
+                continue
+
+            saturation = max(red, green, blue) - min(red, green, blue)
+            brightness = (red + green + blue) / 3
+            if alpha < 8 or (brightness > 90 and saturation < 38):
+                pixels[x, y] = (red, green, blue, 0)
+                continue
+
+            fill = green_fill if green > red + 8 else red_fill
+            pixels[x, y] = (*fill, alpha)
+
+    return image
+
+
+def remove_translucent_edge_matte(image):
+    image = image.convert("RGBA")
+    pixels = image.load()
+    for y in range(image.height):
+        for x in range(image.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha == 0 or alpha >= 250:
+                continue
+
+            saturation = max(red, green, blue) - min(red, green, blue)
+            brightness = (red + green + blue) / 3
+            if alpha < 8 or (brightness > 210 and saturation < 42):
+                pixels[x, y] = (red, green, blue, 0)
+                continue
+
+            opacity = alpha / 255
+            unpremultiplied = []
+            for channel in (red, green, blue):
+                value = (channel - 255 * (1 - opacity)) / max(opacity, 0.001)
+                unpremultiplied.append(round(max(0, min(255, value))))
+            pixels[x, y] = (*unpremultiplied, alpha)
+    return image
+
+
+def source_pieces(source):
+    art = remove_edge_background(load_source_image(source))
+    width, height = art.size
+    mark = remove_translucent_edge_matte(trim(art.crop((0, 0, width, round(height * 0.76))), padding=10))
+    wordmark = solid_brand_wordmark(trim(art.crop((0, round(height * 0.76), width, height)), padding=10))
+    return mark, wordmark
+
+
+def fit(image, max_size):
+    max_width, max_height = max_size
+    scale = min(max_width / image.width, max_height / image.height)
+    size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
+    return image.resize(size, Image.Resampling.LANCZOS)
+
+
+def paste_center(base, image, center):
+    x = round(center[0] - image.width / 2)
+    y = round(center[1] - image.height / 2)
+    base.alpha_composite(image, (x, y))
+
+
+def paste_shadow(base, image, center, blur, offset, opacity):
+    shadow = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    shadow.putalpha(image.getchannel("A").point(lambda value: round(value * opacity)))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(blur))
+    paste_center(base, shadow, (center[0] + offset[0], center[1] + offset[1]))
+
+
+def paste_fitted(base, image, box, shadow=False):
+    x, y, width, height = box
+    fitted = fit(image, (width, height))
+    center = (x + width / 2, y + height / 2)
+    if shadow:
+        paste_shadow(
+            base,
+            fitted,
+            center,
+            blur=max(2, round(min(base.size) * 0.025)),
+            offset=(0, round(base.height * 0.025)),
+            opacity=0.42,
+        )
+    paste_center(base, fitted, center)
 
 
 def linear_background(size):
@@ -347,65 +542,95 @@ def draw_wordmark(base, box):
     return base
 
 
-def save_logo_assets():
+def save_logo_assets(mark, wordmark):
     logo_dir = ASSETS / "watermelonfin-logo.imageset"
     for filename, size in LOGO_TARGETS:
         image = Image.new("RGBA", size, (0, 0, 0, 0))
-        draw_wordmark(image, (0, 0, size[0], size[1]))
+        paste_fitted(
+            image,
+            mark,
+            (
+                round(size[0] * 0.02),
+                round(size[1] * 0.03),
+                round(size[0] * 0.19),
+                round(size[1] * 0.94),
+            ),
+            shadow=True,
+        )
+        paste_fitted(
+            image,
+            wordmark,
+            (
+                round(size[0] * 0.24),
+                round(size[1] * 0.22),
+                round(size[0] * 0.72),
+                round(size[1] * 0.56),
+            ),
+            shadow=True,
+        )
         image.save(logo_dir / filename)
 
 
-def save_icon_assets():
+def save_icon_assets(mark):
     for relative, size, mode in ICON_TARGETS:
         target = BRAND / relative
         if "back" in target.name:
             image = brand_background(size).convert("RGB")
         else:
-            image = render_mark(size, scale=3).convert("RGBA")
+            image = Image.new("RGBA", size, (0, 0, 0, 0))
+            paste_fitted(
+                image,
+                mark,
+                (
+                    round(size[0] * 0.24),
+                    round(size[1] * 0.09),
+                    round(size[0] * 0.52),
+                    round(size[1] * 0.82),
+                ),
+                shadow=True,
+            )
         image.convert(mode).save(target)
 
 
-def save_top_shelf_assets():
+def save_top_shelf_assets(mark, wordmark):
     for relative, size in TOP_SHELF_TARGETS:
         image = brand_background(size)
-        draw = ImageDraw.Draw(image)
-
-        lockup_width = round(size[0] * 0.48)
-        lockup_height = round(size[1] * 0.40)
-        lockup = Image.new("RGBA", (lockup_width, lockup_height), (0, 0, 0, 0))
-        draw_wordmark(lockup, (0, 0, lockup_width, lockup_height))
-        image.alpha_composite(lockup, (round(size[0] * 0.095), round(size[1] * 0.20)))
-
-        # Echo the mark at the far edge for depth without adding extra words.
-        accent_size = round(size[1] * 0.55)
-        accent = render_mark((accent_size, accent_size), scale=2)
-        accent.putalpha(accent.getchannel("A").point(lambda value: round(value * 0.42)))
-        image.alpha_composite(accent, (round(size[0] * 0.72), round(size[1] * 0.23)))
-
-        current = bezier(
-            [
-                (size[0] * 0.10, size[1] * 0.70),
-                (size[0] * 0.28, size[1] * 0.62),
-                (size[0] * 0.42, size[1] * 0.64),
-                (size[0] * 0.58, size[1] * 0.66),
-            ],
-            steps=72,
+        paste_fitted(
+            image,
+            mark,
+            (
+                round(size[0] * 0.15),
+                round(size[1] * 0.17),
+                round(size[0] * 0.20),
+                round(size[1] * 0.66),
+            ),
+            shadow=True,
         )
-        draw_round_curve(draw, current, rgb(COLORS["cyan"]) + (92,), max(3, round(size[1] * 0.010)))
+        paste_fitted(
+            image,
+            wordmark,
+            (
+                round(size[0] * 0.40),
+                round(size[1] * 0.37),
+                round(size[0] * 0.38),
+                round(size[1] * 0.18),
+            ),
+            shadow=True,
+        )
         image.convert("RGB").save(BRAND / relative)
 
 
-def save_preview():
+def save_preview(source):
     preview = brand_background((1800, 1100)).convert("RGB")
     draw = ImageDraw.Draw(preview)
     title_font = font(50, bold=True)
     label_font = font(28, bold=True)
 
-    draw.text((80, 62), "WatermelonFin Subtle Nod Asset Set", font=title_font, fill=(255, 255, 255))
+    draw.text((80, 62), "WatermelonFin tvOS Asset Set", font=title_font, fill=(255, 255, 255))
 
     logo = Image.open(ASSETS / "watermelonfin-logo.imageset/watermelonfin-logo@3x.png").convert("RGBA")
     preview.paste(logo, (80, 150), logo)
-    draw.text((80, 355), "Wordmark", font=label_font, fill=(222, 234, 244))
+    draw.text((80, 355), "In-app logo", font=label_font, fill=(222, 234, 244))
 
     back = Image.open(BRAND / "App Icon.imagestack/Back.imagestacklayer/Content.imageset/800x480-back.png").resize((600, 360))
     front = Image.open(BRAND / "App Icon.imagestack/Front.imagestacklayer/Content.imageset/800x480-front.png").resize((600, 360)).convert("RGBA")
@@ -423,11 +648,24 @@ def save_preview():
     preview.save(PREVIEW, quality=95)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Generate WatermelonFin tvOS logo, app icon, and Top Shelf assets.")
+    parser.add_argument(
+        "--source",
+        type=Path,
+        default=DEFAULT_SOURCE,
+        help="Path to the source PNG/JPG/SVG artwork. SVG input must contain an embedded raster image.",
+    )
+    return parser.parse_args()
+
+
 def main():
-    save_logo_assets()
-    save_icon_assets()
-    save_top_shelf_assets()
-    save_preview()
+    args = parse_args()
+    mark, wordmark = source_pieces(args.source)
+    save_logo_assets(mark, wordmark)
+    save_icon_assets(mark)
+    save_top_shelf_assets(mark, wordmark)
+    save_preview(args.source)
     print("Generated WatermelonFin logo and tvOS assets.")
 
 

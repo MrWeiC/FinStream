@@ -11,6 +11,8 @@ import SwiftUI
 extension Color {
 
     static let jellyfinPurple = Color(red: 172 / 255, green: 92 / 255, blue: 195 / 255, opacity: 1)
+    static let watermelonRed = Color(red: 245 / 255, green: 51 / 255, blue: 87 / 255, opacity: 1)
+    static let watermelonGreen = Color(red: 45 / 255, green: 143 / 255, blue: 30 / 255, opacity: 1)
 
     var uiColor: UIColor {
         UIColor(self)

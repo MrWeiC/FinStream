@@ -28,7 +28,7 @@ class ViewModel: ObservableObject {
 
     var cancellables = Set<AnyCancellable>()
 
-    private var userSessionResolverCancellable: AnyCancellable?
+    private var userSessionResolverCancellables = Set<AnyCancellable>()
 
     /// Convenience accessor that logs and returns nil if no session
     var currentSession: UserSession? {
@@ -48,10 +48,29 @@ class ViewModel: ObservableObject {
     }
 
     init() {
-        userSessionResolverCancellable = Notifications[.didChangeCurrentServerURL]
+        Notifications[.didSignIn]
             .publisher
             .sink { [weak self] _ in
-                self?.$userSession.resolve(reset: .scope)
+                self?.resolveUserSession()
             }
+            .store(in: &userSessionResolverCancellables)
+
+        Notifications[.didSignOut]
+            .publisher
+            .sink { [weak self] _ in
+                self?.resolveUserSession()
+            }
+            .store(in: &userSessionResolverCancellables)
+
+        Notifications[.didChangeCurrentServerURL]
+            .publisher
+            .sink { [weak self] _ in
+                self?.resolveUserSession()
+            }
+            .store(in: &userSessionResolverCancellables)
+    }
+
+    private func resolveUserSession() {
+        $userSession.resolve(reset: .scope)
     }
 }

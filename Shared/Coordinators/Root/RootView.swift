@@ -44,5 +44,12 @@ struct RootView: View {
         .onPreferenceChange(IsStatusBarHiddenKey.self) { newValue in
             isStatusBarHidden = newValue
         }
+        .onOpenURL { url in
+            #if os(tvOS)
+            TopShelfDeepLinkStore.receive(url)
+            #else
+            Notifications[.didReceiveDeepLink].post(url)
+            #endif
+        }
     }
 }

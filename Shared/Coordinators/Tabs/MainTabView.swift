@@ -7,6 +7,7 @@
 //
 
 import Factory
+import Logging
 import SwiftUI
 
 // TODO: move popup to router
@@ -37,6 +38,9 @@ struct MainTabView: View {
     }
     #endif
 
+    @State
+    private var deepLinkTask: Task<Void, Never>?
+
     var body: some View {
         TabView(selection: $tabCoordinator.selectedTabID) {
             ForEach(tabCoordinator.tabs, id: \.item.id) { tab in
@@ -59,5 +63,57 @@ struct MainTabView: View {
                 .tag(tab.item.id)
             }
         }
+        #if os(tvOS)
+        .onAppear {
+            if let pendingURL = TopShelfDeepLinkStore.consumePendingURL() {
+                handleDeepLink(pendingURL)
+            }
+        }
+        .onReceive(Notifications[.didReceiveDeepLink].publisher) { url in
+            TopShelfDeepLinkStore.markHandled(url)
+            handleDeepLink(url)
+        }
+        .onDisappear {
+            deepLinkTask?.cancel()
+        }
+        #endif
     }
+
+    #if os(tvOS)
+    private func handleDeepLink(_ url: URL) {
+        guard let deepLink = TopShelfDeepLink(url: url) else { return }
+
+        deepLinkTask?.cancel()
+        deepLinkTask = Task {
+            guard let session = Container.shared.currentUserSession() else { return }
+
+            do {
+                let item = try await TopShelfCache.item(id: deepLink.itemID, session: session)
+
+                guard !Task.isCancelled else { return }
+
+                await MainActor.run {
+                    guard let homeTab = tabCoordinator.tabs.first(where: { $0.item.id == TabItem.home.id }) else { return }
+
+                    tabCoordinator.selectedTabID = TabItem.home.id
+                    homeTab.coordinator.presentedSheet = nil
+                    homeTab.coordinator.presentedFullScreen = nil
+
+                    switch deepLink.action {
+                    case .item:
+                        homeTab.coordinator.push(.item(item: item))
+                    case .play:
+                        if item.isPlayable {
+                            homeTab.coordinator.push(.videoPlayer(item: item))
+                        } else {
+                            homeTab.coordinator.push(.item(item: item))
+                        }
+                    }
+                }
+            } catch {
+                Logger.watermelonfin().warning("Failed to open Top Shelf deep link: \(error.localizedDescription)")
+            }
+        }
+    }
+    #endif
 }

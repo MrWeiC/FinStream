@@ -140,6 +140,10 @@ extension Notifications.Key {
         Key("processDeepLink")
     }
 
+    static var didReceiveDeepLink: Key<URL> {
+        Key("didReceiveDeepLink")
+    }
+
     static var didPurge: Key<Void> {
         Key("didPurge")
     }

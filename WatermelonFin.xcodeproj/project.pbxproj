@@ -10,6 +10,9 @@
 			08BEEA4E5F77A74D7B6FE59F /* VideoPlayerContainerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAEE9EF7528B67B93A71FB1 /* VideoPlayerContainerStateTests.swift */; };
 			1A7F0B902E1BE2B000ABC001 /* AppBuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */; };
 			2F0A116D2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */; };
+			C0DE100D2F0000000000000D /* TopShelfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE10092F00000000000009 /* TopShelfProvider.swift */; };
+			C0DE100E2F0000000000000E /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53ABFDDB267972BF00886593 /* TVServices.framework */; };
+			C0DE100F2F0000000000000F /* WatermelonFinTopShelf.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C0DE10082F00000000000008 /* WatermelonFinTopShelf.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 			53ABFDDC267972BF00886593 /* TVServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53ABFDDB267972BF00886593 /* TVServices.framework */; };
 		62666E1327E501C300EC0ECD /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62666E1227E501C300EC0ECD /* AudioToolbox.framework */; };
 		62666E1527E501C800EC0ECD /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62666E1427E501C800EC0ECD /* AVFoundation.framework */; };
@@ -61,6 +64,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C0DE10112F00000000000011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5377CBE9263B596A003A4E83 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C0DE10012F00000000000001;
+			remoteInfo = WatermelonFinTopShelf;
+		};
 		3209D57EA13F2370922067BE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5377CBE9263B596A003A4E83 /* Project object */;
@@ -70,12 +80,30 @@
 		};
 /* End PBXContainerItemProxy section */
 
+	/* Begin PBXCopyFilesBuildPhase section */
+		C0DE10102F00000000000010 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C0DE100F2F0000000000000F /* WatermelonFinTopShelf.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+	/* End PBXCopyFilesBuildPhase section */
+
 	/* Begin PBXFileReference section */
 			1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkErrorTests.swift; sourceTree = "<group>"; };
 			1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppBuildInfoTests.swift; sourceTree = "<group>"; };
 			2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BaseItemDtoUserDataTests.swift; sourceTree = "<group>"; };
 			E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaPlayerItemAudioSelectionTests.swift; sourceTree = "<group>"; };
 			535870602669D21600D05A09 /* WatermelonFin tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WatermelonFin tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+			C0DE10082F00000000000008 /* WatermelonFinTopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WatermelonFinTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+			C0DE10092F00000000000009 /* TopShelfProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopShelfProvider.swift; sourceTree = "<group>"; };
+			C0DE100A2F0000000000000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+			C0DE100B2F0000000000000B /* WatermelonFinTopShelf.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WatermelonFinTopShelf.entitlements; sourceTree = "<group>"; };
 			5362E4A7267D4067000E2F71 /* GoogleCast.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleCast.framework; path = "../../Downloads/GoogleCastSDK-ios-4.6.0_dynamic/GoogleCast.framework"; sourceTree = "<group>"; };
 			5362E4AA267D40AD000E2F71 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		5362E4AC267D40B1000E2F71 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -167,6 +195,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/Info.plist,
+				"Resources/WatermelonFin tvOS.entitlements",
 			);
 			target = 5358705F2669D21600D05A09 /* WatermelonFin tvOS */;
 		};
@@ -194,6 +223,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				D04348C2BD461D556AC693DF /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0DE10032F00000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0DE100E2F0000000000000E /* TVServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,6 +298,7 @@
 			isa = PBXGroup;
 			children = (
 				E145669F2DFCAEFD008FF700 /* WatermelonFin tvOS */,
+				C0DE100C2F0000000000000C /* WatermelonFinTopShelf */,
 				E14563272DFCAE6E008FF700 /* Shared */,
 				E1456FC82DFCB323008FF700 /* Translations */,
 				5377CBF2263B596A003A4E83 /* Products */,
@@ -275,6 +313,7 @@
 			isa = PBXGroup;
 			children = (
 				535870602669D21600D05A09 /* WatermelonFin tvOS.app */,
+				C0DE10082F00000000000008 /* WatermelonFinTopShelf.appex */,
 				796E798440A8807BC2883549 /* WatermelonFin tvOS Tests.xctest */,
 			);
 			name = Products;
@@ -337,6 +376,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		C0DE100C2F0000000000000C /* WatermelonFinTopShelf */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE10092F00000000000009 /* TopShelfProvider.swift */,
+				C0DE100A2F0000000000000A /* Info.plist */,
+				C0DE100B2F0000000000000B /* WatermelonFinTopShelf.entitlements */,
+			);
+			path = WatermelonFinTopShelf;
+			sourceTree = "<group>";
+		};
 			AAD4A20CAC7D1BEC55450E5C /* WatermelonFin tvOS Tests */ = {
 				isa = PBXGroup;
 				children = (
@@ -365,11 +414,13 @@
 				5358705C2669D21600D05A09 /* Sources */,
 				5358705D2669D21600D05A09 /* Frameworks */,
 				5358705E2669D21600D05A09 /* Resources */,
+				C0DE10102F00000000000010 /* Embed App Extensions */,
 				1A7F0B912E1BE2B000ABC001 /* Generate Git Commit Info */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C0DE10122F00000000000012 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E14563272DFCAE6E008FF700 /* Shared */,
@@ -411,6 +462,23 @@
 			productReference = 535870602669D21600D05A09 /* WatermelonFin tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
+		C0DE10012F00000000000001 /* WatermelonFinTopShelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0DE10072F00000000000007 /* Build configuration list for PBXNativeTarget "WatermelonFinTopShelf" */;
+			buildPhases = (
+				C0DE10022F00000000000002 /* Sources */,
+				C0DE10032F00000000000003 /* Frameworks */,
+				C0DE10042F00000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WatermelonFinTopShelf;
+			productName = WatermelonFinTopShelf;
+			productReference = C0DE10082F00000000000008 /* WatermelonFinTopShelf.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		D69A236F08D624F2AAB685F5 /* WatermelonFin tvOS Tests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 59709C09EE0AB94F41F57946 /* Build configuration list for PBXNativeTarget "WatermelonFin tvOS Tests" */;
@@ -444,6 +512,9 @@
 				TargetAttributes = {
 					5358705F2669D21600D05A09 = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					C0DE10012F00000000000001 = {
+						CreatedOnToolsVersion = 26.0;
 					};
 				};
 			};
@@ -536,6 +607,7 @@
 			projectRoot = "";
 			targets = (
 				5358705F2669D21600D05A09 /* WatermelonFin tvOS */,
+				C0DE10012F00000000000001 /* WatermelonFinTopShelf */,
 				D69A236F08D624F2AAB685F5 /* WatermelonFin tvOS Tests */,
 			);
 		};
@@ -550,6 +622,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B0C09AEDDE652F95D5DD94D2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0DE10042F00000000000004 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -647,6 +726,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C0DE10022F00000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0DE100D2F0000000000000D /* TopShelfProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 			FCAD6A1BEF4590C86AB68979 /* Sources */ = {
 				isa = PBXSourcesBuildPhase;
 				buildActionMask = 2147483647;
@@ -665,6 +752,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C0DE10122F00000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C0DE10012F00000000000001 /* WatermelonFinTopShelf */;
+			targetProxy = C0DE10112F00000000000011 /* PBXContainerItemProxy */;
+		};
 		DD589764AB4560B2FF57B99C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "WatermelonFin tvOS";
@@ -704,6 +796,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "WatermelonFin tvOS/Resources/WatermelonFin tvOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -736,6 +829,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "WatermelonFin tvOS/Resources/WatermelonFin tvOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -754,6 +848,61 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.chenacademy.watermelonfin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		C0DE10052F00000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = WatermelonFinTopShelf/WatermelonFinTopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8NFQ3695PG;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = WatermelonFinTopShelf/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chenacademy.watermelonfin.topshelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		C0DE10062F00000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = WatermelonFinTopShelf/WatermelonFinTopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8NFQ3695PG;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = WatermelonFinTopShelf/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.chenacademy.watermelonfin.topshelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -924,6 +1073,15 @@
 			buildConfigurations = (
 				535870722669D21700D05A09 /* Debug */,
 				535870732669D21700D05A09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C0DE10072F00000000000007 /* Build configuration list for PBXNativeTarget "WatermelonFinTopShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0DE10052F00000000000005 /* Debug */,
+				C0DE10062F00000000000006 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

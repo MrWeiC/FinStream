@@ -8,7 +8,9 @@
 
 import Combine
 import CoreStore
+import Defaults
 import Factory
+import Foundation
 import Get
 import JellyfinAPI
 import OrderedCollections
@@ -60,6 +62,13 @@ final class HomeViewModel: ViewModel, Stateful {
     var nextUpViewModel: NextUpLibraryViewModel
     var recentlyAddedViewModel: RecentlyAddedLibraryViewModel
 
+    #if os(tvOS)
+    private struct TopShelfNextUpOptions {
+        let maxNextUp: TimeInterval
+        let resumeNextUp: Bool
+    }
+    #endif
+
     /// Initialize HomeViewModel with optional child ViewModels for testing
     /// - Parameters:
     ///   - nextUpViewModel: ViewModel for "Next Up" section (defaults to new instance)
@@ -94,16 +103,39 @@ final class HomeViewModel: ViewModel, Stateful {
 
             backgroundRefreshTask = Task { [weak self] in
                 do {
-                    self?.nextUpViewModel.send(.refresh)
-                    self?.recentlyAddedViewModel.send(.refresh)
+                    guard let self else { return }
 
-                    let resumeItems = try await self?.getResumeItems() ?? []
+                    nextUpViewModel.send(.refresh)
+                    recentlyAddedViewModel.send(.refresh)
+
+                    #if os(tvOS)
+                    let topShelfOptions = topShelfNextUpOptions()
+                    #endif
+
+                    async let resumeItems = getResumeItems()
+                    #if os(tvOS)
+                    async let topShelfNextUpItems = getOptionalTopShelfNextUpItems(options: topShelfOptions)
+                    #endif
+
+                    let refreshedResumeItems = try await resumeItems
+                    #if os(tvOS)
+                    let refreshedTopShelfNextUpItems = await topShelfNextUpItems
+                    #endif
 
                     guard !Task.isCancelled else { return }
 
+                    #if os(tvOS)
+                    if let session = currentSession {
+                        TopShelfCache.update(
+                            resumeItems: refreshedResumeItems,
+                            nextUpItems: refreshedTopShelfNextUpItems,
+                            session: session
+                        )
+                    }
+                    #endif
+
                     await MainActor.run {
-                        guard let self else { return }
-                        self.resumeItems.elements = resumeItems
+                        self.resumeItems.elements = refreshedResumeItems
                         self.backgroundStates.remove(.refresh)
                     }
                 } catch is CancellationError {
@@ -168,12 +200,35 @@ final class HomeViewModel: ViewModel, Stateful {
         await nextUpViewModel.send(.refresh)
         await recentlyAddedViewModel.send(.refresh)
 
-        let resumeItems = try await getResumeItems()
-        let libraries = try await getLibraries()
+        #if os(tvOS)
+        let topShelfOptions = await topShelfNextUpOptions()
+        #endif
+
+        async let resumeItemsTask = getResumeItems()
+        async let librariesTask = getLibraries()
+        #if os(tvOS)
+        async let topShelfNextUpItemsTask = getOptionalTopShelfNextUpItems(options: topShelfOptions)
+        #endif
+
+        let resumeItems = try await resumeItemsTask
+        let libraries = try await librariesTask
+        #if os(tvOS)
+        let topShelfNextUpItems = await topShelfNextUpItemsTask
+        #endif
 
         for library in libraries {
             await library.send(.refresh)
         }
+
+        #if os(tvOS)
+        if let session = currentSession {
+            TopShelfCache.update(
+                resumeItems: resumeItems,
+                nextUpItems: topShelfNextUpItems,
+                session: session
+            )
+        }
+        #endif
 
         await MainActor.run {
             self.resumeItems.elements = resumeItems
@@ -196,6 +251,46 @@ final class HomeViewModel: ViewModel, Stateful {
 
         return response.value.items ?? []
     }
+
+    #if os(tvOS)
+    @MainActor
+    private func topShelfNextUpOptions() -> TopShelfNextUpOptions {
+        TopShelfNextUpOptions(
+            maxNextUp: Defaults[.Customization.Home.maxNextUp],
+            resumeNextUp: Defaults[.Customization.Home.resumeNextUp]
+        )
+    }
+
+    private func getTopShelfNextUpItems(options: TopShelfNextUpOptions) async throws -> [BaseItemDto] {
+        let session = try requireSession()
+
+        var parameters = Paths.GetNextUpParameters()
+        parameters.enableUserData = true
+        parameters.fields = .MinimumFields
+        parameters.limit = TopShelfCache.maxItemsPerSection
+        if options.maxNextUp > 0 {
+            parameters.nextUpDateCutoff = Date.now.addingTimeInterval(-options.maxNextUp)
+        }
+        parameters.enableRewatching = options.resumeNextUp
+        parameters.userID = session.user.id
+
+        let request = Paths.getNextUp(parameters: parameters)
+        let response = try await session.client.send(request)
+
+        return response.value.items ?? []
+    }
+
+    private func getOptionalTopShelfNextUpItems(options: TopShelfNextUpOptions) async -> [BaseItemDto] {
+        do {
+            return try await getTopShelfNextUpItems(options: options)
+        } catch is CancellationError {
+            return []
+        } catch {
+            logger.warning("Unable to refresh Top Shelf Next Up items: \(error.localizedDescription)")
+            return []
+        }
+    }
+    #endif
 
     private func getLibraries() async throws -> [LatestInLibraryViewModel] {
         let session = try requireSession()

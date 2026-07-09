@@ -35,6 +35,10 @@ final class RootCoordinator: ObservableObject {
                     }
                     #endif
                 } else {
+                    #if os(tvOS)
+                    TopShelfCache.clear()
+                    #endif
+
                     await MainActor.run {
                         root(.selectUser)
                     }
@@ -61,6 +65,11 @@ final class RootCoordinator: ObservableObject {
     private func didSignIn() {
         logger.info("Signed in")
 
+        guard Container.shared.currentUserSession() != nil else {
+            root(.selectUser)
+            return
+        }
+
         #if os(tvOS)
         root(.mainTab)
         #else
@@ -71,6 +80,10 @@ final class RootCoordinator: ObservableObject {
     @objc
     private func didSignOut() {
         logger.info("Signed out")
+
+        #if os(tvOS)
+        TopShelfCache.clear()
+        #endif
 
         root(.selectUser)
     }

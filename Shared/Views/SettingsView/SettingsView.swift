@@ -51,28 +51,32 @@ struct SettingsView: View {
 
     private var accountAndServerSection: some View {
         Section(L10n.accountAndServer) {
-            UserProfileRow(user: viewModel.userSession!.user.data) {
-                router.route(to: .userProfile(viewModel: viewModel))
-            }
-
-            ChevronButton(
-                L10n.server,
-                action: {
-                    router.route(to: .editServer(server: viewModel.userSession!.server))
+            if let userSession = viewModel.userSession {
+                UserProfileRow(user: userSession.user.data) {
+                    router.route(to: .userProfile(viewModel: viewModel))
                 }
-            ) {
-                EmptyView()
-            } subtitle: {
-                serverSubtitle
-            }
 
-            #if os(iOS)
-            if viewModel.userSession!.user.permissions.isAdministrator {
-                ChevronButton(L10n.dashboard) {
-                    router.route(to: .adminDashboard)
+                ChevronButton(
+                    L10n.server,
+                    action: {
+                        router.route(to: .editServer(server: userSession.server))
+                    }
+                ) {
+                    EmptyView()
+                } subtitle: {
+                    serverSubtitle(for: userSession.server)
                 }
+
+                #if os(iOS)
+                if userSession.user.permissions.isAdministrator {
+                    ChevronButton(L10n.dashboard) {
+                        router.route(to: .adminDashboard)
+                    }
+                }
+                #endif
+            } else {
+                Text(L10n.unauthorizedUser)
             }
-            #endif
 
             Button {
                 UIDevice.impact(.medium)
@@ -86,18 +90,18 @@ struct SettingsView: View {
         }
     }
 
-    private var serverSubtitle: some View {
+    private func serverSubtitle(for server: ServerState) -> some View {
         VStack(alignment: .trailing, spacing: 3) {
             Label {
-                Text(viewModel.userSession!.server.name)
+                Text(server.name)
             } icon: {
-                if !viewModel.userSession!.server.isVersionCompatible {
+                if !server.isVersionCompatible {
                     Image(systemName: "exclamationmark.circle.fill")
                 }
             }
             .labelStyle(.sectionFooterWithImage(imageStyle: .orange))
 
-            Text(viewModel.userSession!.server.currentURL.host ?? viewModel.userSession!.server.currentURL.absoluteString)
+            Text(server.currentURL.host ?? server.currentURL.absoluteString)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

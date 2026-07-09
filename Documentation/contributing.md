@@ -21,6 +21,7 @@ In the event that all of the Swift Packages cannot be installed, clean the Swift
 ### Xcode Config
 
 Use an `xcconfig` file to easily set and keep your development team and a custom bundle identifier for local development to your devices.
+The checked-in Xcode project inherits the development team from this local file so personal team IDs stay out of source control.
 
 Create the `XcodeConfig/DevelopmentTeam.xcconfig` file [through Xcode](https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project) or locally with the following values:
 

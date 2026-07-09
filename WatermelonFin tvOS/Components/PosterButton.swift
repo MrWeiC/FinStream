@@ -205,7 +205,7 @@ extension PosterButton {
                                 .isVisible(showProgress)
                         } else if item.canBePlayed, !item.isLiveStream {
                             UnwatchedIndicator(size: 45)
-                                .foregroundColor(.jellyfinPurple)
+                                .foregroundColor(.watermelonGreen)
                                 .isVisible(showUnplayed)
                         }
                     }

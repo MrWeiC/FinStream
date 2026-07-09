@@ -102,7 +102,7 @@ extension ItemView {
                     ) {
                         viewModel.send(.toggleIsPlayed)
                     }
-                    .buttonStyle(.tintedMaterial(tint: Color.jellyfinPurple, foregroundColor: .primary))
+                    .buttonStyle(.tintedMaterial(tint: Color.watermelonGreen, foregroundColor: .primary))
                     .isSelected(isPlayed)
                     .frame(width: 130, height: 100)
                 }

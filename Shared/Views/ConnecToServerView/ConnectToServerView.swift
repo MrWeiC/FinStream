@@ -201,9 +201,11 @@ struct ConnectToServerView: View {
                 isURLFocused = true
             }
             .topBarTrailing {
+                #if os(iOS)
                 if viewModel.state == .connecting {
                     ProgressView()
                 }
+                #endif
             }
             .alert(
                 Text(L10n.server),

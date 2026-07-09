@@ -13,8 +13,6 @@ extension SelectUserView {
 
     struct AddUserGridButton: View {
 
-        private static let buttonImageSize: CGFloat = 280
-
         @Environment(\.isEnabled)
         private var isEnabled
 
@@ -32,30 +30,43 @@ extension SelectUserView {
             }
         }
 
-        @ViewBuilder
         private var label: some View {
-            ZStack {
-                Color.secondarySystemFill
+            HStack(spacing: 22) {
+                ZStack {
+                    Circle()
+                        .fill(Color.watermelonRed.overlayColor.opacity(0.18))
 
-                RelativeSystemImageView(systemName: "plus")
-                    .foregroundStyle(.secondary)
+                    Image(systemName: "plus")
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(Color.watermelonRed.overlayColor)
+                }
+                .frame(width: 72, height: 72)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L10n.addUser)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(isEnabled ? Color.watermelonRed.overlayColor : .secondary)
+
+                    Text(serverForSignIn?.name ?? L10n.selectServerToSignIn)
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(Color.watermelonRed.overlayColor.opacity(0.75))
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 24)
+
+                Image(systemName: serverForSignIn == nil ? "chevron.down" : "chevron.right")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.watermelonRed.overlayColor.opacity(0.7))
             }
-            .clipShape(.circle)
-            .aspectRatio(1, contentMode: .fill)
-            .frame(width: Self.buttonImageSize, height: Self.buttonImageSize)
+            .padding(.horizontal, 28)
+            .frame(width: 620, height: 112)
+            .background(Color.watermelonRed, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            }
             .hoverEffect(.highlight)
-
-            Text(L10n.addUser)
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundStyle(isEnabled ? .primary : .secondary)
-
-            if serverForSignIn == nil {
-                // For layout, not to be localized
-                Text("Hidden")
-                    .font(.footnote)
-                    .hidden()
-            }
         }
 
         var body: some View {
@@ -77,7 +88,7 @@ extension SelectUserView {
                 label
             }
             .buttonStyle(.borderless)
-            .buttonBorderShape(.circle)
+            .buttonBorderShape(.roundedRectangle(radius: 18))
             .accessibilityLabel(L10n.addUser)
         }
     }

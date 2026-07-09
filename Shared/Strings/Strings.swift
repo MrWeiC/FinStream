@@ -56,8 +56,8 @@ internal enum L10n {
   internal static func addExistingJellyfinUserToServer(_ p1: Any) -> String {
     return L10n.tr("Localizable", "addExistingJellyfinUserToServer", String(describing: p1), fallback: "Add existing Jellyfin user to %@")
   }
-  /// Use a username and password already configured on your Jellyfin server.
-  internal static let addExistingUserStartDescription = L10n.tr("Localizable", "addExistingUserStartDescription", fallback: "Use a username and password already configured on your Jellyfin server.")
+  /// Sign in with a username and password from your Jellyfin server.
+  internal static let addExistingUserStartDescription = L10n.tr("Localizable", "addExistingUserStartDescription", fallback: "Sign in with a username and password from your Jellyfin server.")
   /// Additional security access for users signed in to this device. This does not change any Jellyfin server user settings.
   internal static let additionalSecurityAccessDescription = L10n.tr("Localizable", "additionalSecurityAccessDescription", fallback: "Additional security access for users signed in to this device. This does not change any Jellyfin server user settings.")
   /// Add server
@@ -556,6 +556,8 @@ internal enum L10n {
   internal static let delivery = L10n.tr("Localizable", "delivery", fallback: "Delivery")
   /// Descending
   internal static let descending = L10n.tr("Localizable", "descending", fallback: "Descending")
+  /// Deselect all
+  internal static let deselectAll = L10n.tr("Localizable", "deselectAll", fallback: "Deselect all")
   /// Detailed
   internal static let detailed = L10n.tr("Localizable", "detailed", fallback: "Detailed")
   /// Details
@@ -1590,8 +1592,8 @@ internal enum L10n {
   internal static let selectServerToSignIn = L10n.tr("Localizable", "selectServerToSignIn", fallback: "Select a server to add a user")
   /// Select user
   internal static let selectUser = L10n.tr("Localizable", "selectUser", fallback: "Select user")
-  /// Choose a saved user on this Apple TV, or add another existing user from the selected Jellyfin server.
-  internal static let selectUserDescription = L10n.tr("Localizable", "selectUserDescription", fallback: "Choose a saved user on this Apple TV, or add another existing user from the selected Jellyfin server.")
+  /// Choose a user to sign in.
+  internal static let selectUserDescription = L10n.tr("Localizable", "selectUserDescription", fallback: "Choose a user to sign in.")
   /// Series
   internal static let series = L10n.tr("Localizable", "series", fallback: "Series")
   /// Series backdrop
@@ -1670,8 +1672,8 @@ internal enum L10n {
   internal static let shutdownWarning = L10n.tr("Localizable", "shutdownWarning", fallback: "Are you sure you want to shutdown the server?")
   /// Sign in
   internal static let signIn = L10n.tr("Localizable", "signIn", fallback: "Sign in")
-  /// Add existing Jellyfin user
-  internal static let signInExistingJellyfinUser = L10n.tr("Localizable", "signInExistingJellyfinUser", fallback: "Add existing Jellyfin user")
+  /// Sign in user
+  internal static let signInExistingJellyfinUser = L10n.tr("Localizable", "signInExistingJellyfinUser", fallback: "Sign in user")
   /// This does not create a Jellyfin user. It only signs in an existing account from this server on this Apple TV.
   internal static let signInExistingJellyfinUserDescription = L10n.tr("Localizable", "signInExistingJellyfinUserDescription", fallback: "This does not create a Jellyfin user. It only signs in an existing account from this server on this Apple TV.")
   /// Sign in to %s

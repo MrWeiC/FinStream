@@ -104,14 +104,17 @@ extension ItemView {
                     }
                     .buttonStyle(.tintedMaterial(tint: Color.watermelonGreen, foregroundColor: .primary))
                     .isSelected(isPlayed)
-                    .frame(width: 130, height: 100)
+                    .frame(width: 100, height: 100)
                 }
 
                 // MARK: Toggle Favorite
 
-                let isHeartSelected = viewModel.item.userData?.isFavorite == true
+                let isHeartSelected: Bool = viewModel.item.userData?.isFavorite == true
 
-                Button(L10n.favorited, systemImage: isHeartSelected ? "heart.fill" : "heart") {
+                Button(
+                    isHeartSelected ? L10n.favorited : L10n.favorite,
+                    systemImage: isHeartSelected ? "heart.fill" : "heart"
+                ) {
                     viewModel.send(.toggleIsFavorite)
                 }
                 .buttonStyle(.tintedMaterial(tint: .pink, foregroundColor: .primary))

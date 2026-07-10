@@ -9,6 +9,13 @@
 import JellyfinAPI
 import SwiftUI
 
+enum CinematicBackgroundImageSizing {
+
+    static func maxWidth(viewWidth: CGFloat, displayScale: CGFloat) -> CGFloat {
+        min(max(viewWidth * displayScale, 1920), 3840)
+    }
+}
+
 extension ItemView {
 
     struct CinematicScrollView<Content: View>: ScrollContainerView {
@@ -18,6 +25,8 @@ extension ItemView {
 
         @StateObject
         private var focusGuide = FocusGuide()
+        @Environment(\.displayScale)
+        private var displayScale: CGFloat
 
         private let content: Content
 
@@ -30,6 +39,7 @@ extension ItemView {
         }
 
         private func withBackgroundImageSource(
+            maxWidth: CGFloat,
             @ViewBuilder content: @escaping (ImageSource) -> some View
         ) -> some View {
             let item: BaseItemDto
@@ -52,7 +62,7 @@ extension ItemView {
                 }
             }()
 
-            let imageSource = item.imageSource(imageType, maxWidth: 1920)
+            let imageSource = item.imageSource(imageType, maxWidth: maxWidth)
 
             return content(imageSource)
                 .id(imageSource.url?.hashValue)
@@ -61,9 +71,19 @@ extension ItemView {
 
         var body: some View {
             GeometryReader { proxy in
+                let imageMaxWidth: CGFloat = CinematicBackgroundImageSizing.maxWidth(
+                    viewWidth: proxy.size.width,
+                    displayScale: displayScale
+                )
+
                 ZStack {
-                    withBackgroundImageSource { imageSource in
+                    withBackgroundImageSource(maxWidth: imageMaxWidth) { imageSource in
                         ImageView(imageSource)
+                            .image { image in
+                                image.scaledToFill()
+                            }
+                            .frame(width: proxy.size.width, height: proxy.size.height)
+                            .clipped()
                     }
 
                     ScrollView(.vertical, showsIndicators: false) {
@@ -231,7 +251,9 @@ extension ItemView {
                             .focused($focusedLayer, equals: .actionButtons)
                             .frame(height: 100)
 
-                        Spacer()
+                        if !viewModel.item.presentPlayButton {
+                            Spacer()
+                        }
                     }
 
                     // Scroll indicator for series (shows more content below)

@@ -8,30 +8,41 @@
 
 import SwiftUI
 
-extension PrimitiveButtonStyle where Self == TintedMaterialButtonStyle {
+extension ButtonStyle where Self == TintedMaterialButtonStyle {
 
     // TODO: just be `Material` backed instead of `TintedMaterial`
     static var material: TintedMaterialButtonStyle {
-        TintedMaterialButtonStyle(tint: Color.clear, foregroundColor: Color.primary)
+        TintedMaterialButtonStyle(
+            tint: Color.clear,
+            foregroundColor: Color.primary,
+            focusedScale: 1.05
+        )
     }
 
-    static func tintedMaterial(tint: Color, foregroundColor: Color) -> TintedMaterialButtonStyle {
+    static func tintedMaterial(
+        tint: Color,
+        foregroundColor: Color,
+        focusedScale: CGFloat = 1.05
+    ) -> TintedMaterialButtonStyle {
         TintedMaterialButtonStyle(
             tint: tint,
-            foregroundColor: foregroundColor
+            foregroundColor: foregroundColor,
+            focusedScale: focusedScale
         )
     }
 }
 
-struct TintedMaterialButtonStyle: PrimitiveButtonStyle {
+struct TintedMaterialButtonStyle: ButtonStyle {
 
     @Environment(\.isSelected)
-    private var isSelected
+    private var isSelected: Bool
     @Environment(\.isEnabled)
-    private var isEnabled
+    private var isEnabled: Bool
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion: Bool
 
     #if os(tvOS)
-    @FocusState
+    @Environment(\.isFocused)
     private var isFocused: Bool
     #endif
 
@@ -39,58 +50,70 @@ struct TintedMaterialButtonStyle: PrimitiveButtonStyle {
     // global accent color causes flashes of color
     let tint: Color
     let foregroundColor: Color
+    let focusedScale: CGFloat
 
     @ViewBuilder
     private func contentView(configuration: Configuration) -> some View {
         ZStack {
             TintedMaterial(tint: buttonTint)
                 .id(isSelected)
-            #if !os(tvOS)
-                .cornerRadius(10)
-            #endif
 
             configuration.label
                 .foregroundStyle(foregroundStyle)
                 .symbolRenderingMode(.monochrome)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         #if os(tvOS)
-        .focusEffectDisabled()
-        .scaleEffect(isFocused ? 1.05 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
+            .overlay {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.white.opacity(isFocused ? 0.9 : 0), lineWidth: 3)
+            }
+            .scaleEffect(isFocused ? focusedScale : 1.0)
+            .shadow(color: .black.opacity(isFocused ? 0.45 : 0), radius: 10, y: 6)
+            .animation(
+                reduceMotion ? nil : .spring(response: 0.25, dampingFraction: 0.82),
+                value: isFocused
+            )
         #else
-        .hoverEffect(.lift)
+            .hoverEffect(.lift)
         #endif
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        Button {
-            configuration.trigger()
-        } label: {
-            contentView(configuration: configuration)
-        }
-        .buttonStyle(.plain)
-        #if os(tvOS)
-            .focused($isFocused)
-        #endif
+        contentView(configuration: configuration)
+            .opacity(configuration.isPressed ? 0.85 : 1)
     }
 
     private var buttonTint: Color {
+        #if os(tvOS)
+        if isFocused {
+            return .white
+        }
+        #endif
+
         if isEnabled && isSelected {
-            tint
+            return tint
         } else {
             // TODO: change to a full-opacity color
-            Color.gray.opacity(0.3)
+            return Color.gray.opacity(0.3)
         }
     }
 
     private var foregroundStyle: AnyShapeStyle {
+        #if os(tvOS)
+        if isFocused {
+            return AnyShapeStyle(Color.black)
+        }
+        #endif
+
         if isSelected {
-            AnyShapeStyle(foregroundColor)
+            return AnyShapeStyle(foregroundColor)
         } else if isEnabled {
-            AnyShapeStyle(HierarchicalShapeStyle.primary)
+            return AnyShapeStyle(HierarchicalShapeStyle.primary)
         } else {
             // TODO: change to a full-opacity color
-            AnyShapeStyle(Color.gray.opacity(0.3))
+            return AnyShapeStyle(Color.gray.opacity(0.3))
         }
     }
 }

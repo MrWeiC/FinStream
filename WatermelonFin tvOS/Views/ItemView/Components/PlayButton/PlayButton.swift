@@ -117,13 +117,15 @@ extension ItemView {
                         }
                     }
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 30)
                 .padding(.vertical, 10)
             }
             .buttonStyle(
                 .tintedMaterial(
                     tint: .white,
-                    foregroundColor: .black
+                    foregroundColor: .black,
+                    focusedScale: 1
                 )
             )
             .contextMenu {
@@ -145,7 +147,13 @@ extension ItemView {
             } label: {
                 Label(L10n.playFromBeginning, systemImage: "gobackward")
             }
-            .buttonStyle(.tintedMaterial(tint: .secondary, foregroundColor: .white))
+            .buttonStyle(
+                .tintedMaterial(
+                    tint: .secondary,
+                    foregroundColor: .white,
+                    focusedScale: 1.04
+                )
+            )
             .labelStyle(.iconOnly)
             .font(.title3)
             .fontWeight(.semibold)

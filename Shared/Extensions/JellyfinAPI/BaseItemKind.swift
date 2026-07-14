@@ -23,7 +23,9 @@ extension BaseItemKind: SupportedCaseIterable {
             .movie,
             .musicAlbum,
             .musicVideo,
+            .playlist,
             .series,
+            .trailer,
             .video,
         ]
     }

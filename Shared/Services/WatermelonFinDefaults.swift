@@ -187,6 +187,7 @@ extension Defaults.Keys {
             static let displayType: Key<LibraryDisplayType> = UserKey("libraryViewType", default: .grid)
             static let posterType: Key<PosterDisplayType> = UserKey("libraryPosterType", default: .portrait)
             static let listColumnCount: Key<Int> = UserKey("listColumnCount", default: 1)
+            static let hiddenLibraryIDs: Key<[String]> = UserKey("hiddenLibraryIDs", default: [])
             static let randomImage: Key<Bool> = UserKey("libraryRandomImage", default: true)
             static let showFavorites: Key<Bool> = UserKey("libraryShowFavorites", default: true)
 

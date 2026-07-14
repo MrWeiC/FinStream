@@ -119,6 +119,12 @@ extension NavigationRoute {
         }
     }
 
+    static let hiddenLibrariesSettings = NavigationRoute(
+        id: "hiddenLibrariesSettings"
+    ) {
+        CustomizeViewsSettings.HiddenLibrariesSettingsView()
+    }
+
     #if os(iOS)
     static let gestureSettings = NavigationRoute(
         id: "gestureSettings"

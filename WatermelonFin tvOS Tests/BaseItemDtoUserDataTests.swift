@@ -145,6 +145,31 @@ final class BaseItemDtoUserDataTests: XCTestCase {
         XCTAssertEqual(BaseItemKind.video.localizedCountLabel(2), "2 个项目")
     }
 
+    func testCollectionParentExcludesItselfFromChildQuery() {
+        let parentTypes: [BaseItemKind] = [
+            .boxSet,
+            .collectionFolder,
+            .folder,
+            .playlist,
+            .userView,
+        ]
+
+        for parentType in parentTypes {
+            let parentID = "\(parentType.rawValue)-id"
+            var item: BaseItemDto = .init()
+            item.id = parentID
+            item.type = parentType
+
+            var parameters = Paths.GetItemsByUserIDParameters()
+            parameters.excludeItemIDs = ["already-excluded"]
+
+            let result = item.setParentParameters(parameters)
+
+            XCTAssertEqual(result.parentID, parentID)
+            XCTAssertEqual(result.excludeItemIDs, ["already-excluded", parentID])
+        }
+    }
+
     func testUnknownLibraryFallsBackToServerName() {
         var item: BaseItemDto = .init()
         item.name = "Kids"

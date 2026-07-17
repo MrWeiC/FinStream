@@ -69,6 +69,17 @@ extension LibraryParent {
         default: ()
         }
 
+        // A parent must never appear in its own child query. Some Jellyfin
+        // responses include it for collection-related item type filters,
+        // which otherwise allows the same screen to be pushed indefinitely.
+        if parameters.parentID == id {
+            var excludedItemIDs = parameters.excludeItemIDs ?? []
+            if !excludedItemIDs.contains(id) {
+                excludedItemIDs.append(id)
+            }
+            parameters.excludeItemIDs = excludedItemIDs
+        }
+
         return parameters
     }
 }

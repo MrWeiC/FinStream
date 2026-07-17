@@ -114,6 +114,23 @@ final class MainTabViewTabsTests: XCTestCase {
         )
     }
 
+    func testCollectionLibraryUsesStableBoxSetQuery() throws {
+        let collections = try XCTUnwrap(
+            MediaViewModel.MediaType(
+                userView: library(id: "collections", name: "Collections", collectionType: .boxsets)
+            )
+        )
+
+        XCTAssertEqual(collections.libraryFilters.itemTypes, [.boxSet, .userView])
+
+        let movies = try XCTUnwrap(
+            MediaViewModel.MediaType(
+                userView: library(id: "movies", name: "Movies", collectionType: .movies)
+            )
+        )
+        XCTAssertEqual(movies.libraryFilters, .default)
+    }
+
     func testLibraryFeatureChineseTranslations() {
         XCTAssertEqual(L10n.libraries, "媒体库")
         XCTAssertEqual(L10n.hiddenLibraries, "隐藏媒体库")

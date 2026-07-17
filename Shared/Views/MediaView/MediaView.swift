@@ -105,7 +105,7 @@ struct MediaView: View {
         case let .collectionLibrary(item), let .library(item):
             let viewModel = ItemLibraryViewModel(
                 parent: item,
-                filters: .default
+                filters: mediaType.libraryFilters
             )
             router.route(to: .library(viewModel: viewModel), in: namespace)
         case .favorites:

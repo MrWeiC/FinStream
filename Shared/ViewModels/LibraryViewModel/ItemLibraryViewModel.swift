@@ -64,6 +64,11 @@ final class ItemLibraryViewModel: PagingLibraryViewModel<BaseItemDto> {
         //     for better view handling
         return (response.value.items ?? [])
             .filter { item in
+                // Defend against servers that ignore `excludeItemIDs`.
+                // Showing a parent as its own child repeats the same route.
+                item.id != parent?.id
+            }
+            .filter { item in
                 if let collectionType = item.collectionType {
                     return CollectionType.supportedCases.contains(collectionType)
                 }

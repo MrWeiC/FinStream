@@ -230,7 +230,7 @@ final class UserSignInViewModel: ViewModel {
         }
 
         savedUserState.accessPolicy = accessPolicy
-        savedUserState.accessToken = user.state.accessToken
+        try savedUserState.storeAccessToken(user.state.accessToken)
         savedUserState.data = user.data
 
         if let evaluatedPinPolicy = evaluatedPolicy as? PinEvaluatedUserAccessPolicy {
@@ -238,7 +238,7 @@ final class UserSignInViewModel: ViewModel {
                 savedUserState.pinHint = pinHint
             }
 
-            savedUserState.pin = evaluatedPinPolicy.pin
+            try savedUserState.storePin(evaluatedPinPolicy.pin)
         }
 
         events.send(.saved(savedUserState))
@@ -268,7 +268,7 @@ final class UserSignInViewModel: ViewModel {
         }
 
         if replaceForAccessToken || !user.state.state.hasAccessToken {
-            user.state.state.accessToken = user.state.accessToken
+            try user.state.state.storeAccessToken(user.state.accessToken)
         }
 
         events.send(.saved(user.state.state))

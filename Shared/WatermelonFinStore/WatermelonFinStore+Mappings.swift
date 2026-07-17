@@ -35,11 +35,18 @@ extension WatermelonFinStore.Mappings {
 
                         // move access token to Keychain
                         if let id = sourceObject["id"] as? String, let accessToken = sourceObject["accessToken"] as? String {
-                            Container.shared.keychainService().set(
+                            let didSaveAccessToken = Container.shared.keychainService().set(
                                 accessToken,
                                 forKey: "\(id)-accessToken",
                                 withAccess: .accessibleWhenUnlockedThisDeviceOnly
                             )
+                            if !didSaveAccessToken {
+                                let logger = Logger.watermelonfin()
+                                logger
+                                    .error(
+                                        "V1→V2 migration: Unable to save access token for user \(id). User will need to re-authenticate."
+                                    )
+                            }
                         } else {
                             // User data corrupted - they will need to re-authenticate
                             let logger = Logger.watermelonfin()

@@ -91,7 +91,7 @@ final class SelectUserViewModel: ViewModel {
             _ = try await user.getUserData(server: server)
         } catch {
             if error.isUnauthorizedResponse {
-                user.accessToken = ""
+                user.removeAccessToken()
                 events.send(.expiredSession(user, server))
                 return
             }

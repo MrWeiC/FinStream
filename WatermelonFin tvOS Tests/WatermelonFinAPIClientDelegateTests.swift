@@ -10,6 +10,7 @@ import Combine
 import Factory
 import Get
 import JellyfinAPI
+import KeychainSwift
 @testable import WatermelonFin_tvOS
 import XCTest
 
@@ -232,5 +233,63 @@ final class WatermelonFinAPIClientDelegateTests: XCTestCase {
 
         Container.shared.keychainService().delete(accessTokenKey)
         _ = cancellables
+    }
+
+    func testFailedKeychainWriteDoesNotReportExistingUserAsSaved() async throws {
+        Container.shared.keychainService.register { FailingKeychain() }
+        defer { Container.shared.keychainService.reset() }
+
+        let user = UserState(
+            id: "existing-user-keychain-failure",
+            serverID: "server",
+            username: "Local User"
+        )
+        let serverURL = try XCTUnwrap(URL(string: "http://jellyfin.local:8096"))
+        let viewModel = UserSignInViewModel(
+            server: ServerState(
+                urls: [serverURL],
+                currentURL: serverURL,
+                name: "Jellyfin",
+                id: "server",
+                usersIDs: [user.id]
+            )
+        )
+
+        let saved = expectation(description: "existing user must not be reported as saved")
+        saved.isInverted = true
+        var cancellables = Set<AnyCancellable>()
+        viewModel.events
+            .sink { event in
+                if case .saved = event {
+                    saved.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        await viewModel.saveExisting(
+            user: ((user, "new-token"), UserDto()),
+            replaceForAccessToken: true,
+            authenticationAction: (
+                LocalUserAuthenticationAction { _, _ in EmptyEvaluatedUserAccessPolicy() },
+                .none,
+                nil
+            ),
+            evaluatedPolicyMap: .init { $0 }
+        )
+
+        await fulfillment(of: [saved], timeout: 0.2)
+        XCTAssertNotNil(viewModel.error)
+        _ = cancellables
+    }
+}
+
+private final class FailingKeychain: KeychainSwift {
+
+    override func set(
+        _ value: String,
+        forKey key: String,
+        withAccess access: KeychainSwiftAccessOptions? = nil
+    ) -> Bool {
+        false
     }
 }

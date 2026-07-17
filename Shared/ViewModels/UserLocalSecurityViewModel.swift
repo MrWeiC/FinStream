@@ -67,10 +67,10 @@ final class UserLocalSecurityViewModel: ViewModel, Eventful {
         }
     }
 
-    func set(newPolicy: UserAccessPolicy, newPin: String, newPinHint: String) {
+    func set(newPolicy: UserAccessPolicy, newPin: String, newPinHint: String) throws {
 
         if newPolicy == .requirePin {
-            keychain.set(newPin, forKey: "\(userSession!.user.id)-pin")
+            try userSession!.user.storePin(newPin)
         } else {
             keychain.delete("\(userSession!.user.id)-pin")
         }

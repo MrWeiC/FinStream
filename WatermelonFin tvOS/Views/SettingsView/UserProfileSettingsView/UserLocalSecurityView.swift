@@ -86,7 +86,11 @@ struct UserLocalSecurityView: View {
             return
         }
 
-        viewModel.set(newPolicy: signInPolicy, newPin: pin, newPinHint: pinHint)
+        do {
+            try viewModel.set(newPolicy: signInPolicy, newPin: pin, newPinHint: pinHint)
+        } catch {
+            self.error = error
+        }
     }
 
     // MARK: - Event Handler
@@ -108,8 +112,12 @@ struct UserLocalSecurityView: View {
             isPresentingOldPinPrompt = true
         case .promptForNewPin:
             onPinCompletion = {
-                viewModel.set(newPolicy: signInPolicy, newPin: pin, newPinHint: pinHint)
-                router.dismiss()
+                do {
+                    try viewModel.set(newPolicy: signInPolicy, newPin: pin, newPinHint: pinHint)
+                    router.dismiss()
+                } catch {
+                    self.error = error
+                }
             }
 
             pin = ""

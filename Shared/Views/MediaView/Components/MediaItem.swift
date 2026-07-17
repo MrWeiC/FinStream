@@ -9,9 +9,6 @@
 import Defaults
 import SwiftUI
 
-// Note: the design reason to not have a local label always on top
-//       is to have the same failure/empty color for all views
-
 extension MediaView {
 
     // TODO: custom view for folders and tv (allow customization?)
@@ -68,6 +65,33 @@ extension MediaView {
             itemCount.map(mediaType.countLabel)
         }
 
+        private var fallbackColors: [Color] {
+            switch mediaType.section {
+            case .libraries:
+                [.blue.opacity(0.72), .indigo.opacity(0.52), .black.opacity(0.9)]
+            case .collections:
+                [.indigo.opacity(0.76), .purple.opacity(0.5), .black.opacity(0.9)]
+            case .favorites:
+                [.red.opacity(0.72), .pink.opacity(0.44), .black.opacity(0.9)]
+            }
+        }
+
+        private var fallbackBackground: some View {
+            ZStack {
+                LinearGradient(
+                    colors: fallbackColors,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                Image(systemName: mediaType.systemImage)
+                    .font(.system(size: UIDevice.isTV ? 128 : 72, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.12))
+                    .offset(x: UIDevice.isTV ? 92 : 44, y: UIDevice.isTV ? -24 : -12)
+                    .accessibilityHidden(true)
+            }
+        }
+
         private var cardOverlay: some View {
             ZStack(alignment: .bottomLeading) {
                 LinearGradient(
@@ -110,8 +134,7 @@ extension MediaView {
                         DefaultPlaceholderView(blurHash: imageSource.blurHash)
                     }
                     .failure {
-                        Color.secondarySystemFill
-                            .opacity(0.75)
+                        fallbackBackground
                     }
                     .id(imageSources.hashValue)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

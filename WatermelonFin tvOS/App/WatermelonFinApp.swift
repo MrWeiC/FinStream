@@ -114,9 +114,18 @@ struct WatermelonFinApp: App {
                         Container.shared.currentUserSession.reset()
                         Notifications[.didSignOut].post()
                     } else {
-                        // Refresh data after returning from background to pick up
-                        // watch progress from other Jellyfin clients
-                        Notifications[.didRequestGlobalRefresh].post()
+                        Task { @MainActor in
+                            if let session = Container.shared.currentUserSession() {
+                                await ServerAddressRecoveryService.shared.refreshAddressIfNeeded(
+                                    serverID: session.server.id,
+                                    currentURL: session.server.currentURL
+                                )
+                            }
+
+                            // Refresh data after returning from background to pick up
+                            // watch progress from other Jellyfin clients.
+                            Notifications[.didRequestGlobalRefresh].post()
+                        }
                     }
                 }
         }

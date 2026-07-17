@@ -170,6 +170,7 @@ extension UserState {
                 url: server.currentURL,
                 accessToken: accessToken
             ),
+            serverID: server.id,
             sessionConfiguration: .watermelonfin,
             sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.watermelonfin())
         )

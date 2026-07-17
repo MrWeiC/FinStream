@@ -25,6 +25,15 @@ final class RootCoordinator: ObservableObject {
                 try await WatermelonFinStore.setupDataStack()
 
                 if Container.shared.currentUserSession() != nil, !Defaults[.signOutOnClose] {
+                    if let session = Container.shared.currentUserSession() {
+                        Task { @MainActor in
+                            await ServerAddressRecoveryService.shared.refreshAddressIfNeeded(
+                                serverID: session.server.id,
+                                currentURL: session.server.currentURL
+                            )
+                        }
+                    }
+
                     #if os(tvOS)
                     await MainActor.run {
                         root(.mainTab)

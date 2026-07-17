@@ -115,8 +115,8 @@ final class BaseItemDtoUserDataTests: XCTestCase {
         var showsLibrary: BaseItemDto = .init()
         showsLibrary.name = "Shows"
 
-        XCTAssertEqual(MediaViewModel.MediaType.collectionFolder(movieLibrary).displayTitle, L10n.movies)
-        XCTAssertEqual(MediaViewModel.MediaType.collectionFolder(showsLibrary).displayTitle, L10n.series)
+        XCTAssertEqual(MediaViewModel.MediaType.library(movieLibrary).displayTitle, L10n.movies)
+        XCTAssertEqual(MediaViewModel.MediaType.library(showsLibrary).displayTitle, L10n.series)
     }
 
     func testMediaLibraryCardsPreserveCustomLibraryNames() {
@@ -124,7 +124,7 @@ final class BaseItemDtoUserDataTests: XCTestCase {
         library.name = "Home School"
         library.collectionType = .movies
 
-        XCTAssertEqual(MediaViewModel.MediaType.collectionFolder(library).displayTitle, "Home School")
+        XCTAssertEqual(MediaViewModel.MediaType.library(library).displayTitle, "Home School")
     }
 
     func testWatchedActionLabelsUseChineseText() {

@@ -26,7 +26,17 @@ extension BaseItemDto: LibraryParent {
         case (.tvshows, _):
             return [.series]
         case (.boxsets, _):
-            return BaseItemKind.supportedCases
+            return [.boxSet]
+        case (.music, _):
+            return [.musicAlbum]
+        case (.musicvideos, _):
+            return [.musicVideo]
+        case (.homevideos, _):
+            return [.video]
+        case (.playlists, _):
+            return [.playlist]
+        case (.trailers, _):
+            return [.trailer]
         default:
             return BaseItemKind.supportedCases
         }

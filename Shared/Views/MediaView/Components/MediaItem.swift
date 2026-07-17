@@ -32,6 +32,8 @@ extension MediaView {
 
         @State
         private var imageSources: [ImageSource] = []
+        @State
+        private var itemCount: Int?
 
         private let action: (Namespace.ID) -> Void
         private let mediaType: MediaViewModel.MediaType
@@ -46,45 +48,55 @@ extension MediaView {
             self.mediaType = type
         }
 
-        private var useTitleLabel: Bool {
-            useRandomImage ||
-                mediaType == .downloads ||
-                mediaType == .favorites
-        }
-
-        private func setImageSources() {
+        private func setCardData() {
             Task { @MainActor in
-                if useRandomImage {
-                    self.imageSources = try await viewModel.randomItemImageSources(for: mediaType)
-                    return
-                }
-
-                if case let MediaViewModel.MediaType.collectionFolder(item) = mediaType {
-                    self.imageSources = [item.imageSource(.primary, maxWidth: 500)]
-                } else if case let MediaViewModel.MediaType.liveTV(item) = mediaType {
-                    self.imageSources = [item.imageSource(.primary, maxWidth: 500)]
+                do {
+                    let cardData = try await viewModel.cardData(
+                        for: mediaType,
+                        useRandomImage: useRandomImage
+                    )
+                    imageSources = cardData.imageSources
+                    itemCount = cardData.itemCount
+                } catch {
+                    imageSources = []
+                    itemCount = nil
                 }
             }
         }
 
-        private var titleLabel: some View {
-            Text(mediaType.displayTitle)
-                .font(.title2)
-                .fontWeight(.semibold)
-                .lineLimit(1)
-                .multilineTextAlignment(.center)
-                .frame(alignment: .center)
+        private var countLabel: String? {
+            itemCount.map(mediaType.countLabel)
         }
 
-        private func titleLabelOverlay(with content: some View) -> some View {
-            ZStack {
-                content
+        private var cardOverlay: some View {
+            ZStack(alignment: .bottomLeading) {
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.88)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
 
-                Color.black
-                    .opacity(0.5)
+                HStack(spacing: 18) {
+                    Image(systemName: mediaType.systemImage)
+                        .font(.title2)
+                        .frame(width: 54, height: 54)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
-                titleLabel
-                    .foregroundStyle(.white)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(mediaType.displayTitle)
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+
+                        if let countLabel {
+                            Text(countLabel)
+                                .font(.callout)
+                                .foregroundStyle(.white.opacity(0.75))
+                        }
+                    }
+                }
+                .foregroundStyle(.white)
+                .padding(24)
             }
         }
 
@@ -93,34 +105,32 @@ extension MediaView {
                 action(namespace)
             } label: {
                 ImageView(imageSources)
-                    .image { image in
-                        if useTitleLabel {
-                            titleLabelOverlay(with: image)
-                        } else {
-                            image
-                        }
-                    }
+                    .image { image in image }
                     .placeholder { imageSource in
-                        titleLabelOverlay(with: DefaultPlaceholderView(blurHash: imageSource.blurHash))
+                        DefaultPlaceholderView(blurHash: imageSource.blurHash)
                     }
                     .failure {
                         Color.secondarySystemFill
                             .opacity(0.75)
-                            .overlay {
-                                titleLabel
-                                    .foregroundColor(.primary)
-                            }
                     }
                     .id(imageSources.hashValue)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .posterStyle(.landscape)
+                    .overlay {
+                        cardOverlay
+                    }
                     .backport
                     .matchedTransitionSource(id: "item", in: namespace)
             }
-            .onFirstAppear(perform: setImageSources)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(mediaType.displayTitle)
+            .ifLet(countLabel) { view, countLabel in
+                view.accessibilityValue(countLabel)
+            }
+            .onFirstAppear(perform: setCardData)
             .backport
             .onChange(of: useRandomImage) { _, _ in
-                setImageSources()
+                setCardData()
             }
             .buttonStyle(.card)
         }

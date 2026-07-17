@@ -786,6 +786,8 @@ internal enum L10n {
   internal static let hearingImpaired = L10n.tr("Localizable", "hearingImpaired", fallback: "Hearing impaired")
   /// Hidden
   internal static let hidden = L10n.tr("Localizable", "hidden", fallback: "Hidden")
+  /// Hidden libraries
+  internal static let hiddenLibraries = L10n.tr("Localizable", "hiddenLibraries", fallback: "Hidden libraries")
   /// Hide user from login screen
   internal static let hideUserFromLoginScreen = L10n.tr("Localizable", "hideUserFromLoginScreen", fallback: "Hide user from login screen")
   /// Hint
@@ -1200,6 +1202,8 @@ internal enum L10n {
   internal static let noEpisodesAvailable = L10n.tr("Localizable", "noEpisodesAvailable", fallback: "No episodes available")
   /// No item selected
   internal static let noItemSelected = L10n.tr("Localizable", "noItemSelected", fallback: "No item selected")
+  /// No libraries found
+  internal static let noLibrariesFound = L10n.tr("Localizable", "noLibrariesFound", fallback: "No libraries found")
   /// No local servers found
   internal static let noLocalServersFound = L10n.tr("Localizable", "noLocalServersFound", fallback: "No local servers found")
   /// No logs

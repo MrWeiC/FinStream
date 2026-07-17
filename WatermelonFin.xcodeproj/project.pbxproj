@@ -33,6 +33,7 @@
 			C0D3A3002E18500000F1A001 /* WatermelonFinAPIClientDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3A2FF2E18500000F1A001 /* WatermelonFinAPIClientDelegateTests.swift */; };
 			C0D3A3022E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3A3012E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift */; };
 			C1B4A0022F20000000BEEF02 /* CinematicBackgroundImageSizingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B4A0012F20000000BEEF01 /* CinematicBackgroundImageSizingTests.swift */; };
+			C0D3A3042E22000000F1A001 /* MainTabViewTabsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3A3032E22000000F1A001 /* MainTabViewTabsTests.swift */; };
 			EE9A94A7172E4DA099EED926 /* MediaPlayerItemAudioSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */; };
 			BD88CB422D77E6A0006BB5E3 /* TVOSPicker in Frameworks */ = {isa = PBXBuildFile; productRef = BD88CB412D77E6A0006BB5E3 /* TVOSPicker */; };
 			D04348C2BD461D556AC693DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C1438DC36A93916AACE477B /* Foundation.framework */; };
@@ -99,6 +100,7 @@
 			1279A92061D12F3D7D8B6C9E /* NetworkErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkErrorTests.swift; sourceTree = "<group>"; };
 			1A7F0B8F2E1BE2B000ABC001 /* AppBuildInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppBuildInfoTests.swift; sourceTree = "<group>"; };
 			2F0A116C2E1A100000A1B2C3 /* BaseItemDtoUserDataTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BaseItemDtoUserDataTests.swift; sourceTree = "<group>"; };
+			C0D3A3032E22000000F1A001 /* MainTabViewTabsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainTabViewTabsTests.swift; sourceTree = "<group>"; };
 			E7A76CCB37BC4FF39B1EB2B2 /* MediaPlayerItemAudioSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaPlayerItemAudioSelectionTests.swift; sourceTree = "<group>"; };
 			535870602669D21600D05A09 /* WatermelonFin tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WatermelonFin tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 			C0DE10082F00000000000008 /* WatermelonFinTopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WatermelonFinTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -400,6 +402,7 @@
 					C0D3A2FF2E18500000F1A001 /* WatermelonFinAPIClientDelegateTests.swift */,
 					C0D3A3012E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift */,
 					C1B4A0012F20000000BEEF01 /* CinematicBackgroundImageSizingTests.swift */,
+					C0D3A3032E22000000F1A001 /* MainTabViewTabsTests.swift */,
 				);
 				path = "WatermelonFin tvOS Tests";
 				sourceTree = "<group>";
@@ -750,6 +753,7 @@
 					C0D3A3002E18500000F1A001 /* WatermelonFinAPIClientDelegateTests.swift in Sources */,
 					C0D3A3022E19000000F1A001 /* FirstTimeAccountFlowAutomationTests.swift in Sources */,
 					C1B4A0022F20000000BEEF02 /* CinematicBackgroundImageSizingTests.swift in Sources */,
+					C0D3A3042E22000000F1A001 /* MainTabViewTabsTests.swift in Sources */,
 				);
 				runOnlyForDeploymentPostprocessing = 0;
 			};

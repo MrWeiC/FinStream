@@ -36,6 +36,7 @@ extension SelectUserView {
         private let onAddUser: (ServerState) -> Void
         private let onDelete: () -> Void
         private let toggleAllUsersSelected: () -> Void
+        private let onMoveUp: () -> Void
 
         // MARK: - Initializer
 
@@ -49,7 +50,8 @@ extension SelectUserView {
             hasUsers: Bool,
             onAddUser: @escaping (ServerState) -> Void,
             onDelete: @escaping () -> Void,
-            toggleAllUsersSelected: @escaping () -> Void
+            toggleAllUsersSelected: @escaping () -> Void,
+            onMoveUp: @escaping () -> Void
         ) {
             self._isEditing = isEditing
             self._serverSelection = serverSelection
@@ -61,6 +63,7 @@ extension SelectUserView {
             self.onAddUser = onAddUser
             self.onDelete = onDelete
             self.toggleAllUsersSelected = toggleAllUsersSelected
+            self.onMoveUp = onMoveUp
         }
 
         // MARK: - Advanced Menu
@@ -187,6 +190,11 @@ extension SelectUserView {
                     .frame(height: 100)
             } content: {
                 contentView
+            }
+            .onMoveCommand { direction in
+                if direction == .up, hasUsers, !isEditing {
+                    onMoveUp()
+                }
             }
         }
     }

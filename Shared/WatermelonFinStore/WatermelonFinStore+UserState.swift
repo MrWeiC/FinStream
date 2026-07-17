@@ -53,21 +53,27 @@ extension UserState {
     }
 
     var accessToken: String {
-        get {
-            guard let accessToken = Container.shared.keychainService().get("\(id)-accessToken") else {
-                logger.error("access token missing in keychain for user \(id)")
-                return ""
-            }
+        guard let accessToken = Container.shared.keychainService().get("\(id)-accessToken") else {
+            logger.error("access token missing in keychain for user \(id)")
+            return ""
+        }
 
-            return accessToken
+        return accessToken
+    }
+
+    func storeAccessToken(_ accessToken: String) throws {
+        guard Container.shared.keychainService().set(
+            accessToken,
+            forKey: "\(id)-accessToken",
+            withAccess: .accessibleWhenUnlockedThisDeviceOnly
+        ) else {
+            logger.error("Unable to save access token in keychain for user \(id)")
+            throw ErrorMessage("\(L10n.save): \(L10n.failed)")
         }
-        nonmutating set {
-            Container.shared.keychainService().set(
-                newValue,
-                forKey: "\(id)-accessToken",
-                withAccess: .accessibleWhenUnlockedThisDeviceOnly
-            )
-        }
+    }
+
+    func removeAccessToken() {
+        Container.shared.keychainService().delete("\(id)-accessToken")
     }
 
     var data: UserDto {
@@ -84,20 +90,22 @@ extension UserState {
     }
 
     var pin: String {
-        get {
-            guard let pin = Container.shared.keychainService().get("\(id)-pin") else {
-                logger.error("pin missing in keychain for user \(id)")
-                return ""
-            }
-
-            return pin
+        guard let pin = Container.shared.keychainService().get("\(id)-pin") else {
+            logger.error("pin missing in keychain for user \(id)")
+            return ""
         }
-        nonmutating set {
-            Container.shared.keychainService().set(
-                newValue,
-                forKey: "\(id)-pin",
-                withAccess: .accessibleWhenUnlockedThisDeviceOnly
-            )
+
+        return pin
+    }
+
+    func storePin(_ pin: String) throws {
+        guard Container.shared.keychainService().set(
+            pin,
+            forKey: "\(id)-pin",
+            withAccess: .accessibleWhenUnlockedThisDeviceOnly
+        ) else {
+            logger.error("Unable to save PIN in keychain for user \(id)")
+            throw ErrorMessage("\(L10n.save): \(L10n.failed)")
         }
     }
 

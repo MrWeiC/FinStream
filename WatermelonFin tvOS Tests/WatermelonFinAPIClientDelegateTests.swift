@@ -8,6 +8,7 @@
 
 import Combine
 import Factory
+import Get
 import JellyfinAPI
 @testable import WatermelonFin_tvOS
 import XCTest
@@ -45,6 +46,126 @@ final class WatermelonFinAPIClientDelegateTests: XCTestCase {
         let header = WatermelonFinAPIClientDelegate.authorizationHeader(configuration: configuration)
 
         XCTAssertFalse(header.contains("Token="))
+    }
+
+    func testConnectionFailureRecoversAndRetargetsRetry() async throws {
+        let oldURL = try XCTUnwrap(URL(string: "http://192.0.2.10:8096/jellyfin"))
+        let newURL = try XCTUnwrap(URL(string: "http://192.0.2.11:8096/jellyfin"))
+        let requestURL = try XCTUnwrap(URL(string: "http://192.0.2.10:8096/jellyfin/Users/user/Items?limit=20"))
+        var recoveredServerID: String?
+        var recoveredFailedURL: URL?
+
+        let delegate = WatermelonFinAPIClientDelegate(
+            serverID: "stable-server-id",
+            serverURL: oldURL
+        ) { serverID, failedURL in
+            recoveredServerID = serverID
+            recoveredFailedURL = failedURL
+            return newURL
+        }
+        let client = APIClient(baseURL: oldURL)
+        let task = URLSession.shared.dataTask(with: requestURL)
+        defer { task.cancel() }
+
+        let shouldRetry = try await delegate.client(
+            client,
+            shouldRetry: task,
+            error: URLError(.cannotConnectToHost),
+            attempts: 1
+        )
+
+        XCTAssertTrue(shouldRetry)
+        XCTAssertEqual(recoveredServerID, "stable-server-id")
+        XCTAssertEqual(recoveredFailedURL, oldURL)
+
+        var retryRequest = URLRequest(url: requestURL)
+        try await delegate.client(client, willSendRequest: &retryRequest)
+        XCTAssertEqual(
+            retryRequest.url,
+            URL(string: "http://192.0.2.11:8096/jellyfin/Users/user/Items?limit=20")
+        )
+    }
+
+    func testNonConnectionFailureDoesNotAttemptAddressRecovery() async throws {
+        let serverURL = try XCTUnwrap(URL(string: "http://192.0.2.10:8096"))
+        var didAttemptRecovery = false
+        let delegate = WatermelonFinAPIClientDelegate(
+            serverID: "stable-server-id",
+            serverURL: serverURL
+        ) { _, _ in
+            didAttemptRecovery = true
+            return nil
+        }
+        let client = APIClient(baseURL: serverURL)
+        let task = URLSession.shared.dataTask(with: serverURL)
+        defer { task.cancel() }
+
+        let shouldRetry = try await delegate.client(
+            client,
+            shouldRetry: task,
+            error: URLError(.secureConnectionFailed),
+            attempts: 1
+        )
+
+        XCTAssertFalse(shouldRetry)
+        XCTAssertFalse(didAttemptRecovery)
+    }
+
+    func testRecoveredSameAddressStillRetriesTransientFailureOnce() async throws {
+        let serverURL = try XCTUnwrap(URL(string: "http://192.0.2.10:8096"))
+        let delegate = WatermelonFinAPIClientDelegate(
+            serverID: "stable-server-id",
+            serverURL: serverURL
+        ) { _, _ in
+            serverURL
+        }
+        let client = APIClient(baseURL: serverURL)
+        let task = URLSession.shared.dataTask(with: serverURL)
+        defer { task.cancel() }
+
+        let shouldRetry = try await delegate.client(
+            client,
+            shouldRetry: task,
+            error: URLError(.networkConnectionLost),
+            attempts: 1
+        )
+
+        XCTAssertTrue(shouldRetry)
+    }
+
+    func testLaterAddressChangeRetargetsRequestFromPreviouslyRecoveredURL() async throws {
+        let originalURL = try XCTUnwrap(URL(string: "http://192.0.2.10:8096"))
+        let secondURL = try XCTUnwrap(URL(string: "http://192.0.2.11:8096"))
+        let thirdURL = try XCTUnwrap(URL(string: "http://192.0.2.12:8096"))
+        var recoveredURLs = [secondURL, thirdURL]
+        let delegate = WatermelonFinAPIClientDelegate(
+            serverID: "stable-server-id",
+            serverURL: originalURL
+        ) { _, _ in
+            recoveredURLs.removeFirst()
+        }
+        let client = APIClient(baseURL: originalURL)
+
+        for failedBaseURL in [originalURL, secondURL] {
+            let failedRequestURL = failedBaseURL.appendingPathComponent("Users/user/Items")
+            let task = URLSession.shared.dataTask(with: failedRequestURL)
+            defer { task.cancel() }
+
+            let shouldRetry = try await delegate.client(
+                client,
+                shouldRetry: task,
+                error: URLError(.cannotConnectToHost),
+                attempts: 1
+            )
+            XCTAssertTrue(shouldRetry)
+        }
+
+        var retryRequest = URLRequest(url: secondURL.appendingPathComponent("Users/user/Items"))
+        try await delegate.client(client, willSendRequest: &retryRequest)
+        XCTAssertEqual(
+            retryRequest.url,
+            thirdURL.appendingPathComponent("Users/user/Items")
+        )
     }
 
     func testUserStateHasAccessTokenIsFalseWhenKeychainEntryIsMissing() {

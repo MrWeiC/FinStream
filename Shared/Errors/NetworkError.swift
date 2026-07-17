@@ -163,4 +163,15 @@ enum NetworkError: LocalizedError, Hashable {
             return false
         }
     }
+
+    /// Whether a failed request may be caused by a saved Jellyfin address
+    /// becoming stale after a DHCP/IP address change.
+    var canRecoverServerAddress: Bool {
+        switch self {
+        case .timeout, .hostNotFound, .cannotConnect, .connectionLost:
+            true
+        default:
+            false
+        }
+    }
 }

@@ -41,6 +41,7 @@ extension WatermelonFinStore.State {
         var client: JellyfinClient {
             JellyfinClient.watermelonfinClient(
                 configuration: .watermelonfinConfiguration(url: currentURL),
+                serverID: id,
                 sessionConfiguration: .watermelonfin,
                 sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.watermelonfin())
             )

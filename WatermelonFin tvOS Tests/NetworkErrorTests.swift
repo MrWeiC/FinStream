@@ -127,6 +127,16 @@ final class NetworkErrorTests: XCTestCase {
         XCTAssertFalse(NetworkError.notFound.isRecoverable)
     }
 
+    func testOnlyStaleAddressErrorsAttemptServerRecovery() {
+        XCTAssertTrue(NetworkError.timeout.canRecoverServerAddress)
+        XCTAssertTrue(NetworkError.hostNotFound.canRecoverServerAddress)
+        XCTAssertTrue(NetworkError.cannotConnect.canRecoverServerAddress)
+        XCTAssertTrue(NetworkError.connectionLost.canRecoverServerAddress)
+        XCTAssertFalse(NetworkError.noConnection.canRecoverServerAddress)
+        XCTAssertFalse(NetworkError.sslError.canRecoverServerAddress)
+        XCTAssertFalse(NetworkError.unauthorized.canRecoverServerAddress)
+    }
+
     // MARK: - Hashable Conformance Tests
 
     func testErrorsAreHashable() {

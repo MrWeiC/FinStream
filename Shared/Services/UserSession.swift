@@ -31,6 +31,7 @@ final class UserSession {
                 url: server.currentURL,
                 accessToken: user.accessToken
             ),
+            serverID: server.id,
             sessionConfiguration: .watermelonfin,
             sessionDelegate: URLSessionProxyDelegate(logger: NetworkLogger.watermelonfin())
         )

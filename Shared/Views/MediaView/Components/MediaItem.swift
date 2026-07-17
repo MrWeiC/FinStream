@@ -132,6 +132,9 @@ extension MediaView {
             .onChange(of: useRandomImage) { _, _ in
                 setCardData()
             }
+            .onChange(of: viewModel.cardDataRevision) { _, _ in
+                setCardData()
+            }
             .buttonStyle(.card)
         }
     }

@@ -147,6 +147,7 @@ struct MediaView: View {
         .ignoresSafeArea()
         .navigationTitle(L10n.allMedia.localizedCapitalized)
         .refreshable {
+            viewModel.invalidateCardDataCache()
             viewModel.refresh()
         }
         .onFirstAppear {

@@ -157,6 +157,18 @@ extension MediaViewModel {
             }
         }
 
+        var libraryFilters: ItemFilterCollection {
+            switch self {
+            case .collectionLibrary:
+                // Jellyfin can replace a BoxSet-only child query with the
+                // server's root views. Including UserView keeps the parent
+                // query intact; the parent itself is filtered separately.
+                .init(itemTypes: [.boxSet, .userView])
+            default:
+                .default
+            }
+        }
+
         func countLabel(_ count: Int) -> String {
             switch self {
             case .collectionLibrary:

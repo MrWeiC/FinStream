@@ -47,9 +47,6 @@ struct SelectUserView: View {
     @FocusState
     private var focusedBottomBarItem: BottomBarItem?
 
-    @State
-    private var lastFocusedRegion: FocusRegion = .users
-
     // MARK: - Dialog States
 
     @State
@@ -134,14 +131,8 @@ struct SelectUserView: View {
         case advanced
     }
 
-    private enum FocusRegion {
-        case users
-        case bottomBar
-    }
-
     private func addUserSelected(server: ServerState) {
         focusedBottomBarItem = nil
-        lastFocusedRegion = .users
         router.route(to: .userSignIn(server: server))
     }
 
@@ -300,6 +291,8 @@ struct SelectUserView: View {
                 } else {
                     selectedUsers.insert(contentsOf: userItems.map(\.user))
                 }
+            } onMoveUp: {
+                focusFirstUserIfNeeded(force: true)
             }
             .focusSection()
         }
@@ -402,25 +395,8 @@ struct SelectUserView: View {
         }
         .onChange(of: focusedUserID) { _, newValue in
             if newValue != nil {
-                lastFocusedRegion = .users
                 focusedBottomBarItem = nil
             }
-        }
-        .onChange(of: focusedBottomBarItem) { _, newValue in
-            guard let newValue else { return }
-
-            if newValue == .serverSelection,
-               lastFocusedRegion == .users,
-               userItems.isNotEmpty,
-               !isEditingUsers
-            {
-                DispatchQueue.main.async {
-                    focusedBottomBarItem = .addUser
-                }
-                return
-            }
-
-            lastFocusedRegion = .bottomBar
         }
         .onChange(of: isPresentingLocalPin) {
             if isPresentingLocalPin {

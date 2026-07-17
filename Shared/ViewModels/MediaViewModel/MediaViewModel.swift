@@ -20,6 +20,17 @@ final class MediaViewModel: ViewModel {
         let itemCount: Int?
     }
 
+    private struct CardPreviewData {
+        let imageSources: [ImageSource]
+        let itemCount: Int?
+    }
+
+    private struct CardDataCacheKey: Hashable {
+        let serverID: String
+        let userID: String
+        let mediaTypeID: String
+    }
+
     @CasePathable
     enum Action {
         case refresh
@@ -39,6 +50,12 @@ final class MediaViewModel: ViewModel {
     private(set) var mediaItems: OrderedSet<MediaType> = []
     @Published
     private(set) var hasLoaded = false
+    @Published
+    private(set) var cardDataRevision = 0
+
+    private static let cardDataCache = AsyncExpiringCache<CardDataCacheKey, CardPreviewData>(
+        timeToLive: 5 * 60
+    )
 
     private let includesLocallyHiddenLibraries: Bool
 
@@ -53,6 +70,15 @@ final class MediaViewModel: ViewModel {
 
     func mediaItems(in section: MediaType.Section) -> [MediaType] {
         mediaItems.filter { $0.section == section }
+    }
+
+    func invalidateCardDataCache() {
+        guard let session = currentSession else { return }
+
+        Self.cardDataCache.removeAll {
+            $0.serverID == session.server.id && $0.userID == session.user.id
+        }
+        cardDataRevision += 1
     }
 
     @Function(\Action.Cases.refresh)
@@ -120,6 +146,38 @@ final class MediaViewModel: ViewModel {
 
         let session = try requireSession()
 
+        let cacheKey = CardDataCacheKey(
+            serverID: session.server.id,
+            userID: session.user.id,
+            mediaTypeID: mediaType.id
+        )
+        let previewData = try await Self.cardDataCache.value(for: cacheKey) {
+            try await self.fetchCardPreviewData(
+                for: mediaType,
+                session: session
+            )
+        }
+
+        let imageSources: [ImageSource]
+        if useRandomImage || mediaType.libraryItem == nil {
+            imageSources = previewData.imageSources
+        } else if let libraryItem = mediaType.libraryItem {
+            imageSources = [libraryItem.imageSource(.primary, maxWidth: 800)] + previewData.imageSources
+        } else {
+            imageSources = []
+        }
+
+        return CardData(
+            imageSources: imageSources,
+            itemCount: previewData.itemCount
+        )
+    }
+
+    private func fetchCardPreviewData(
+        for mediaType: MediaType,
+        session: UserSession
+    ) async throws -> CardPreviewData {
+
         let parentID = mediaType.libraryItem?.id
         let filters: [ItemTrait]? = mediaType == .favorites ? [.isFavorite] : nil
 
@@ -137,17 +195,8 @@ final class MediaViewModel: ViewModel {
         let previewImageSources = (response.value.items ?? [])
             .map { $0.imageSource(.backdrop, maxWidth: 800) }
 
-        let imageSources: [ImageSource]
-        if useRandomImage || mediaType.libraryItem == nil {
-            imageSources = previewImageSources
-        } else if let libraryItem = mediaType.libraryItem {
-            imageSources = [libraryItem.imageSource(.primary, maxWidth: 800)] + previewImageSources
-        } else {
-            imageSources = []
-        }
-
-        return CardData(
-            imageSources: imageSources,
+        return CardPreviewData(
+            imageSources: previewImageSources,
             itemCount: response.value.totalRecordCount
         )
     }

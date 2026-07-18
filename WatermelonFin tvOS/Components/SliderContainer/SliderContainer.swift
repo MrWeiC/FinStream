@@ -12,6 +12,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
 
     private var value: Binding<Value>
     private let total: Value
+    private let step: Value
     private let onEditingChanged: (Bool) -> Void
     private let onFocusChanged: (Bool) -> Void
     private let view: AnyView
@@ -19,12 +20,14 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
     init(
         value: Binding<Value>,
         total: Value,
+        step: Value = 1,
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
         onFocusChanged: @escaping (Bool) -> Void = { _ in },
         @ViewBuilder view: @escaping () -> some SliderContentView
     ) {
         self.value = value
         self.total = total
+        self.step = step
         self.onEditingChanged = onEditingChanged
         self.onFocusChanged = onFocusChanged
         self.view = AnyView(view())
@@ -33,12 +36,14 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
     init(
         value: Binding<Value>,
         total: Value,
+        step: Value = 1,
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
         onFocusChanged: @escaping (Bool) -> Void = { _ in },
         view: AnyView
     ) {
         self.value = value
         self.total = total
+        self.step = step
         self.onEditingChanged = onEditingChanged
         self.onFocusChanged = onFocusChanged
         self.view = view
@@ -48,6 +53,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
         UISliderContainerViewController(
             value: value,
             total: total,
+            step: step,
             onEditingChanged: onEditingChanged,
             onFocusChanged: onFocusChanged,
             view: view
@@ -71,6 +77,7 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
     private let onEditingChanged: (Bool) -> Void
     private let onFocusChanged: (Bool) -> Void
     private let total: Value
+    private let step: Value
     private let valueBinding: Binding<Value>
     private let contentView: AnyView
 
@@ -78,6 +85,7 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
         let control = UISliderControl(
             containerState: containerState,
             total: total,
+            step: step,
             valueBinding: valueBinding,
             onEditingChanged: onEditingChanged,
             onFocusChanged: onFocusChanged
@@ -99,6 +107,7 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
     init(
         value: Binding<Value>,
         total: Value,
+        step: Value,
         onEditingChanged: @escaping (Bool) -> Void,
         onFocusChanged: @escaping (Bool) -> Void,
         view: AnyView
@@ -106,6 +115,7 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
         self.onEditingChanged = onEditingChanged
         self.onFocusChanged = onFocusChanged
         self.total = total
+        self.step = step
         self.valueBinding = value
         self.contentView = view
         self.containerState = SliderContainerState(
@@ -162,6 +172,7 @@ final class UISliderControl<Value: BinaryFloatingPoint>: UIControl {
     private let onEditingChanged: (Bool) -> Void
     private let onFocusChanged: (Bool) -> Void
     private let total: Value
+    private let step: Value
     private let valueBinding: Binding<Value>
     let containerState: SliderContainerState<Value>
 
@@ -188,6 +199,7 @@ final class UISliderControl<Value: BinaryFloatingPoint>: UIControl {
     init(
         containerState: SliderContainerState<Value>,
         total: Value,
+        step: Value,
         valueBinding: Binding<Value>,
         onEditingChanged: @escaping (Bool) -> Void,
         onFocusChanged: @escaping (Bool) -> Void
@@ -196,6 +208,7 @@ final class UISliderControl<Value: BinaryFloatingPoint>: UIControl {
         self.onEditingChanged = onEditingChanged
         self.onFocusChanged = onFocusChanged
         self.total = total
+        self.step = step
         self.valueBinding = valueBinding
         super.init(frame: .zero)
 
@@ -260,12 +273,52 @@ final class UISliderControl<Value: BinaryFloatingPoint>: UIControl {
                     cancelScrubMode()
                     return
                 }
+            case .leftArrow:
+                beginDirectionalAdjustmentIfNeeded()
+                adjustValue(by: -step)
+                return
+            case .rightArrow:
+                beginDirectionalAdjustmentIfNeeded()
+                adjustValue(by: step)
+                return
             default:
                 break
             }
         }
 
         super.pressesBegan(presses, with: event)
+    }
+
+    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        guard containerState.isFocused else {
+            super.pressesEnded(presses, with: event)
+            return
+        }
+
+        if presses.contains(where: { $0.type == .leftArrow || $0.type == .rightArrow }) {
+            if isInScrubMode {
+                commitScrubMode()
+            }
+            return
+        }
+
+        super.pressesEnded(presses, with: event)
+    }
+
+    override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        guard containerState.isFocused else {
+            super.pressesCancelled(presses, with: event)
+            return
+        }
+
+        if presses.contains(where: { $0.type == .leftArrow || $0.type == .rightArrow }) {
+            if isInScrubMode {
+                cancelScrubMode()
+            }
+            return
+        }
+
+        super.pressesCancelled(presses, with: event)
     }
 
     // MARK: - Scrub Mode Management
@@ -276,6 +329,18 @@ final class UISliderControl<Value: BinaryFloatingPoint>: UIControl {
         scrubbedValue = valueBinding.wrappedValue
         containerState.isEditing = true
         onEditingChanged(true)
+    }
+
+    private func beginDirectionalAdjustmentIfNeeded() {
+        if !isInScrubMode {
+            enterScrubMode()
+        }
+    }
+
+    private func adjustValue(by delta: Value) {
+        scrubbedValue = max(0, min(total, scrubbedValue + delta))
+        containerState.value = scrubbedValue
+        valueBinding.wrappedValue = scrubbedValue
     }
 
     private func commitScrubMode() {

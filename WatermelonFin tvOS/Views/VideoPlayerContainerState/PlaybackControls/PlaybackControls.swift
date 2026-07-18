@@ -121,12 +121,9 @@ extension VideoPlayer {
                 // Previous episode button
                 NavigationBar.ActionButtons.PlayPreviousItem()
 
-                Spacer()
-
                 // Progress display
                 PlaybackProgress()
-
-                Spacer()
+                    .frame(maxWidth: .infinity)
 
                 // Next episode button
                 NavigationBar.ActionButtons.PlayNextItem()

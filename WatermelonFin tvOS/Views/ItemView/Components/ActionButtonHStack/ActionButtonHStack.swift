@@ -34,6 +34,8 @@ extension ItemView {
         private var showConfirmationDialog = false
         @State
         private var isPresentingEventAlert = false
+        @State
+        private var isPresentingPlaylistPicker = false
 
         // MARK: - Error State
 
@@ -78,6 +80,19 @@ extension ItemView {
             return false
         }
 
+        // MARK: - Can Add to a Video Playlist
+
+        private var canAddToPlaylist: Bool {
+            guard viewModel.item.id != nil else { return false }
+
+            switch viewModel.item.type {
+            case .episode, .movie, .musicVideo, .trailer, .video:
+                return true
+            default:
+                return false
+            }
+        }
+
         // MARK: - Initializer
 
         init(viewModel: ItemViewModel) {
@@ -120,6 +135,16 @@ extension ItemView {
                 .buttonStyle(.tintedMaterial(tint: .pink, foregroundColor: .primary))
                 .isSelected(isHeartSelected)
                 .frame(width: 100, height: 100)
+
+                // MARK: Add to Playlist
+
+                if canAddToPlaylist {
+                    Button(PlaylistL10n.addToPlaylist, systemImage: "rectangle.stack.badge.plus") {
+                        isPresentingPlaylistPicker = true
+                    }
+                    .buttonStyle(.tintedMaterial(tint: Color.watermelonRed, foregroundColor: .primary))
+                    .frame(width: 100, height: 100)
+                }
 
                 // MARK: Watch a Trailer
 
@@ -191,6 +216,11 @@ extension ItemView {
                     error = eventError
                 case .deleted:
                     router.dismiss()
+                }
+            }
+            .sheet(isPresented: $isPresentingPlaylistPicker) {
+                if let itemID = viewModel.item.id {
+                    PlaylistPickerView(itemID: itemID)
                 }
             }
             .errorMessage($error)

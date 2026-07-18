@@ -96,6 +96,8 @@ extension String {
             L10n.movies
         case "music video", "music videos":
             L10n.musicVideos
+        case "playlist", "playlists":
+            PlaylistL10n.playlists
         case "series", "show", "shows", "tv series", "tv show", "tv shows":
             L10n.series
         case "live tv", "livetv":

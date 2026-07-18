@@ -64,4 +64,24 @@ final class CollectionItemViewModel: ItemViewModel {
             .elements
             .randomElement()
     }
+
+    func removeFromPlaylist(_ entry: BaseItemDto) async throws {
+        guard item.type == .playlist,
+              let playlistID = item.id,
+              let entryID = entry.playlistItemID
+        else {
+            throw ErrorMessage(L10n.unknownError)
+        }
+
+        let session = try requireSession()
+        let request = Paths.removeItemFromPlaylist(
+            playlistID: playlistID,
+            entryIDs: [entryID]
+        )
+        _ = try await session.client.send(request)
+
+        await MainActor.run {
+            itemCollection.send(.refresh)
+        }
+    }
 }

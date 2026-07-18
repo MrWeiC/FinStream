@@ -23,6 +23,9 @@ extension ItemView {
         @ObservedObject
         var viewModel: CollectionItemViewModel
 
+        @State
+        private var error: Error?
+
         // MARK: - Episode Poster HStack
 
         private func episodeHStack(element: Element) -> some View {
@@ -91,6 +94,24 @@ extension ItemView {
                 }
 
                 ItemView.AboutView(viewModel: viewModel)
+            }
+            .contextMenu(for: BaseItemDto.self) { item in
+                if viewModel.item.type == .playlist, item.playlistItemID != nil {
+                    Button(PlaylistL10n.removeFromPlaylist, systemImage: "trash", role: .destructive) {
+                        removeFromPlaylist(item)
+                    }
+                }
+            }
+            .errorMessage($error)
+        }
+
+        private func removeFromPlaylist(_ item: BaseItemDto) {
+            Task {
+                do {
+                    try await viewModel.removeFromPlaylist(item)
+                } catch {
+                    self.error = error
+                }
             }
         }
     }

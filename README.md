@@ -28,8 +28,11 @@ This project focuses purely on the tvOS experience — no iOS, just Apple TV.
 - **Redesigned playback controls** — Clean layout in the bottom of the screen
 - **Native progress slider** — Pill-shaped playback scrubber
 - **Full-screen item views** — Proper detail views, not cards
+- **Native Jellyfin video playlists** — Browse playlists, create private lists, add videos, and remove playlist entries directly on the server
 - **Improved focus states** — Smooth scale animations on button focus
 - **MPV-based playback** — Wide codec and subtitle support for your media files
+
+Playlist membership is stored by Jellyfin. Watched status remains the signed-in user's normal Jellyfin item state, so the same movie has one consistent watched status across the library and every playlist.
 
 ---
 

@@ -9,9 +9,9 @@ For details on current library support and what is required for future expansion
 | Shows                | ✅         |
 | Collections          | 🟡         | Only video media in Collections are viewable. |
 | Movies               | ✅         | |
-| Playlists            | ❌         | Not supported. |
+| Playlists            | ✅         | Native Jellyfin video playlists can be browsed, created, and updated. Items can be added or removed on the server. |
 | Mixed      		   | ✅         | This library type is [officially deprecated](https://jellyfin.org/docs/general/server/media/mixed-movies-and-shows) by the Jellyfin server and [may be removed in the future](https://github.com/jellyfin/jellyfin-meta/discussions/46). |
-| Music                | ❌         | Not supported. Music would need to come after Playlist support as this is a common requirement. Music requires an Artist > Album > Song structure, different from other media. Additionally needs a lightweight, *(potentially native)* iOS player and a dedicated playback manager. |
+| Music                | ❌         | Not supported. Current playlist support is video-only. Music requires an Artist > Album > Song structure, a dedicated playback experience, and separate audio-playlist UI. |
 | Music Videos         | ✅         | |
 | Home Videos          | ✅         | |
 | Photos               | ❌         | Not supported. Viewing photos requires dedicated logic and potentially a photo view package. Current photo viewing packages are most geared towards posters. |

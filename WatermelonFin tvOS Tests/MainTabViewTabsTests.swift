@@ -136,4 +136,16 @@ final class MainTabViewTabsTests: XCTestCase {
         XCTAssertEqual(L10n.hiddenLibraries, "隐藏媒体库")
         XCTAssertEqual(L10n.noLibrariesFound, "未找到媒体库")
     }
+
+    func testDefaultPlaylistLibraryNameIsLocalized() {
+        let playlists = library(id: "playlists", name: "Playlists", collectionType: .playlists)
+
+        XCTAssertEqual(playlists.localizedCollectionDisplayTitle, PlaylistL10n.playlists)
+    }
+
+    func testCustomPlaylistLibraryNameIsPreserved() {
+        let familyPicks = library(id: "playlists", name: "Family Picks", collectionType: .playlists)
+
+        XCTAssertEqual(familyPicks.localizedCollectionDisplayTitle, "Family Picks")
+    }
 }

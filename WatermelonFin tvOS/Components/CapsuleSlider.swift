@@ -14,12 +14,14 @@ struct CapsuleSlider<Value: BinaryFloatingPoint>: View {
     private var value: Value
 
     private let total: Value
+    private let step: Value
     private var onEditingChanged: (Bool) -> Void
     private var onFocusChanged: (Bool) -> Void
 
-    init(value: Binding<Value>, total: Value) {
+    init(value: Binding<Value>, total: Value, step: Value = 1) {
         self._value = value
         self.total = total
+        self.step = step
         self.onEditingChanged = { _ in }
         self.onFocusChanged = { _ in }
     }
@@ -28,6 +30,7 @@ struct CapsuleSlider<Value: BinaryFloatingPoint>: View {
         SliderContainer(
             value: $value,
             total: total,
+            step: step,
             onEditingChanged: onEditingChanged,
             onFocusChanged: onFocusChanged
         ) {

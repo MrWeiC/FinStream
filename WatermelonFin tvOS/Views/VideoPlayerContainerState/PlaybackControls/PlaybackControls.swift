@@ -51,6 +51,8 @@ extension VideoPlayer {
         private var backwardResetTask: Task<Void, Never>?
         @State
         private var skipIndicatorResetTask: Task<Void, Never>?
+        @State
+        private var transportBarFocusRequest = 0
 
         private var isPresentingOverlay: Bool {
             containerState.isPresentingOverlay
@@ -122,33 +124,31 @@ extension VideoPlayer {
                 NavigationBar.ActionButtons.PlayPreviousItem()
 
                 // Progress display
-                PlaybackProgress()
+                PlaybackProgress(focusRequest: transportBarFocusRequest)
                     .frame(maxWidth: .infinity)
 
                 // Next episode button
                 NavigationBar.ActionButtons.PlayNextItem()
             }
-            .focusGuide(focusGuide, tag: "transportBar", top: "sideButtons")
+            .focusGuide(
+                focusGuide,
+                tag: "transportBar",
+                onContentFocus: {
+                    transportBarFocusRequest &+= 1
+                },
+                top: "sideButtons"
+            )
         }
 
         @ViewBuilder
         private var transportBar: some View {
             if !isPresentingSupplement {
-                VStack(spacing: 8) {
-                    transportBarContent
-                        .padding(.horizontal, 60)
-                        .padding(.vertical, 30)
-                        .background {
-                            TransportBarBackground()
-                        }
-
-                    // Skip explainer label
-                    Text(L10n.playbackSkipHint)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .padding(.horizontal, 60)
-                        .padding(.bottom, 20)
-                }
+                transportBarContent
+                    .padding(.horizontal, 60)
+                    .padding(.vertical, 30)
+                    .background {
+                        TransportBarBackground()
+                    }
             }
         }
 
@@ -204,7 +204,7 @@ extension VideoPlayer {
             .onChange(of: isPresentingOverlay) { _, isPresenting in
                 if isPresenting {
                     DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.skipIndicatorResetDelay) {
-                        focusGuide.transition(to: "sideButtons")
+                        focusGuide.transition(to: "transportBar")
                     }
                 }
             }

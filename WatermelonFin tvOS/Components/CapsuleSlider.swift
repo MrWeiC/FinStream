@@ -15,13 +15,15 @@ struct CapsuleSlider<Value: BinaryFloatingPoint>: View {
 
     private let total: Value
     private let step: Value
+    private let focusRequest: Int
     private var onEditingChanged: (Bool) -> Void
     private var onFocusChanged: (Bool) -> Void
 
-    init(value: Binding<Value>, total: Value, step: Value = 1) {
+    init(value: Binding<Value>, total: Value, step: Value = 1, focusRequest: Int = 0) {
         self._value = value
         self.total = total
         self.step = step
+        self.focusRequest = focusRequest
         self.onEditingChanged = { _ in }
         self.onFocusChanged = { _ in }
     }
@@ -31,6 +33,7 @@ struct CapsuleSlider<Value: BinaryFloatingPoint>: View {
             value: $value,
             total: total,
             step: step,
+            focusRequest: focusRequest,
             onEditingChanged: onEditingChanged,
             onFocusChanged: onFocusChanged
         ) {
@@ -55,20 +58,21 @@ private struct CapsuleSliderContent: SliderContentView {
     @EnvironmentObject
     var sliderState: SliderContainerState<Double>
 
-    /// Height: normal 8pt, focused 10pt, editing 12pt
+    /// The surrounding timeline card communicates focus; the track communicates
+    /// progress and becomes stronger only while actively scrubbing.
     private var barHeight: CGFloat {
         if sliderState.isEditing {
-            return 12
+            return 14
         }
         return sliderState.isFocused ? 10 : 8
     }
 
-    /// Scale: normal 1.0, focused 1.05, editing 1.08
+    /// Avoid making the track look like a second, competing focus ring.
     private var scaleEffect: CGFloat {
         if sliderState.isEditing {
-            return 1.08
+            return 1.02
         }
-        return sliderState.isFocused ? 1.05 : 1.0
+        return 1
     }
 
     var body: some View {
@@ -76,14 +80,27 @@ private struct CapsuleSliderContent: SliderContentView {
         ProgressView(value: sliderState.value, total: sliderState.total)
             .progressViewStyle(PlaybackProgressViewStyle(cornerStyle: .round))
             .frame(height: barHeight)
-            .overlay {
-                // Border when focused or editing
+            .overlay(alignment: .leading) {
                 if sliderState.isFocused || sliderState.isEditing {
-                    RoundedRectangle(cornerRadius: barHeight / 2)
-                        .stroke(
-                            sliderState.isEditing ? Color.white.opacity(0.6) : Color.white.opacity(0.3),
-                            lineWidth: sliderState.isEditing ? 2 : 1
+                    GeometryReader { geometry in
+                        let progress = sliderState.total > 0
+                            ? max(0, min(1, sliderState.value / sliderState.total))
+                            : 0
+                        let thumbSize: CGFloat = sliderState.isEditing ? 26 : 22
+                        let xOffset = max(
+                            0,
+                            min(
+                                geometry.size.width - thumbSize,
+                                geometry.size.width * CGFloat(progress) - thumbSize / 2
+                            )
                         )
+
+                        Circle()
+                            .fill(.white)
+                            .frame(width: thumbSize, height: thumbSize)
+                            .shadow(color: .black.opacity(0.45), radius: 4, y: 2)
+                            .offset(x: xOffset, y: (geometry.size.height - thumbSize) / 2)
+                    }
                 }
             }
             .shadow(

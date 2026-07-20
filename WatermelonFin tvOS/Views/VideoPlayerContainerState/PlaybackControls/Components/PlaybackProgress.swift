@@ -12,6 +12,8 @@ extension VideoPlayer.PlaybackControls {
 
     struct PlaybackProgress: View {
 
+        let focusRequest: Int
+
         @EnvironmentObject
         private var manager: MediaPlayerManager
 
@@ -20,6 +22,12 @@ extension VideoPlayer.PlaybackControls {
 
         @EnvironmentObject
         private var scrubbedSecondsBox: PublishedBox<Duration>
+
+        @State
+        private var isTimelineFocused = false
+
+        @State
+        private var isTimelineEditing = false
 
         private var scrubbedSeconds: Binding<Double> {
             Binding(
@@ -34,9 +42,11 @@ extension VideoPlayer.PlaybackControls {
                     CapsuleSlider(
                         value: scrubbedSeconds,
                         total: runtime.seconds,
-                        step: 15
+                        step: 15,
+                        focusRequest: focusRequest
                     )
                     .onEditingChanged { isEditing in
+                        isTimelineEditing = isEditing
                         containerState.isScrubbing = isEditing
 
                         if !isEditing {
@@ -46,6 +56,7 @@ extension VideoPlayer.PlaybackControls {
                         }
                     }
                     .onFocusChanged { isFocused in
+                        isTimelineFocused = isFocused
                         if isFocused {
                             containerState.timer.poke()
                         }
@@ -56,7 +67,28 @@ extension VideoPlayer.PlaybackControls {
                 // Timestamps
                 SplitTimeStamp()
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
             .frame(maxWidth: .infinity)
+            .background {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(.white.opacity(isTimelineFocused ? 0.12 : 0))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(
+                                .white.opacity(isTimelineFocused ? (isTimelineEditing ? 0.95 : 0.72) : 0),
+                                lineWidth: isTimelineEditing ? 4 : 3
+                            )
+                    }
+                    .shadow(
+                        color: .black.opacity(isTimelineFocused ? 0.45 : 0),
+                        radius: 14,
+                        y: 7
+                    )
+            }
+            .scaleEffect(isTimelineFocused ? 1.012 : 1)
+            .animation(.easeInOut(duration: 0.2), value: isTimelineFocused)
+            .animation(.easeInOut(duration: 0.15), value: isTimelineEditing)
         }
     }
 }

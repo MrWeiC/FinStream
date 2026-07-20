@@ -51,6 +51,20 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
                     proxy.setSubtitleStream(stream)
                 }
             }
+
+            guard shouldPersistSubtitleSelection else { return }
+
+            if let index = selectedSubtitleStreamIndex, index >= 0 {
+                Defaults[.VideoPlayer.Subtitle.isEnabled] = true
+
+                if let selectedStream = subtitleStreams.first(where: { $0.index == index }),
+                   let language = selectedStream.language
+                {
+                    Defaults[.VideoPlayer.Subtitle.preferredLanguage] = language
+                }
+            } else if selectedSubtitleStreamIndex == -1 {
+                Defaults[.VideoPlayer.Subtitle.isEnabled] = false
+            }
         }
     }
 
@@ -76,6 +90,8 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
     let videoStreams: [MediaStream]
 
     let requestedBitrate: PlaybackBitrate
+
+    private var shouldPersistSubtitleSelection = false
 
     var selectedSubtitleStream: MediaStream? {
         guard let selectedSubtitleStreamIndex, selectedSubtitleStreamIndex >= 0 else { return nil }
@@ -131,14 +147,25 @@ class MediaPlayerItem: ViewModel, MediaPlayerObserver {
             selectedAudioStreamIndex = audioStreams.first?.index
         }
 
-        if let defaultIndex = mediaSource.defaultSubtitleStreamIndex,
-           defaultIndex >= 0,
-           subtitleStreams.contains(where: { $0.index == defaultIndex })
+        let preferredSubtitleLanguage = Defaults[.VideoPlayer.Subtitle.preferredLanguage]
+
+        if !Defaults[.VideoPlayer.Subtitle.isEnabled] {
+            selectedSubtitleStreamIndex = -1
+        } else if preferredSubtitleLanguage.isNotEmpty,
+                  let preferredStream = subtitleStreams.first(where: {
+                      $0.language?.localizedCaseInsensitiveCompare(preferredSubtitleLanguage) == .orderedSame
+                  })
+        {
+            selectedSubtitleStreamIndex = preferredStream.index
+        } else if let defaultIndex = mediaSource.defaultSubtitleStreamIndex,
+                  defaultIndex >= 0,
+                  subtitleStreams.contains(where: { $0.index == defaultIndex })
         {
             selectedSubtitleStreamIndex = defaultIndex
         } else {
             selectedSubtitleStreamIndex = subtitleStreams.first?.index ?? -1
         }
+        shouldPersistSubtitleSelection = true
 
         observers.append(MediaProgressObserver(item: self))
     }

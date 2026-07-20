@@ -904,15 +904,29 @@ private final class MPVLayerRenderer {
             }
 
         case MPV_EVENT_END_FILE:
-            if let endFile = event.data?.assumingMemoryBound(to: mpv_event_end_file.self).pointee {
+            guard let endFile = event.data?.assumingMemoryBound(to: mpv_event_end_file.self).pointee else {
+                return
+            }
+
+            logger.info(
+                "MPV end file",
+                metadata: [
+                    "reason": "\(endFile.reason.rawValue)",
+                    "error": "\(endFile.error)",
+                    "errorMessage": "\(String(cString: mpv_error_string(Int32(endFile.error))))",
+                ]
+            )
+
+            // Replacing/stopping a file also emits END_FILE. Only EOF means the
+            // viewer naturally reached the end and autoplay may advance.
+            guard endFile.reason == MPV_END_FILE_REASON_EOF else {
                 logger.info(
-                    "MPV end file",
+                    "Ignoring non-EOF MPV end event",
                     metadata: [
                         "reason": "\(endFile.reason.rawValue)",
-                        "error": "\(endFile.error)",
-                        "errorMessage": "\(String(cString: mpv_error_string(Int32(endFile.error))))",
                     ]
                 )
+                return
             }
 
             guard !isStopping, isReadyToSeek else { return }

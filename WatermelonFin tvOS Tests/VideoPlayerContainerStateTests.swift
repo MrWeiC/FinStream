@@ -6,6 +6,10 @@
 // Copyright (c) 2026 Jellyfin & Jellyfin Contributors
 //
 
+import Combine
+import Defaults
+import JellyfinAPI
+import SwiftUI
 @testable import WatermelonFin_tvOS
 import XCTest
 
@@ -139,6 +143,19 @@ final class VideoPlayerContainerStateTests: XCTestCase {
         XCTAssertFalse(sut.isScrubbing)
     }
 
+    func testPausedOverlayAutoHidesAfterInactivity() async throws {
+        let manager = MediaPlayerManager(initialState: .playback)
+        sut = VideoPlayerContainerState(overlayAutoHideInterval: 0.01)
+        sut.manager = manager
+        sut.observePlaybackStatus()
+        await manager.setPlaybackRequestStatus(status: .paused)
+        sut.setOverlayVisible(true, animated: false)
+
+        try await Task.sleep(for: .milliseconds(50))
+
+        XCTAssertFalse(sut.isPresentingOverlay)
+    }
+
     // MARK: - Helper Method Tests
 
     func testSetOverlayVisibleTrue() {
@@ -167,5 +184,107 @@ final class VideoPlayerContainerStateTests: XCTestCase {
 
         sut.toggleOverlay()
         XCTAssertEqual(sut.overlayState, .hidden)
+    }
+}
+
+@MainActor
+final class MediaPlayerManagerAutoplayTests: XCTestCase {
+
+    private let testURL = URL(string: "https://example.com/video")!
+
+    func testNaturalEndAdvancesWhenLastProgressUpdateLagsRuntime() async {
+        let originalAutoplay = Defaults[.VideoPlayer.autoPlayEnabled]
+        let originalReporting = Defaults[.sendProgressReports]
+        defer {
+            Defaults[.VideoPlayer.autoPlayEnabled] = originalAutoplay
+            Defaults[.sendProgressReports] = originalReporting
+        }
+        Defaults[.VideoPlayer.autoPlayEnabled] = true
+        Defaults[.sendProgressReports] = false
+
+        let currentItem = makePlaybackItem(id: "episode-1", runtimeSeconds: 1800)
+        let nextItem = makePlaybackItem(id: "episode-2", runtimeSeconds: 1800)
+        let nextProvider = MediaPlayerItemProvider(item: nextItem.baseItem) { _ in nextItem }
+        let queue = AutoplayTestQueue(nextItem: nextProvider)
+        let manager = MediaPlayerManager(playbackItem: currentItem, queue: queue)
+        let proxy = AutoplayTestPlayerProxy()
+        manager.proxy = proxy
+
+        // The backend reached EOF, but the periodic position observer is still
+        // several seconds behind. This used to discard the only ended event.
+        manager.seconds = .seconds(1794)
+        await manager.ended()
+
+        XCTAssertEqual(manager.playbackItem?.baseItem.id, "episode-2")
+        XCTAssertEqual(manager.state, .playback)
+        XCTAssertEqual(proxy.stopCallCount, 0, "Replacing an episode must not tear down the player engine")
+    }
+
+    private func makePlaybackItem(id: String, runtimeSeconds: Int64) -> MediaPlayerItem {
+        var item = BaseItemDto()
+        item.id = id
+        item.type = .episode
+        item.runTimeTicks = Duration.seconds(runtimeSeconds).ticks
+
+        return MediaPlayerItem(
+            baseItem: item,
+            mediaSource: MediaSourceInfo(),
+            playSessionID: "test-session-\(id)",
+            url: testURL
+        )
+    }
+}
+
+@MainActor
+private final class AutoplayTestPlayerProxy: MediaPlayerProxy {
+
+    weak var manager: MediaPlayerManager?
+    let isBuffering = PublishedBox<Bool>(initialValue: false)
+    private(set) var stopCallCount = 0
+
+    func play() {}
+    func pause() {}
+    func stop() {
+        stopCallCount += 1
+    }
+
+    func jumpForward(_ seconds: Duration) {}
+    func jumpBackward(_ seconds: Duration) {}
+    func setRate(_ rate: Float) {}
+    func setSeconds(_ seconds: Duration) {}
+}
+
+@MainActor
+private final class AutoplayTestQueue: MediaPlayerQueue {
+
+    let displayTitle = "Autoplay test queue"
+    let id = "AutoplayTestQueue"
+
+    weak var manager: MediaPlayerManager?
+
+    @Published
+    var nextItem: MediaPlayerItemProvider?
+
+    @Published
+    var previousItem: MediaPlayerItemProvider?
+
+    @Published
+    var hasNextItem: Bool
+
+    @Published
+    var hasPreviousItem = false
+
+    lazy var hasNextItemPublisher: Published<Bool>.Publisher = $hasNextItem
+    lazy var hasPreviousItemPublisher: Published<Bool>.Publisher = $hasPreviousItem
+    lazy var nextItemPublisher: Published<MediaPlayerItemProvider?>.Publisher = $nextItem
+    lazy var previousItemPublisher: Published<MediaPlayerItemProvider?>.Publisher = $previousItem
+
+    init(nextItem: MediaPlayerItemProvider?) {
+        self.nextItem = nextItem
+        self.hasNextItem = nextItem != nil
+    }
+
+    var videoPlayerBody: some PlatformView {
+        AnyView(EmptyView())
     }
 }

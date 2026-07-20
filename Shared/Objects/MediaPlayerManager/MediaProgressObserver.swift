@@ -129,7 +129,6 @@ class MediaProgressObserver: ViewModel, MediaPlayerObserver {
                 info.mediaSourceID = item.mediaSource.id
                 info.playSessionID = item.playSessionID
                 info.positionTicks = seconds?.ticks
-                info.sessionID = item.playSessionID
                 info.subtitleStreamIndex = item.selectedSubtitleStreamIndex
 
                 let request = Paths.reportPlaybackStart(info)
@@ -162,11 +161,7 @@ class MediaProgressObserver: ViewModel, MediaPlayerObserver {
 
         Task {
             do {
-                var info = PlaybackStopInfo()
-                info.itemID = item.baseItem.id
-                info.mediaSourceID = item.mediaSource.id
-                info.positionTicks = seconds?.ticks
-                info.sessionID = item.playSessionID
+                let info = Self.playbackStopInfo(for: item, seconds: seconds)
 
                 let request = Paths.reportPlaybackStopped(info)
                 _ = try await userSession!.client.send(request)
@@ -174,6 +169,15 @@ class MediaProgressObserver: ViewModel, MediaPlayerObserver {
                 logger.error("Failed to send playback stop report: \(error.localizedDescription)")
             }
         }
+    }
+
+    static func playbackStopInfo(for item: MediaPlayerItem, seconds: Duration?) -> PlaybackStopInfo {
+        var info = PlaybackStopInfo()
+        info.itemID = item.baseItem.id
+        info.mediaSourceID = item.mediaSource.id
+        info.playSessionID = item.playSessionID
+        info.positionTicks = seconds?.ticks
+        return info
     }
 
     private func sendProgressReport(for item: MediaPlayerItem, seconds: Duration?, isPaused: Bool = false) {
@@ -191,7 +195,6 @@ class MediaProgressObserver: ViewModel, MediaPlayerObserver {
                 info.mediaSourceID = item.mediaSource.id
                 info.playSessionID = item.playSessionID
                 info.positionTicks = seconds?.ticks
-                info.sessionID = item.playSessionID
                 info.subtitleStreamIndex = item.selectedSubtitleStreamIndex
 
                 let request = Paths.reportPlaybackProgress(info)

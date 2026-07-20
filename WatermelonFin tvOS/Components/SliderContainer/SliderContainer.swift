@@ -13,6 +13,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
     private var value: Binding<Value>
     private let total: Value
     private let step: Value
+    private let focusRequest: Int
     private let onEditingChanged: (Bool) -> Void
     private let onFocusChanged: (Bool) -> Void
     private let view: AnyView
@@ -21,6 +22,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
         value: Binding<Value>,
         total: Value,
         step: Value = 1,
+        focusRequest: Int = 0,
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
         onFocusChanged: @escaping (Bool) -> Void = { _ in },
         @ViewBuilder view: @escaping () -> some SliderContentView
@@ -28,6 +30,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
         self.value = value
         self.total = total
         self.step = step
+        self.focusRequest = focusRequest
         self.onEditingChanged = onEditingChanged
         self.onFocusChanged = onFocusChanged
         self.view = AnyView(view())
@@ -37,6 +40,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
         value: Binding<Value>,
         total: Value,
         step: Value = 1,
+        focusRequest: Int = 0,
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
         onFocusChanged: @escaping (Bool) -> Void = { _ in },
         view: AnyView
@@ -44,6 +48,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
         self.value = value
         self.total = total
         self.step = step
+        self.focusRequest = focusRequest
         self.onEditingChanged = onEditingChanged
         self.onFocusChanged = onFocusChanged
         self.view = view
@@ -54,6 +59,7 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
             value: value,
             total: total,
             step: step,
+            focusRequest: focusRequest,
             onEditingChanged: onEditingChanged,
             onFocusChanged: onFocusChanged,
             view: view
@@ -61,6 +67,8 @@ struct SliderContainer<Value: BinaryFloatingPoint>: UIViewControllerRepresentabl
     }
 
     func updateUIViewController(_ uiViewController: UISliderContainerViewController<Value>, context: Context) {
+        uiViewController.handleFocusRequest(focusRequest)
+
         // Don't update value while user is actively scrubbing to prevent jumps
         guard !uiViewController.containerState.isEditing else { return }
         DispatchQueue.main.async {
@@ -80,6 +88,7 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
     private let step: Value
     private let valueBinding: Binding<Value>
     private let contentView: AnyView
+    private var lastFocusRequest: Int
 
     private lazy var sliderControl: UISliderControl<Value> = {
         let control = UISliderControl(
@@ -104,10 +113,15 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
         return controller
     }()
 
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        [sliderControl]
+    }
+
     init(
         value: Binding<Value>,
         total: Value,
         step: Value,
+        focusRequest: Int,
         onEditingChanged: @escaping (Bool) -> Void,
         onFocusChanged: @escaping (Bool) -> Void,
         view: AnyView
@@ -116,6 +130,7 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
         self.onFocusChanged = onFocusChanged
         self.total = total
         self.step = step
+        self.lastFocusRequest = focusRequest
         self.valueBinding = value
         self.contentView = view
         self.containerState = SliderContainerState(
@@ -125,6 +140,13 @@ final class UISliderContainerViewController<Value: BinaryFloatingPoint>: UIViewC
             total: total
         )
         super.init(nibName: nil, bundle: nil)
+    }
+
+    func handleFocusRequest(_ request: Int) {
+        guard request != lastFocusRequest else { return }
+        lastFocusRequest = request
+        setNeedsFocusUpdate()
+        updateFocusIfNeeded()
     }
 
     @available(*, unavailable)
@@ -223,8 +245,20 @@ final class UISliderControl<Value: BinaryFloatingPoint>: UIControl {
     private func setupGestures() {
         // Pan gesture for swipe-to-scrub
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        panGesture.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
+        panGesture.allowedTouchTypes = [
+            NSNumber(value: UITouch.TouchType.indirect.rawValue),
+            NSNumber(value: UITouch.TouchType.indirectPointer.rawValue),
+        ]
         addGestureRecognizer(panGesture)
+    }
+
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else { return true }
+        let velocity = panGesture.velocity(in: self)
+
+        // Vertical swipes belong to focus navigation. Treating them as scrubbing
+        // created an unnecessary second visual state after moving down to the timeline.
+        return abs(velocity.x) > abs(velocity.y)
     }
 
     // MARK: - Focus

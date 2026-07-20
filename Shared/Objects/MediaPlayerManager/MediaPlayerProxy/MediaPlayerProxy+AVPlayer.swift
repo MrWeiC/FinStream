@@ -36,6 +36,7 @@ class AVMediaPlayerProxy: VideoMediaPlayerProxy {
     private var timeObserver: Any!
     private var managerItemObserver: AnyCancellable?
     private var managerStateObserver: AnyCancellable?
+    private var playbackEndObserver: AnyCancellable?
     private var currentItemID: String?
 
     weak var manager: MediaPlayerManager? {
@@ -201,6 +202,7 @@ class AVMediaPlayerProxy: VideoMediaPlayerProxy {
         timeControlStatusObserver?.invalidate()
         managerItemObserver?.cancel()
         managerStateObserver?.cancel()
+        playbackEndObserver?.cancel()
     }
 }
 
@@ -226,6 +228,9 @@ extension AVMediaPlayerProxy {
             timeControlStatusObserver.invalidate()
             self.timeControlStatusObserver = nil
         }
+
+        playbackEndObserver?.cancel()
+        playbackEndObserver = nil
     }
 
     private func playNew(item: MediaPlayerItem) {
@@ -237,6 +242,17 @@ extension AVMediaPlayerProxy {
 
         let newAVPlayerItem = AVPlayerItem(url: item.url)
         newAVPlayerItem.externalMetadata = item.baseItem.avMetadata
+
+        playbackEndObserver?.cancel()
+        playbackEndObserver = NotificationCenter.default.publisher(
+            for: .AVPlayerItemDidPlayToEndTime,
+            object: newAVPlayerItem
+        )
+        .sink { [weak self] _ in
+            Task { @MainActor in
+                await self?.manager?.ended()
+            }
+        }
 
         player.replaceCurrentItem(with: newAVPlayerItem)
 

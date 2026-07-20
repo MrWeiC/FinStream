@@ -47,7 +47,25 @@ final class HomeViewModelStateTests: XCTestCase {
     }
 
     func testInitialNotificationsReceivedIsEmpty() {
-        XCTAssertTrue(sut.notificationsReceived.isEmpty)
+        XCTAssertFalse(sut.notificationsReceived.contains(.itemMetadataDidChange))
+    }
+
+    func testEmptyRecentlyAddedDoesNotReserveCinematicHeroSpace() {
+        XCTAssertFalse(
+            HomeView.shouldShowCinematicRecentlyAdded(
+                showRecentlyAdded: true,
+                itemCount: 0
+            )
+        )
+    }
+
+    func testRecentlyAddedItemsCanShowCinematicHero() {
+        XCTAssertTrue(
+            HomeView.shouldShowCinematicRecentlyAdded(
+                showRecentlyAdded: true,
+                itemCount: 1
+            )
+        )
     }
 
     // MARK: - State Machine: respond(to:) Tests

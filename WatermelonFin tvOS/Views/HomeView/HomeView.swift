@@ -13,6 +13,10 @@ import SwiftUI
 
 struct HomeView: View {
 
+    static func shouldShowCinematicRecentlyAdded(showRecentlyAdded: Bool, itemCount: Int) -> Bool {
+        showRecentlyAdded && itemCount > 0
+    }
+
     @Router
     private var router
 
@@ -35,7 +39,10 @@ struct HomeView: View {
                         RecentlyAddedView(viewModel: viewModel.recentlyAddedViewModel)
                     }
                 } else {
-                    if showRecentlyAdded {
+                    if Self.shouldShowCinematicRecentlyAdded(
+                        showRecentlyAdded: showRecentlyAdded,
+                        itemCount: viewModel.recentlyAddedViewModel.elements.count
+                    ) {
                         CinematicRecentlyAddedView(viewModel: viewModel.recentlyAddedViewModel)
                     }
 

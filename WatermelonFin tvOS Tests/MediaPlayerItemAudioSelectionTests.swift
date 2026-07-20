@@ -119,6 +119,15 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
     }
 
     func testSelectsFirstSubtitleWhenDefaultIsMissing() {
+        let originalEnabled = Defaults[.VideoPlayer.Subtitle.isEnabled]
+        let originalPreferredLanguage = Defaults[.VideoPlayer.Subtitle.preferredLanguage]
+        defer {
+            Defaults[.VideoPlayer.Subtitle.isEnabled] = originalEnabled
+            Defaults[.VideoPlayer.Subtitle.preferredLanguage] = originalPreferredLanguage
+        }
+        Defaults[.VideoPlayer.Subtitle.isEnabled] = true
+        Defaults[.VideoPlayer.Subtitle.preferredLanguage] = ""
+
         let mediaSource = makeMediaSource(
             defaultAudioStreamIndex: 1,
             defaultSubtitleStreamIndex: -1,
@@ -130,6 +139,73 @@ final class MediaPlayerItemAudioSelectionTests: XCTestCase {
         XCTAssertEqual(item.subtitleStreams.count, 2)
         XCTAssertNotNil(item.selectedSubtitleStreamIndex)
         XCTAssertEqual(item.selectedSubtitleStreamIndex, item.subtitleStreams.first?.index)
+    }
+
+    func testSelectsPreferredSubtitleLanguageOverServerDefault() {
+        let originalEnabled = Defaults[.VideoPlayer.Subtitle.isEnabled]
+        let originalPreferredLanguage = Defaults[.VideoPlayer.Subtitle.preferredLanguage]
+        defer {
+            Defaults[.VideoPlayer.Subtitle.isEnabled] = originalEnabled
+            Defaults[.VideoPlayer.Subtitle.preferredLanguage] = originalPreferredLanguage
+        }
+        Defaults[.VideoPlayer.Subtitle.isEnabled] = true
+        Defaults[.VideoPlayer.Subtitle.preferredLanguage] = "chi"
+
+        let mediaSource = makeMediaSource(
+            defaultAudioStreamIndex: 1,
+            defaultSubtitleStreamIndex: 2,
+            audioLanguages: ["eng"],
+            subtitleLanguages: ["eng", "chi"]
+        )
+        let item = makeItem(mediaSource: mediaSource)
+
+        XCTAssertEqual(item.selectedSubtitleStream?.language, "chi")
+    }
+
+    func testRemembersDisabledSubtitles() {
+        let originalEnabled = Defaults[.VideoPlayer.Subtitle.isEnabled]
+        let originalPreferredLanguage = Defaults[.VideoPlayer.Subtitle.preferredLanguage]
+        defer {
+            Defaults[.VideoPlayer.Subtitle.isEnabled] = originalEnabled
+            Defaults[.VideoPlayer.Subtitle.preferredLanguage] = originalPreferredLanguage
+        }
+        Defaults[.VideoPlayer.Subtitle.isEnabled] = false
+        Defaults[.VideoPlayer.Subtitle.preferredLanguage] = "chi"
+
+        let mediaSource = makeMediaSource(
+            defaultAudioStreamIndex: 1,
+            defaultSubtitleStreamIndex: 2,
+            audioLanguages: ["eng"],
+            subtitleLanguages: ["eng", "chi"]
+        )
+        let item = makeItem(mediaSource: mediaSource)
+
+        XCTAssertEqual(item.selectedSubtitleStreamIndex, -1)
+    }
+
+    func testChangingSubtitlePersistsItsLanguage() {
+        let originalEnabled = Defaults[.VideoPlayer.Subtitle.isEnabled]
+        let originalPreferredLanguage = Defaults[.VideoPlayer.Subtitle.preferredLanguage]
+        defer {
+            Defaults[.VideoPlayer.Subtitle.isEnabled] = originalEnabled
+            Defaults[.VideoPlayer.Subtitle.preferredLanguage] = originalPreferredLanguage
+        }
+        Defaults[.VideoPlayer.Subtitle.isEnabled] = true
+        Defaults[.VideoPlayer.Subtitle.preferredLanguage] = ""
+
+        let mediaSource = makeMediaSource(
+            defaultAudioStreamIndex: 1,
+            defaultSubtitleStreamIndex: 2,
+            audioLanguages: ["eng"],
+            subtitleLanguages: ["eng", "chi"]
+        )
+        let item = makeItem(mediaSource: mediaSource)
+        let chineseSubtitleIndex = item.subtitleStreams.first { $0.language == "chi" }?.index
+
+        item.selectedSubtitleStreamIndex = chineseSubtitleIndex
+
+        XCTAssertTrue(Defaults[.VideoPlayer.Subtitle.isEnabled])
+        XCTAssertEqual(Defaults[.VideoPlayer.Subtitle.preferredLanguage], "chi")
     }
 
     func testMapsSubtitleStreamIndexToNativeLegibleOptionIndex() {

@@ -267,6 +267,10 @@ extension Defaults.Keys {
         // TODO: transition into a SubtitleConfiguration instead of multiple types
         enum Subtitle {
 
+            /// Whether subtitles should be enabled when starting another video.
+            static let isEnabled: Key<Bool> = UserKey("preferredSubtitlesEnabled", default: true)
+            /// Preferred subtitle language code reported by Jellyfin (for example, "chi" or "eng").
+            static let preferredLanguage: Key<String> = UserKey("preferredSubtitleLanguage", default: "")
             static let subtitleColor: Key<Color> = UserKey("subtitleColor", default: .white)
             static let subtitleFontName: Key<String> = UserKey("subtitleFontName", default: UIFont.systemFont(ofSize: 14).fontName)
             static let subtitleSize: Key<Int> = UserKey("subtitleSize", default: 9)

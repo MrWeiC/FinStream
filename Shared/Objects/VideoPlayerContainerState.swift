@@ -221,7 +221,7 @@ class VideoPlayerContainerState: ObservableObject {
 
     let jumpProgressObserver: JumpProgressObserver = .init()
     let scrubbedSeconds: PublishedBox<Duration> = .init(initialValue: .zero)
-    let timer: PokeIntervalTimer = .init()
+    let timer: PokeIntervalTimer
     let toastProxy: ToastProxy = .init()
 
     weak var containerView: VideoPlayer.UIVideoPlayerContainerViewController?
@@ -241,12 +241,13 @@ class VideoPlayerContainerState: ObservableObject {
 
     // MARK: - Initialization
 
-    init() {
+    init(overlayAutoHideInterval: TimeInterval = 5) {
+        timer = PokeIntervalTimer(defaultInterval: overlayAutoHideInterval)
+
         timerCancellable = timer.sink { [weak self] in
             guard let self else { return }
             guard scrubState == .idle,
-                  supplementState == .closed,
-                  manager?.playbackRequestStatus != .paused
+                  supplementState == .closed
             else { return }
 
             withAnimation(.linear(duration: 0.25)) {
@@ -273,13 +274,13 @@ class VideoPlayerContainerState: ObservableObject {
                 guard let self else { return }
 
                 if status == .paused {
-                    // When paused, show overlay and stop timer
+                    // Pausing shows the controls, but inactivity still hides them.
                     if self.overlayState != .visible && !self.isGestureLocked {
                         withAnimation(.linear(duration: 0.25)) {
                             self.overlayState = .visible
                         }
                     }
-                    self.timer.stop()
+                    self.timer.poke()
                 } else if status == .playing {
                     // When playing, start the auto-hide timer
                     if self.overlayState == .visible && self.supplementState == .closed {

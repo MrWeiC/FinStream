@@ -161,6 +161,9 @@ struct MediaView: View {
         .onChange(of: showFavorites) {
             viewModel.refresh()
         }
+        .onReceive(Notifications[.itemShouldRefreshMetadata].publisher) { _ in
+            viewModel.invalidateCardDataCache()
+        }
         .if(UIDevice.isTV) { view in
             if hidesNavigationBarOnTV {
                 view.toolbar(.hidden, for: .navigationBar)

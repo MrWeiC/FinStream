@@ -234,44 +234,15 @@ final class MediaPlayerManager: ViewModel {
             return
         }
 
-        // Ended should represent natural ending of playback, which
-        // is verifiable by given seconds being near item runtime.
-        // Player backends can send ended early.
+        // Player backends only send `ended` for a natural end-of-file. Do not
+        // compare the last periodically reported position with Jellyfin's runtime:
+        // position updates can lag the EOF event and container duration can differ
+        // slightly from metadata, causing the one EOF event to be discarded.
 
-        // For live streams, ignore ended events (should be filtered by proxy, but defensive)
+        // Live streams should not naturally end (defensive check).
         if item.isLiveStream {
             logger.trace("Ignoring ended event for live stream")
             return
-        }
-
-        // If runtime is available, verify this is a natural ending (near end of content).
-        // Player backends can send ended early, so we need to verify.
-        if let runtime = item.runtime {
-            let isNearEnd = (runtime - seconds) <= .seconds(1)
-
-            guard isNearEnd else {
-                // If not near end, this is likely a spurious ended event - ignore it
-                logger.trace(
-                    "Ignoring ended event - not near end of content",
-                    metadata: [
-                        "currentSeconds": .stringConvertible(seconds.seconds),
-                        "runtime": .stringConvertible(runtime.seconds),
-                        "delta": .stringConvertible((runtime - seconds).seconds),
-                    ]
-                )
-                return
-            }
-        } else {
-            // No runtime metadata available (rare, but possible for malformed items)
-            // Log a warning but proceed with queue/stop logic
-            logger.warning(
-                "Ended event for item without runtime metadata",
-                metadata: [
-                    "itemID": .stringConvertible(item.id ?? "nil"),
-                    "itemTitle": .stringConvertible(item.displayTitle),
-                    "itemType": .stringConvertible(item.type?.rawValue ?? "unknown"),
-                ]
-            )
         }
 
         // Attempt to play next item in queue if autoplay is enabled
@@ -320,7 +291,10 @@ final class MediaPlayerManager: ViewModel {
     private func _playNewItem(_ provider: MediaPlayerItemProvider) async throws {
         item = provider.item
         setSupplements()
-        proxy?.stop()
+        // Do not stop the playback session when replacing an item. AVPlayer
+        // replaces its current item, while MPV uses `loadfile replace` on the
+        // existing engine. `stop()` tears down the MPV engine and is reserved
+        // for leaving playback entirely.
         playbackItem = try await provider()
     }
 
